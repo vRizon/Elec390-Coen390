@@ -27,4 +27,8 @@ Experience: Hardware experience and Arduino Programming.
 
 Experience: Hardware design, C / C++ / Java experience, Machine learning with healthcare.
 
+6. Rishit Mittal, 40195805, Computer Engineer
+
+Experience: Hardware Experience, C/C++, Java, Python, Image Processing and Object Detection, Node Red.
+
 Our idea: We want to create an app that detects skin cancers (mainly melanoma), using an app and an external sensor kit. The app will be used to input the users meta data such as age and sex, wheras the sensor kit for now will be used to take a high quality photo of the patients skin and a temperature reader to check for a fever.
