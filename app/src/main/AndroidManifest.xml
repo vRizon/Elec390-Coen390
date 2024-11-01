@@ -23,13 +23,17 @@
         </activity>
 
         <activity
-            android:name=".homeActivity"
-            android:exported="true">
-        </activity>
+            android:name=".HomeActivity"
+            android:exported="true"/>
         <activity
-            android:name=".screeningActivity"
-            android:exported="true">
-        </activity>
+            android:name=".ScreeningActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true" />
 
     </application>
 

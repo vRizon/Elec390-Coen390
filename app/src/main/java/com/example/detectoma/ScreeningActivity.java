@@ -7,7 +7,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class screeningActivity extends AppCompatActivity {
+public class ScreeningActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +40,7 @@ public class screeningActivity extends AppCompatActivity {
     }
 
     private void navigateToHome() {
-        Intent intent = new Intent(screeningActivity.this, homeActivity.class);
+        Intent intent = new Intent(ScreeningActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
     }

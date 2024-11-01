@@ -6,12 +6,12 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class homeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity {
     private Button startScreeningButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.home_activity);
+        setContentView(R.layout.activity_home);
 
         startScreeningButton = findViewById(R.id.startScreeningButton);
 
@@ -23,7 +23,7 @@ public class homeActivity extends AppCompatActivity {
 
 
         startScreeningButton.setOnClickListener(v -> {
-            Intent intent = new Intent(homeActivity.this, screeningActivity.class);
+            Intent intent = new Intent(HomeActivity.this, ScreeningActivity.class);
             startActivity(intent);
         });
     }
@@ -43,7 +43,7 @@ public class homeActivity extends AppCompatActivity {
     }
 
     private void navigateToLogin() {
-        Intent intent = new Intent(homeActivity.this, MainActivity.class);
+        Intent intent = new Intent(HomeActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
     }
