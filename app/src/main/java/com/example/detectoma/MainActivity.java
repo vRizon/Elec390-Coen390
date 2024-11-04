@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (!username.matches("[a-zA-Z0-9]*")) {
+        if (!username.matches("[a-zA-Z0-9@._-]+")) {
             Toast.makeText(this, "Username can only contain letters and numbers", Toast.LENGTH_SHORT).show();
             return;
         }

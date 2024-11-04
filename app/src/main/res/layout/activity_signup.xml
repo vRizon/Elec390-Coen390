@@ -62,6 +62,7 @@
             android:weightSum="2">
 
             <EditText
+                android:id="@+id/firstNameEditText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -78,6 +79,7 @@
                 android:layout_height="match_parent" />
 
             <EditText
+                android:id="@+id/lastNameEditText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -89,6 +91,7 @@
 
         <!-- Date of Birth -->
         <EditText
+            android:id="@+id/dobEditText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
@@ -100,6 +103,7 @@
 
         <!-- Email -->
         <EditText
+            android:id="@+id/emailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -110,6 +114,7 @@
 
         <!-- Password -->
         <EditText
+            android:id="@+id/passwordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
