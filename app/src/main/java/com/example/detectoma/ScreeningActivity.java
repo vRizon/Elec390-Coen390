@@ -2,12 +2,16 @@ package com.example.detectoma;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 public class ScreeningActivity extends AppCompatActivity {
+
+    Button UploadImageButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,13 +26,18 @@ public class ScreeningActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Screening");
         }
 
+        UploadImageButton = findViewById(R.id.uploadImageButton);
+        UploadImageButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ScreeningActivity.this, ScreeningMlActivity.class);
+            startActivity(intent);
+        });
+
         TextView screeningTextView = findViewById(R.id.screeningTextView);
         screeningTextView.setText("Please upload pictures from the device");
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-
         navigateToHome();
         return true;
     }
