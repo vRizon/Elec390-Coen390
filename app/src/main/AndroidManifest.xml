@@ -12,9 +12,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Detectoma"
         tools:targetApi="31">
+<!--        <activity-->
+<!--            android:name=".HealthcareProvider_ProfileActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".MainActivity"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
 
-        <activity
-            android:name=".MainActivity"
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+        <activity android:name=".HealthcareProvider_ProfileActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,20 +33,21 @@
             </intent-filter>
         </activity>
 
+
+
         <activity
             android:name=".HomeActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".ScreeningActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".ProfileActivity"
             android:exported="true" />
         <activity
             android:name=".SignUpActivity"
-            android:parentActivityName=".MainActivity"
-            android:exported="true" />
-
+            android:exported="true"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>
