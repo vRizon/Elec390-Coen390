@@ -1,3 +1,5 @@
+// Showing the trial demo
+
 package com.example.detectoma;
 
 import android.content.Intent;
