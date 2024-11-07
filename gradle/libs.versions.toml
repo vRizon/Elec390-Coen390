@@ -11,6 +11,8 @@ firebaseAuth = "23.1.0"
 imageLabeling = "17.0.9"
 firebaseStorage = "21.0.1"
 glide = "5.0.0-rc01"
+firebaseMlModeldownloader = "25.0.1"
+imageLabelingCustomCommon = "17.0.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -24,6 +26,8 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 image-labeling = { group = "com.google.mlkit", name = "image-labeling", version.ref = "imageLabeling" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+firebase-ml-modeldownloader = { group = "com.google.firebase", name = "firebase-ml-modeldownloader", version.ref = "firebaseMlModeldownloader" }
+image-labeling-custom-common = { group = "com.google.mlkit", name = "image-labeling-custom-common", version.ref = "imageLabelingCustomCommon" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

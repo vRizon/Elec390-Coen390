@@ -43,6 +43,8 @@ dependencies {
     implementation(libs.image.labeling)
     implementation(libs.firebase.storage)
     implementation(libs.glide)
+    implementation(libs.firebase.ml.modeldownloader)
+    implementation(libs.image.labeling.custom.common)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -51,5 +53,6 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-analytics")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
+
 }
 apply(plugin = "com.google.gms.google-services")
