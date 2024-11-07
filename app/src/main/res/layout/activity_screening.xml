@@ -1,76 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/background_image"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:layout_constraintHorizontal_bias="0.0" />
-
-
-    <TextView
-        android:id="@+id/screeningTextView"
-        android:layout_width="244dp"
-        android:layout_height="30dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:text="Please upload pictures from the device"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.095"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
-    <TextView
-        android:id="@+id/temperatureTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Temperature: "
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.053"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/screeningTextView" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/imagesRecyclerView"
-        android:layout_width="408dp"
-        android:layout_height="512dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:scrollbars="vertical"
-        app:layout_constraintBottom_toTopOf="@id/uploadImageButton"
+    <LinearLayout
+        android:id="@+id/topMenuBar"
+        android:layout_width="386dp"
+        android:layout_height="98dp"
+        android:background="@color/darkGreen"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/temperatureTextView"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
 
     <Button
-        android:id="@+id/uploadImageButton"
-        android:layout_width="296dp"
-        android:layout_height="53dp"
-        android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/green"
+        android:id="@+id/userDataButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/darkGreen"
         android:radius="10dp"
-        android:text="Upload Image"
+        android:text="User Data"
         android:textSize="16sp"
         app:cornerRadius="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/userDataCheckBox"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="128dp" />
+
+    <CheckBox
+        android:id="@+id/userDataCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        app:layout_constraintTop_toTopOf="@id/userDataButton"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/takePhotoButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Take Photo"
+        android:enabled="false"
+        app:layout_constraintTop_toBottomOf="@id/userDataButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/takePhotoCheckBox"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/darkGreen"
+        android:radius="10dp"
+        android:textSize="16sp"
+        app:cornerRadius="10dp"
+
+        />
+
+    <CheckBox
+        android:id="@+id/takePhotoCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        app:layout_constraintTop_toTopOf="@id/takePhotoButton"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/takeTempButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Take Temperature"
+        android:enabled="false"
+        app:layout_constraintTop_toBottomOf="@id/takePhotoButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/takeTempCheckBox"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/darkGreen"
+        android:radius="10dp"
+        android:textSize="16sp"
+        app:cornerRadius="10dp"
+        />
+
+    <CheckBox
+        android:id="@+id/takeTempCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        app:layout_constraintTop_toTopOf="@id/takeTempButton"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/takeDistButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Take Distance"
+        android:enabled="false"
+        app:layout_constraintTop_toBottomOf="@id/takeTempButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/takeDistCheckBox"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/darkGreen"
+        android:radius="10dp"
+        android:textSize="16sp"
+        app:cornerRadius="10dp"
+        />
+
+    <CheckBox
+        android:id="@+id/takeDistCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        app:layout_constraintTop_toTopOf="@id/takeDistButton"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <Button
+        android:id="@+id/analyzeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Analyze"
+        android:enabled="false"
+        app:layout_constraintTop_toBottomOf="@id/takeDistButton"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/darkGreen"
+        android:radius="10dp"
+        android:textSize="16sp"
+        app:cornerRadius="10dp"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

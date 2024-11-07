@@ -129,7 +129,6 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:backgroundTint="@color/darkGreen"
-
             android:radius="10dp"
             android:text="Sign Up"
             android:textSize="16sp"
