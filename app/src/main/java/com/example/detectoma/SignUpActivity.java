@@ -12,13 +12,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.DialogFragment;
 
 import java.util.Objects;
 
 public class SignUpActivity extends AppCompatActivity {
     Button btnSignUp;
 
-    @SuppressLint("MissingInflatedId")
+    Button dateOfBirth;
+
+    @SuppressLint({"MissingInflatedId", "WrongViewCast"})
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -47,6 +50,28 @@ public class SignUpActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
+        //
+        dateOfBirth = findViewById(R.id.dateOfBirth);
+        dateOfBirth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePickerDialog();
+            }
+        });
+
+
+    }
+
+
+    //show date Picker Dialog
+    public void showDatePickerDialog(){
+
+        DialogFragment newFragment = new DatePickerDialog();
+
+        newFragment.show(getSupportFragmentManager(),"DatePicker");
+
     }
 
 
