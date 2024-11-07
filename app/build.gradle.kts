@@ -37,6 +37,7 @@ android {
 dependencies {
 
     implementation(libs.appcompat)
+
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
@@ -46,10 +47,13 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.support)
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-    implementation("com.google.firebase:firebase-auth:23.1.0")
+    implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-analytics")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-ml-modeldownloader")
 }
 apply(plugin = "com.google.gms.google-services")
