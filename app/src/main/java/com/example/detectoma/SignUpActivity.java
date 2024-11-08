@@ -1,6 +1,8 @@
 package com.example.detectoma;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -25,6 +27,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("profiles");
+
 
         firstNameEditText = findViewById(R.id.firstNameEditText);
         lastNameEditText = findViewById(R.id.lastNameEditText);
@@ -60,6 +63,8 @@ public class SignUpActivity extends AppCompatActivity {
                         if (user != null) {
                             String userUID = user.getUid();
                             saveUserProfile(userUID, firstName, lastName, dob);
+                            sendUserUIDToDatabase(user.getUid());
+                            navigateToHome();
                         }
                     } else {
                         Toast.makeText(SignUpActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
@@ -79,5 +84,22 @@ public class SignUpActivity extends AppCompatActivity {
                         Toast.makeText(SignUpActivity.this, "Failed to create user profile", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+    private void sendUserUIDToDatabase(String uid) {
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+        rootRef.child("temp").setValue(uid)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("DatabaseUpdate", "UID successfully written to Firebase Database");
+                    } else {
+                        Log.e("DatabaseUpdate", "Failed to write UID to Firebase Database", task.getException());
+                    }
+                });
+    }
+
+    private void navigateToHome() {
+        Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+        startActivity(intent);
+        finish();  // Close the sign-up activity
     }
 }
