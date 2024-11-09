@@ -7,27 +7,27 @@ We have access to this through both kaggle and an IEEE member.
 
 Team members:
 
-1. Valeriia Nikandrova, 40157880. Computer Engineer
+1. Valeriia Nikandrova, 40157880. Computer Engineering
 
 Experience: front-end web development and design, node js, sql, c++, java, javascript, python.
 
-2. Luke Bissonnette 40242287. Computer Engineer
+2. Luke Bissonnette 40242287. Computer Engineering
 
 Experience: basic web design & databases, hardware experience, agile methodology.
 
-3. Yara Stouhi, 40166845. Computer Engineer
+3. Yara Stouhi, 40166845. Computer Engineering
 
 Experience: programming experience (Python, Java, C, C++), working with open/closed source LLMs in various projects.
 
-4. Kaden Perelmiter, 40246433. Electrical Engineer
+4. Kaden Perelmiter, 40246433. Electrical Engineering
 
 Experience: Hardware experience and Arduino Programming.
 
-5. Mohammad Sharafat, 40209284. Electrical Engineer
+5. Mohammad Sharafat, 40209284. Electrical Engineering
 
 Experience: Hardware design, C / C++ / Java experience, Machine learning with healthcare.
 
-6. Rishit Mittal, 40195805, Computer Engineer
+6. Rishit Mittal, 40195805, Computer Engineering
 
 Experience: Hardware Experience, C/C++, Java, Python, Image Processing and Object Detection, Node Red.
 
