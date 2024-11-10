@@ -4,12 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
-public class ScreeningActivity extends AppCompatActivity {
+public class ScreeningActivity extends AppCompatActivity implements UserDataDialogFragment.UserDataListener {
 
     private Button userDataButton, takePhotoButton, takeTempButton, takeDistButton, analyzeButton;
     private CheckBox userDataCheckBox, takePhotoCheckBox, takeTempCheckBox, takeDistCheckBox;
@@ -19,17 +17,20 @@ public class ScreeningActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screening);
 
+        // Initialize buttons
         userDataButton = findViewById(R.id.userDataButton);
         takePhotoButton = findViewById(R.id.takePhotoButton);
         takeTempButton = findViewById(R.id.takeTempButton);
         takeDistButton = findViewById(R.id.takeDistButton);
         analyzeButton = findViewById(R.id.analyzeButton);
 
+        // Initialize checkboxes
         userDataCheckBox = findViewById(R.id.userDataCheckBox);
         takePhotoCheckBox = findViewById(R.id.takePhotoCheckBox);
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
 
+        // Set click listeners for buttons
         userDataButton.setOnClickListener(v -> openUserDataDialog());
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTempDialog());
@@ -37,10 +38,12 @@ public class ScreeningActivity extends AppCompatActivity {
 
         analyzeButton.setOnClickListener(v -> openResultsActivity());
 
+        // Update the initial button states
         updateButtonState();
     }
 
     private void updateButtonState() {
+        // Enable the next button only if the previous task is complete
         takePhotoButton.setEnabled(userDataCheckBox.isChecked());
         takeTempButton.setEnabled(takePhotoCheckBox.isChecked());
         takeDistButton.setEnabled(takeTempCheckBox.isChecked());
@@ -49,29 +52,32 @@ public class ScreeningActivity extends AppCompatActivity {
     }
 
     private void openUserDataDialog() {
-        // Open a DialogFragment to gather user data
-        // Once completed:
+        // Show the dialog to collect user data
+        UserDataDialogFragment dialog = new UserDataDialogFragment();
+        dialog.show(getSupportFragmentManager(), "UserDataDialog");
+    }
+
+    @Override
+    public void onUserDataCompleted() {
+        // Mark the checkbox as completed and update the button state
         userDataCheckBox.setChecked(true);
         updateButtonState();
     }
 
     private void openTakePhotoActivity() {
-        // Open an Activity to take a photo
-        // Once completed:
+        // Simulate completion of photo-taking activity
         takePhotoCheckBox.setChecked(true);
         updateButtonState();
     }
 
     private void openTakeTempDialog() {
-        // Open a DialogFragment to take temperature
-        // Once completed:
+        // Simulate completion of temperature-taking activity
         takeTempCheckBox.setChecked(true);
         updateButtonState();
     }
 
     private void openTakeDietDialog() {
-        // Open a DialogFragment to enter diet information
-        // Once completed:
+        // Simulate completion of diet-taking activity
         takeDistCheckBox.setChecked(true);
         updateButtonState();
     }
