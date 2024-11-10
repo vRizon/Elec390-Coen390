@@ -1,7 +1,9 @@
 package com.example.detectoma;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -25,7 +27,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private EditText firstNameEditText, lastNameEditText, dobEditText, emailEditText, passwordEditText;
 
-    @Override
+
     Button dateOfBirth;
 
     @SuppressLint({"MissingInflatedId", "WrongViewCast"})
@@ -51,13 +53,13 @@ public class SignUpActivity extends AppCompatActivity {
 
 
         //
-        dateOfBirth = findViewById(R.id.dateOfBirth);
-        dateOfBirth.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDatePickerDialog();
-            }
-        });
+//        dateOfBirth = findViewById(R.id.dateOfBirth);
+//        dateOfBirth.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                showDatePickerDialog();
+//            }
+//        });
 
 
     }

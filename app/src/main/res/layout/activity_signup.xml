@@ -91,32 +91,22 @@
         </LinearLayout>
 
         <!-- Date of Birth -->
-        <Button
-            android:id="@+id/dateOfBirth"
-            android:layout_width="152dp"
-            android:layout_height="wrap_content"
-            android:text="Date of Birth"
-            android:textStyle="normal"
-            android:gravity="start"
-            android:padding="12dp"
-            android:paddingStart="16dp"
 
+
+        <EditText
+            android:id="@+id/dobEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_marginBottom="12dp"
-
-
-            android:backgroundTint="@color/darkGreen"
-
-            android:radius="10dp"
-            android:textSize="16sp"
-            app:cornerRadius="10dp"
-
-
-
-
-            />
+            android:background="@drawable/customeditbox"
+            android:hint="Date of Birth"
+            android:inputType="date"
+            android:padding="12dp" />
 
         <!-- Email -->
+
+
         <EditText
             android:id="@+id/emailEditText"
             android:layout_width="match_parent"
