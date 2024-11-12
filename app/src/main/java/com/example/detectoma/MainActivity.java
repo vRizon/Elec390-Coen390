@@ -4,11 +4,14 @@ package com.example.detectoma;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     private Button loginButton;
     private Button signUpButton;
     private FirebaseAuth mAuth;
+    private DatabaseReference databaseReference;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +31,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
+
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        //sending signed in userUID to RTDB
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            sendUserUIDToDatabase(currentUser.getUid());
+        }
 
         usernameEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
@@ -74,6 +87,17 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Authentication failed. Please check your credentials.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void sendUserUIDToDatabase(String uid){
+        databaseReference.child("temp").setValue(uid)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        Log.d("DatabaseUpdate", "UID successfully written to Firebase Database");
+                    } else {
+                        Log.e("DatabaseUpdate", "Failed to write UID to Firebase Database", task.getException());
+                    }
+
+                });
     }
 
     private void navigateToSignUp() {
