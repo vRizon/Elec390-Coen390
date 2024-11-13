@@ -12,8 +12,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="DT\nDetectoma"
+        android:layout_marginStart="48dp"
 
+        android:text="DT\nDetectoma"
         android:textColor="#FFF"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -90,6 +91,8 @@
         </LinearLayout>
 
         <!-- Date of Birth -->
+
+
         <EditText
             android:id="@+id/dobEditText"
             android:layout_width="wrap_content"
@@ -102,6 +105,8 @@
             android:padding="12dp" />
 
         <!-- Email -->
+
+
         <EditText
             android:id="@+id/emailEditText"
             android:layout_width="match_parent"
@@ -142,7 +147,6 @@
         android:id="@+id/toolbar_signup"
         android:layout_width="409dp"
         android:layout_height="wrap_content"
-        android:background="?android:attr/windowSplashScreenBackground"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"

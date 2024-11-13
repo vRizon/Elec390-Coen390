@@ -1,9 +1,14 @@
 package com.example.detectoma;
 
+
+import android.annotation.SuppressLint;
+
 import android.content.Intent;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -12,6 +17,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.DialogFragment;
+
+import java.util.Objects;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -20,7 +32,10 @@ public class SignUpActivity extends AppCompatActivity {
 
     private EditText firstNameEditText, lastNameEditText, dobEditText, emailEditText, passwordEditText;
 
-    @Override
+
+    Button dateOfBirth;
+
+    @SuppressLint({"MissingInflatedId", "WrongViewCast"})
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
@@ -41,6 +56,28 @@ public class SignUpActivity extends AppCompatActivity {
                 registerUser();
             }
         });
+
+
+        //
+//        dateOfBirth = findViewById(R.id.dateOfBirth);
+//        dateOfBirth.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                showDatePickerDialog();
+//            }
+//        });
+
+
+    }
+
+
+    //show date Picker Dialog
+    public void showDatePickerDialog(){
+
+        DialogFragment newFragment = new DatePickerDialog();
+
+        newFragment.show(getSupportFragmentManager(),"DatePicker");
+
     }
 
     private void registerUser() {
