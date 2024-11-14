@@ -65,13 +65,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Check if email exists in Firebase Authentication
+        // Check if email exists in Firebase Authentication
         mAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                // Login successful, navigate to HomeActivity
-                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                startActivity(intent);
-                Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
-                finish();
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null && user.getEmail().equals("val.nikandrova2000@gmail.com")) {
+                    // If the logged-in user is the doctor, navigate to HealthcareProviderProfileActivity
+                    Intent intent = new Intent(MainActivity.this, HealthcareProvider_ProfileActivity.class);
+                    startActivity(intent);
+                    finish();
+                    Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
+                } else {
+                    // If the logged-in user is not the doctor, navigate to HomeActivity or handle as necessary
+                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                    Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 // Login failed, show error message
                 Toast.makeText(MainActivity.this, "Authentication failed. Please check your credentials.", Toast.LENGTH_SHORT).show();
