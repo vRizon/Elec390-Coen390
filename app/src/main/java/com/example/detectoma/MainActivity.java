@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Check if email exists in Firebase Authentication
-        // Check if email exists in Firebase Authentication
         mAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 FirebaseUser user = mAuth.getCurrentUser();
