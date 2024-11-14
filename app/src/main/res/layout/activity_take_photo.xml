@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Instructions TextView -->
+    <TextView
+        android:id="@+id/instructionsTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please position the camera carefully and ensure proper lighting to capture a clear image."
+        android:textSize="16sp"
+        android:textAlignment="center"
+        android:paddingBottom="20dp" />
+
+    <!-- Upload Photo Button -->
+    <Button
+        android:id="@+id/uploadPhotoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Upload Photo"
+        android:layout_gravity="center_horizontal"
+        android:padding="16dp"
+        android:minHeight="48dp"
+        android:backgroundTint="@color/darkGreen"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>

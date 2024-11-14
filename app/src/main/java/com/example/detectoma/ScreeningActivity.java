@@ -6,9 +6,15 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class ScreeningActivity extends AppCompatActivity implements UserDataDialogFragment.UserDataListener {
+public class ScreeningActivity extends AppCompatActivity {
+
+    private static final int USER_DATA_REQUEST_CODE = 1;
+    private static final int TAKE_PHOTO_REQUEST_CODE = 2;
+    private static final int TAKE_TEMPERATURE_REQUEST_CODE = 3;
+    private static final int TAKE_DISTANCE_REQUEST_CODE = 4;
 
     private Button userDataButton, takePhotoButton, takeTempButton, takeDistButton, analyzeButton;
     private CheckBox userDataCheckBox, takePhotoCheckBox, takeTempCheckBox, takeDistCheckBox;
@@ -18,77 +24,74 @@ public class ScreeningActivity extends AppCompatActivity implements UserDataDial
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screening);
 
-        // Initialize buttons
+        // Initialize buttons and checkboxes
         userDataButton = findViewById(R.id.userDataButton);
         takePhotoButton = findViewById(R.id.takePhotoButton);
         takeTempButton = findViewById(R.id.takeTempButton);
         takeDistButton = findViewById(R.id.takeDistButton);
         analyzeButton = findViewById(R.id.analyzeButton);
-
-        // Initialize checkboxes
         userDataCheckBox = findViewById(R.id.userDataCheckBox);
         takePhotoCheckBox = findViewById(R.id.takePhotoCheckBox);
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
 
-        // Set click listeners for buttons
-        userDataButton.setOnClickListener(v -> openUserDataDialog());
+        userDataButton.setOnClickListener(v -> openUserDataActivity());
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
-        takeTempButton.setOnClickListener(v -> openTakeTempDialog());
-        takeDistButton.setOnClickListener(v -> openTakeDietDialog());
-
+        takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
+        takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
         analyzeButton.setOnClickListener(v -> openResultsActivity());
 
-        // Update the initial button states
         updateButtonState();
     }
 
     private void updateButtonState() {
-        // Enable the next button only if the previous task is complete
         takePhotoButton.setEnabled(userDataCheckBox.isChecked());
         takeTempButton.setEnabled(takePhotoCheckBox.isChecked());
         takeDistButton.setEnabled(takeTempCheckBox.isChecked());
-        analyzeButton.setEnabled(userDataCheckBox.isChecked() && takePhotoCheckBox.isChecked() &&
-                takeTempCheckBox.isChecked() && takeDistCheckBox.isChecked());
+        analyzeButton.setEnabled(userDataCheckBox.isChecked() && takePhotoCheckBox.isChecked()
+                && takeTempCheckBox.isChecked() && takeDistCheckBox.isChecked());
     }
 
-    private void openUserDataDialog() {
-        // Show the dialog to collect user data
-        UserDataDialogFragment dialog = new UserDataDialogFragment();
-        dialog.show(getSupportFragmentManager(), "UserDataDialog");
-    }
-
-    @Override
-    public void onUserDataCompleted(boolean success) {
-        if (success) {
-            // Mark the checkbox as completed and enable the next button
-            userDataCheckBox.setChecked(true);
-            updateButtonState();
-        } else {
-            Toast.makeText(this, "Failed to submit user data", Toast.LENGTH_SHORT).show();
-        }
+    private void openUserDataActivity() {
+        Intent intent = new Intent(this, UserDataActivity.class);
+        startActivityForResult(intent, USER_DATA_REQUEST_CODE);
     }
 
     private void openTakePhotoActivity() {
-        // Simulate completion of photo-taking activity
-        takePhotoCheckBox.setChecked(true);
-        updateButtonState();
+        Intent intent = new Intent(this, TakePhotoActivity.class);
+        startActivityForResult(intent, TAKE_PHOTO_REQUEST_CODE);
     }
 
-    private void openTakeTempDialog() {
-        // Simulate completion of temperature-taking activity
-        takeTempCheckBox.setChecked(true);
-        updateButtonState();
+    private void openTakeTemperatureActivity() {
+        Intent intent = new Intent(this, TakeTempActivity.class);
+        startActivityForResult(intent, TAKE_TEMPERATURE_REQUEST_CODE);
     }
 
-    private void openTakeDietDialog() {
-        // Simulate completion of diet-taking activity
-        takeDistCheckBox.setChecked(true);
-        updateButtonState();
+    private void openTakeDistanceActivity() {
+        Intent intent = new Intent(this, takeDistanceActivity.class);
+        startActivityForResult(intent, TAKE_DISTANCE_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == USER_DATA_REQUEST_CODE && resultCode == RESULT_OK) {
+            userDataCheckBox.setChecked(true);
+            updateButtonState();
+        } else if (requestCode == TAKE_PHOTO_REQUEST_CODE && resultCode == RESULT_OK) {
+            takePhotoCheckBox.setChecked(true);
+            updateButtonState();
+        } else if (requestCode == TAKE_TEMPERATURE_REQUEST_CODE && resultCode == RESULT_OK) {
+            takeTempCheckBox.setChecked(true);
+            updateButtonState();
+        } else if (requestCode == TAKE_DISTANCE_REQUEST_CODE && resultCode == RESULT_OK) {
+            takeDistCheckBox.setChecked(true);
+            updateButtonState();
+        }
     }
 
     private void openResultsActivity() {
-        // Ensure we only open ResultsActivity when all items are completed
         if (userDataCheckBox.isChecked() && takePhotoCheckBox.isChecked() &&
                 takeTempCheckBox.isChecked() && takeDistCheckBox.isChecked()) {
             Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
