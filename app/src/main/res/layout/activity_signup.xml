@@ -41,6 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sign up"
+            android:textColor="@color/green"
             android:textSize="28sp"
             android:textStyle="bold" />
 
@@ -50,6 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:text="Create a new account"
+            android:textColor="@color/green"
             android:textSize="16sp"
             />
 
@@ -69,6 +71,8 @@
                 android:layout_weight="1"
                 android:background="@drawable/customeditbox"
                 android:hint="First Name"
+                android:textColor="@color/black"
+                android:textColorHint="@color/grey"
                 android:inputType="textPersonName"
 
                 android:padding="12dp"
@@ -86,6 +90,8 @@
                 android:layout_weight="1"
                 android:background="@drawable/customeditbox"
                 android:hint="Last Name"
+                android:textColor="@color/black"
+                android:textColorHint="@color/grey"
                 android:inputType="textPersonName"
                 android:padding="12dp" />
         </LinearLayout>
@@ -101,6 +107,8 @@
             android:layout_marginBottom="12dp"
             android:background="@drawable/customeditbox"
             android:hint="Date of Birth"
+            android:textColor="@color/black"
+            android:textColorHint="@color/grey"
             android:inputType="date"
             android:padding="12dp" />
 
@@ -114,6 +122,8 @@
             android:layout_marginBottom="12dp"
             android:background="@drawable/customeditbox"
             android:hint="Email"
+            android:textColor="@color/black"
+            android:textColorHint="@color/grey"
             android:inputType="textEmailAddress"
             android:padding="12dp" />
 
@@ -125,6 +135,8 @@
             android:layout_marginBottom="24dp"
             android:background="@drawable/customeditbox"
             android:hint="Password"
+            android:textColor="@color/black"
+            android:textColorHint="@color/grey"
             android:inputType="textPassword"
             android:padding="12dp" />
 
@@ -133,9 +145,11 @@
             android:id="@+id/btnSignUp"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:backgroundTint="@color/darkGreen"
+            android:backgroundTint="@color/green"
+
             android:radius="10dp"
             android:text="Sign Up"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:cornerRadius="10dp"
 
