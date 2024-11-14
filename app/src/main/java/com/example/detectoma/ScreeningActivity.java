@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -58,10 +59,14 @@ public class ScreeningActivity extends AppCompatActivity implements UserDataDial
     }
 
     @Override
-    public void onUserDataCompleted() {
-        // Mark the checkbox as completed and update the button state
-        userDataCheckBox.setChecked(true);
-        updateButtonState();
+    public void onUserDataCompleted(boolean success) {
+        if (success) {
+            // Mark the checkbox as completed and enable the next button
+            userDataCheckBox.setChecked(true);
+            updateButtonState();
+        } else {
+            Toast.makeText(this, "Failed to submit user data", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void openTakePhotoActivity() {
@@ -83,8 +88,13 @@ public class ScreeningActivity extends AppCompatActivity implements UserDataDial
     }
 
     private void openResultsActivity() {
-        // Open ResultsActivity once all items are completed
-        Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
-        startActivity(intent);
+        // Ensure we only open ResultsActivity when all items are completed
+        if (userDataCheckBox.isChecked() && takePhotoCheckBox.isChecked() &&
+                takeTempCheckBox.isChecked() && takeDistCheckBox.isChecked()) {
+            Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Complete all steps before analyzing.", Toast.LENGTH_SHORT).show();
+        }
     }
 }
