@@ -1,50 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        tools:ignore="MissingConstraints">
+        android:padding="16dp">
 
+        <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Enter User Data"
+            android:text="Screening Questions"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:layout_gravity="center" />
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="12dp" />
 
-        <EditText
-            android:id="@+id/ageEditText"
+        <!-- A for Asymmetry -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Asymmetry"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp" />
+
+        <Switch
+            android:id="@+id/asymmetrySwitch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter Age"
-            android:inputType="number" />
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:text="Have you noticed any asymmetrical moles or spots?" />
 
-        <CheckBox
-            android:id="@+id/historyOfCancerCheckBox"
+        <!-- B for Border -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Have you had a history of cancer?" />
+            android:text="Border"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp" />
 
-        <CheckBox
-            android:id="@+id/familyCancerHistoryCheckBox"
+        <Switch
+            android:id="@+id/borderSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:text="Do any moles have uneven, scalloped, or notched edges?" />
+
+        <!-- C for Color -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Does anyone in your family have cancer?" />
+            android:text="Color"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp" />
 
+        <Switch
+            android:id="@+id/colorSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:text="Have you noticed moles with multiple colors?" />
+
+        <!-- D for Diameter/Dark -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Diameter/Dark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp" />
+
+        <Switch
+            android:id="@+id/diameterSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:text="Are any moles larger than a pencil eraser (6 mm) or darker than others?" />
+
+        <!-- E for Evolving -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Evolving"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp" />
+
+        <Switch
+            android:id="@+id/evolvingSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:text="Have you noticed changes in size, shape, color, or new symptoms like itching or bleeding?" />
+
+        <!-- Submit Button -->
         <Button
             android:id="@+id/submitButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Submit"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:text="Submit"
+            android:backgroundTint="@color/darkGreen"
+            android:textColor="@android:color/white" />
+
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

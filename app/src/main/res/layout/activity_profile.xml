@@ -8,12 +8,11 @@
 
     tools:context=".ProfileActivity">
 
-    <!-- Title -->
+
 
 
     <LinearLayout
-        android:id="@+id/topMenuBar"
-        android:layout_width="418dp"
+        android:id="@+id/topMenuBar" android:layout_width="418dp"
         android:layout_height="79dp"
         android:background="@color/darkGreen"
         android:gravity="center_vertical"
