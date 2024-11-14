@@ -15,7 +15,19 @@
         android:theme="@style/Theme.Detectoma"
         tools:targetApi="31">
         <activity
-            android:name=".resultsActivity"
+            android:name=".takeDistanceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TakeTempActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TakePhotoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UserDataActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HealthcareProvider_ProfileActivity"
             android:exported="false" />
         <activity
             android:name=".ScreeningMlActivity"
@@ -28,7 +40,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity> <!-- <activity android:name=".SignUpActivity" -->
+        <!-- android:exported="true"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.MAIN" /> -->
+        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+        <!-- </intent-filter> -->
+        <!-- </activity> -->
         <activity
             android:name=".HomeActivity"
             android:exported="true" />
