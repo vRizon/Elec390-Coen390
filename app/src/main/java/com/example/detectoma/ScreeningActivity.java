@@ -39,7 +39,13 @@ public class ScreeningActivity extends AppCompatActivity {
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
-        analyzeButton.setOnClickListener(v -> openResultsActivity());
+        analyzeButton.setOnClickListener(v -> {
+            long timestamp = System.currentTimeMillis(); // Capture timestamp
+            Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
+            intent.putExtra("TIMESTAMP", timestamp);
+            startActivity(intent);
+
+        });
 
         updateButtonState();
     }
