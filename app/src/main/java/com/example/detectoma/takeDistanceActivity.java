@@ -87,23 +87,28 @@ public class takeDistanceActivity extends AppCompatActivity {
         } else if (secondDistance == null) {
             // Set the second reading
             secondDistance = distance;
-
+            if (firstDistance < secondDistance) {
+                distanceArmTextView.setText("Distance to arm: " + firstDistance + " cm");
+                distanceSurfaceTextView.setText("Distance to surface: " + secondDistance + " cm");
+            } else {
+                distanceArmTextView.setText("Distance to arm: " + secondDistance + " cm");
+                distanceSurfaceTextView.setText("Distance to surface: " + firstDistance + " cm");
+            }
             new AlertDialog.Builder(this)
                 .setTitle("Confirmation")
                 .setMessage("Are you sure you want to submit this data?")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     // Determine which distance is shorter and which is longer
-                    if (firstDistance < secondDistance) {
-                        distanceArmTextView.setText("Distance to arm: " + firstDistance + " cm");
-                        distanceSurfaceTextView.setText("Distance to surface: " + secondDistance + " cm");
-                    } else {
-                        distanceArmTextView.setText("Distance to arm: " + secondDistance + " cm");
-                        distanceSurfaceTextView.setText("Distance to surface: " + firstDistance + " cm");
-                    }
+
                     setResult(RESULT_OK);
                     Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
+                    finish();
                 })
-                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("No", (dialog, which) ->{
+                    dialog.dismiss();
+                    firstDistance = null;
+                    secondDistance = null;
+                } )
                 .show();
         } else {
             Toast.makeText(this, "Both readings are already set", Toast.LENGTH_SHORT).show();
