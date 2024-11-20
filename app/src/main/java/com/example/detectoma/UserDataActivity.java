@@ -31,11 +31,11 @@ public class UserDataActivity extends AppCompatActivity {
 
     private void submitData() {
         // Check if at least one switch is enabled (if required)
-        if (!asymmetrySwitch.isChecked() && !borderSwitch.isChecked() &&
-                !colorSwitch.isChecked() && !diameterSwitch.isChecked() && !evolvingSwitch.isChecked()) {
-            Toast.makeText(this, "Please select at least one option", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!asymmetrySwitch.isChecked() && !borderSwitch.isChecked() &&
+//                !colorSwitch.isChecked() && !diameterSwitch.isChecked() && !evolvingSwitch.isChecked()) {
+//            Toast.makeText(this, "Please select at least one option", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         // Set the result to indicate successful completion
         setResult(RESULT_OK);

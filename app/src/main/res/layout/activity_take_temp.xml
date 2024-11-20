@@ -27,4 +27,14 @@
         android:backgroundTint="@color/darkGreen"
         android:textColor="@android:color/white" />
 
+    <TextView
+        android:id="@+id/tempTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Temperature: N/A"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        />
+
 </LinearLayout>
