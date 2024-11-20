@@ -135,7 +135,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void navigateToHome() {
-        Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+        Intent intent = new Intent(SignUpActivity.this, ProfileActivity.class);
         startActivity(intent);
         finish();  // Close the sign-up activity
     }
