@@ -100,9 +100,16 @@ public class ScreeningActivity extends AppCompatActivity {
             }).addOnFailureListener(e -> {
                 Toast.makeText(ScreeningActivity.this, "Failed to access current image.", Toast.LENGTH_SHORT).show();
             });
-
-            // Navigate to resultsActivity and pass the timestamp
             Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
+            intent.putExtra("asymmetry", asymmetry);
+            intent.putExtra("border", border);
+            intent.putExtra("color", color);
+            intent.putExtra("diameter", diameter);
+            intent.putExtra("evolving", evolving);
+            intent.putExtra("FORMATTED_DATE", formattedDate);
+            startActivity(intent);
+            // Navigate to resultsActivity and pass the timestamp
+            //Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
             intent.putExtra("FORMATTED_DATE", formattedDate);
             startActivity(intent);
         });
