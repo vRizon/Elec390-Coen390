@@ -31,6 +31,12 @@ public class ScreeningActivity extends AppCompatActivity {
     private Button userDataButton, takePhotoButton, takeTempButton, takeDistButton, analyzeButton;
     private CheckBox userDataCheckBox, takePhotoCheckBox, takeTempCheckBox, takeDistCheckBox;
 
+    private boolean asymmetry = false;
+    private boolean border = false;
+    private boolean color = false;
+    private boolean diameter = false;
+    private boolean evolving = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,9 +100,16 @@ public class ScreeningActivity extends AppCompatActivity {
             }).addOnFailureListener(e -> {
                 Toast.makeText(ScreeningActivity.this, "Failed to access current image.", Toast.LENGTH_SHORT).show();
             });
-
-            // Navigate to resultsActivity and pass the timestamp
             Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
+            intent.putExtra("asymmetry", asymmetry);
+            intent.putExtra("border", border);
+            intent.putExtra("color", color);
+            intent.putExtra("diameter", diameter);
+            intent.putExtra("evolving", evolving);
+            intent.putExtra("FORMATTED_DATE", formattedDate);
+            startActivity(intent);
+            // Navigate to resultsActivity and pass the timestamp
+            //Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
             intent.putExtra("FORMATTED_DATE", formattedDate);
             startActivity(intent);
         });
@@ -138,7 +151,15 @@ public class ScreeningActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == USER_DATA_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == USER_DATA_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            // Retrieve questionnaire responses
+            asymmetry = data.getBooleanExtra("asymmetry", false);
+            border = data.getBooleanExtra("border", false);
+            color = data.getBooleanExtra("color", false);
+            diameter = data.getBooleanExtra("diameter", false);
+            evolving = data.getBooleanExtra("evolving", false);
+
+            // Check the User Data checkbox and enable the next button
             userDataCheckBox.setChecked(true);
             updateButtonState();
         } else if (requestCode == TAKE_PHOTO_REQUEST_CODE && resultCode == RESULT_OK) {
@@ -153,13 +174,25 @@ public class ScreeningActivity extends AppCompatActivity {
         }
     }
 
+
     private void openResultsActivity() {
         if (userDataCheckBox.isChecked() && takePhotoCheckBox.isChecked() &&
                 takeTempCheckBox.isChecked() && takeDistCheckBox.isChecked()) {
+
+            // Create an intent to start ResultsActivity
             Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
+
+            // Pass questionnaire data
+            intent.putExtra("asymmetry", asymmetry);
+            intent.putExtra("border", border);
+            intent.putExtra("color", color);
+            intent.putExtra("diameter", diameter);
+            intent.putExtra("evolving", evolving);
+
             startActivity(intent);
         } else {
             Toast.makeText(this, "Complete all steps before analyzing.", Toast.LENGTH_SHORT).show();
         }
     }
+
 }

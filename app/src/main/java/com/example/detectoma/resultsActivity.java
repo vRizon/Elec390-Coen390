@@ -1,60 +1,68 @@
 package com.example.detectoma;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
 public class resultsActivity extends AppCompatActivity {
+
+    private TextView resultsTextView;
+    private TextView recommendationTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_results);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
-        // Retrieve the formatted date and details from the Intent
-        String formattedDate = getIntent().getStringExtra("FORMATTED_DATE");
-        String details = getIntent().getStringExtra("DETAILS");
+        // Initialize TextViews
+        resultsTextView = findViewById(R.id.resultsTextView);
+        recommendationTextView = findViewById(R.id.recommendationTextView);
 
-        TextView timestampView = findViewById(R.id.timestampTextView);
-        TextView detailsView = findViewById(R.id.detailsTextView);
+        // Get the questionnaire results from the intent
+        boolean asymmetry = getIntent().getBooleanExtra("asymmetry", false);
+        boolean border = getIntent().getBooleanExtra("border", false);
+        boolean color = getIntent().getBooleanExtra("color", false);
+        boolean diameter = getIntent().getBooleanExtra("diameter", false);
+        boolean evolving = getIntent().getBooleanExtra("evolving", false);
 
-        // Display the formatted date
-        if (formattedDate != null) {
-            timestampView.setText(formattedDate);
-        } else {
-            timestampView.setText(getString(R.string.no_date_available));
+        // Analyze results
+        analyzeResults(asymmetry, border, color, diameter, evolving);
+    }
+
+    private void analyzeResults(boolean asymmetry, boolean border, boolean color, boolean diameter, boolean evolving) {
+        List<String> flaggedCriteria = new ArrayList<>();
+
+        if (asymmetry) {
+            flaggedCriteria.add("Asymmetry: The mole is asymmetrical, which can be a warning sign for melanoma.");
+        }
+        if (border) {
+            flaggedCriteria.add("Border Irregularity: Uneven or notched borders can indicate a potentially dangerous mole.");
+        }
+        if (color) {
+            flaggedCriteria.add("Color Variation: Multiple colors in a mole are concerning.");
+        }
+        if (diameter) {
+            flaggedCriteria.add("Diameter: Moles larger than 6mm or unusually dark are flagged as concerning.");
+        }
+        if (evolving) {
+            flaggedCriteria.add("Evolution: Changes in size, color, or symptoms like itching or bleeding are significant.");
         }
 
-        // Display additional details
-        if (details != null) {
-            detailsView.setText(details);
+        // Build results explanation
+        if (flaggedCriteria.isEmpty()) {
+            resultsTextView.setText("No immediate concerns based on your responses. Keep monitoring for any changes.");
+            recommendationTextView.setText("Recommendation: No need to seek medical consultation at this time.");
         } else {
-            detailsView.setText(getString(R.string.no_details_available));
+            StringBuilder resultsBuilder = new StringBuilder();
+            for (String criteria : flaggedCriteria) {
+                resultsBuilder.append(criteria).append("\n\n");
+            }
+            resultsTextView.setText(resultsBuilder.toString());
+            recommendationTextView.setText("Recommendation: We suggest consulting a dermatologist for further evaluation.");
         }
-
-        Button doneButton = findViewById(R.id.doneButton);
-        doneButton.setOnClickListener(v -> {
-            Intent intent = new Intent(resultsActivity.this, ProfileActivity.class);
-            startActivity(intent);
-        });
-
     }
 }
