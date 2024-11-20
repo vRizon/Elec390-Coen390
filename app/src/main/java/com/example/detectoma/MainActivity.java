@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 FirebaseUser user = mAuth.getCurrentUser();
-                if (user != null && user.getEmail().equals("val.nikandrova2000@gmail.com")) {
+                if (user != null && user.getEmail().equals("doctor@detectoma.com")) {
                     // If the logged-in user is the doctor, navigate to HealthcareProviderProfileActivity
                     Intent intent = new Intent(MainActivity.this, HealthcareProvider_ProfileActivity.class);
                     startActivity(intent);
