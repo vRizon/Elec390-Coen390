@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -42,14 +43,21 @@ public class TakePhotoActivity extends AppCompatActivity {
 
         // Set up click listener for the Upload Photo button
         uploadPhotoButton.setOnClickListener(v -> {
-            // Simulate photo upload process
-            Toast.makeText(this, "Photo uploaded successfully", Toast.LENGTH_SHORT).show();
+            new AlertDialog.Builder(this)
+                .setTitle("Confirmation")
+                .setMessage("Are you sure you want to upload this photo?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // Simulate photo upload process
+                    Toast.makeText(this, "Photo uploaded successfully", Toast.LENGTH_SHORT).show();
 
-            // Set result to indicate successful completion
-            setResult(RESULT_OK);
+                    // Set result to indicate successful completion
+                    setResult(RESULT_OK);
 
-            // Finish the activity and return to ScreeningActivity
-//            finish();
+                    // Finish the activity and return to ScreeningActivity
+                    finish();
+                })
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
         });
     }
 
