@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,15 +29,27 @@ public class resultsActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Retrieve timestamp from Intent
-        long timestamp = getIntent().getLongExtra("TIMESTAMP", 0);
-        String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date(timestamp));
+        // Retrieve the formatted date and details from the Intent
+        String formattedDate = getIntent().getStringExtra("FORMATTED_DATE");
+        String details = getIntent().getStringExtra("DETAILS");
 
-        // Set timestamp in the toolbar or menu bar (assuming a TextView in menu bar to display this)
-        TextView timestampView = findViewById(R.id.timestampTextView); // Make sure to add this in the XML layout
-        timestampView.setText(formattedDate);
+        TextView timestampView = findViewById(R.id.timestampTextView);
+        TextView detailsView = findViewById(R.id.detailsTextView);
 
-        // Done button to go back to HomeActivity
+        // Display the formatted date
+        if (formattedDate != null) {
+            timestampView.setText(formattedDate);
+        } else {
+            timestampView.setText(getString(R.string.no_date_available));
+        }
+
+        // Display additional details
+        if (details != null) {
+            detailsView.setText(details);
+        } else {
+            detailsView.setText(getString(R.string.no_details_available));
+        }
+
         Button doneButton = findViewById(R.id.doneButton);
         doneButton.setOnClickListener(v -> {
             Intent intent = new Intent(resultsActivity.this, ProfileActivity.class);

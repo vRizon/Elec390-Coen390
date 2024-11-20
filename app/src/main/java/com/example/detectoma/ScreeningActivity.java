@@ -49,26 +49,25 @@ public class ScreeningActivity extends AppCompatActivity {
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
+
         analyzeButton.setOnClickListener(v -> {
-            //Make current timestamp in firebase
-            long timestamp = System.currentTimeMillis(); // Capture timestamp
+            long timestamp = System.currentTimeMillis(); // Capture Unix timestamp
             String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
-            String uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
             DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
-            databaseRef.child(formattedDate).setValue("")
+            databaseRef.child(formattedDate).setValue("Screening completed")
                     .addOnSuccessListener(aVoid -> {
-                        // Successfully written to the database
                         Toast.makeText(ScreeningActivity.this, "Timestamp saved successfully!", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
+                        intent.putExtra("FORMATTED_DATE", formattedDate); // Pass formatted date
+                        startActivity(intent);
                     })
                     .addOnFailureListener(e -> {
-                        // Failed to write to the database
                         Toast.makeText(ScreeningActivity.this, "Failed to save timestamp.", Toast.LENGTH_SHORT).show();
                     });
-            Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
-            intent.putExtra("TIMESTAMP", timestamp);
-            startActivity(intent);
-
         });
+
 
         updateButtonState();
     }
