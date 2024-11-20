@@ -1,30 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
     <!-- Instructions TextView -->
     <TextView
         android:id="@+id/instructionsTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:paddingBottom="20dp"
         android:text="Please position the camera carefully and ensure proper lighting to capture a clear image."
-        android:textSize="16sp"
         android:textAlignment="center"
-        android:paddingBottom="20dp" />
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Upload Photo Button -->
     <Button
         android:id="@+id/uploadPhotoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Upload Photo"
-        android:layout_gravity="center_horizontal"
-        android:padding="16dp"
-        android:minHeight="48dp"
         android:backgroundTint="@color/darkGreen"
-        android:textColor="@android:color/white" />
+        android:minHeight="48dp"
+        android:padding="16dp"
+        android:text="Upload Photo"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/instructionsTextView"
+        app:layout_constraintStart_toStartOf="parent" />
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/imageView_takePhoto"
+        android:layout_width="328dp"
+        android:layout_height="314dp"
+        android:layout_marginTop="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/instructionsTextView"
+        app:srcCompat="@drawable/edittext_background" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
