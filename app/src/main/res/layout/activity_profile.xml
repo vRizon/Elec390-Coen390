@@ -36,6 +36,14 @@
 
     </LinearLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/screeningsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/topMenuBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <TextView
 
         android:layout_width="wrap_content"
@@ -50,7 +58,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btnStartScreeningButton"
+        android:id="@+id/startScreeningButton"
         android:layout_width="240dp"
 
         android:layout_height="60dp"
@@ -59,13 +67,20 @@
 
         android:backgroundTint="@color/darkGreen"
         android:radius="10dp"
-        android:text="Start screening"
+        android:text="Start new screening"
         android:textColor="#FFF"
 
         android:textSize="16sp"
         app:cornerRadius="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnGoToResults"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go to Results"
+        app:layout_constraintTop_toBottomOf="@id/startScreeningButton" />
 
     <Button
         android:id="@+id/btnAddScreening"

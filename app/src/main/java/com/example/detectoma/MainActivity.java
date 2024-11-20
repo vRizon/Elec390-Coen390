@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
                 } else {
                     // If the logged-in user is not the doctor, navigate to HomeActivity or handle as necessary
-                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                    Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
                     startActivity(intent);
                     finish();
                     Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();

@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class UserDataActivity extends AppCompatActivity {
@@ -30,15 +31,18 @@ public class UserDataActivity extends AppCompatActivity {
     }
 
     private void submitData() {
-        // Check if at least one switch is enabled (if required)
-//        if (!asymmetrySwitch.isChecked() && !borderSwitch.isChecked() &&
-//                !colorSwitch.isChecked() && !diameterSwitch.isChecked() && !evolvingSwitch.isChecked()) {
-//            Toast.makeText(this, "Please select at least one option", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-
-        // Set the result to indicate successful completion
-        setResult(RESULT_OK);
-        finish();  // Close UserDataActivity and return to ScreeningActivity
+        new AlertDialog.Builder(this)
+                .setTitle("Confirmation")
+                .setMessage("Are you sure you want to submit?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // User confirmed, proceed with submission
+                    setResult(RESULT_OK);
+                    finish(); // Close the activity
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+                    // User declined, stay on the same page
+                    dialog.dismiss();
+                })
+                .show();
     }
 }

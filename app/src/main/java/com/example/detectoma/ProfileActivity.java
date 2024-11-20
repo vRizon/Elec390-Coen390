@@ -1,6 +1,7 @@
 package com.example.detectoma;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -10,9 +11,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+
 public class ProfileActivity extends AppCompatActivity {
 
-    Button btnStartScreeningButton, btnAddScreening;
+
 
 
     @SuppressLint("MissingInflatedId")
@@ -27,9 +33,38 @@ public class ProfileActivity extends AppCompatActivity {
             return insets;
         });
 
-        btnStartScreeningButton = findViewById(R.id.btnAddScreening);
-        btnAddScreening=findViewById(R.id.btnAddScreening);
+        Button startScreeningButton = findViewById(R.id.startScreeningButton);
+        startScreeningButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, ScreeningActivity.class);
+            startActivity(intent);
+        });
+
+        Button goToResultsButton = findViewById(R.id.btnGoToResults);
+        goToResultsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, resultsActivity.class);
+            startActivity(intent);
+        });
 
 
+        // Initialize RecyclerView
+        RecyclerView recyclerView = findViewById(R.id.screeningsRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Load past screenings (timestamps)
+        ArrayList<String> screenings = loadScreeningsFromStorage(); // Method to fetch saved screenings
+
+        ScreeningAdapter adapter = new ScreeningAdapter(screenings, this, timestamp -> {
+            Intent intent = new Intent(ProfileActivity.this, resultsActivity.class);
+            intent.putExtra("TIMESTAMP", Long.parseLong(timestamp));
+            startActivity(intent);
+        });
+
+        recyclerView.setAdapter(adapter);
+
+
+    }
+    private ArrayList<String> loadScreeningsFromStorage() {
+        // Implement method to load saved screenings
+        return new ArrayList<>();
     }
 }
