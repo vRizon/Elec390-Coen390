@@ -95,6 +95,10 @@ public class takeDistanceActivity extends AppCompatActivity {
                 distanceArmTextView.setText("Distance to arm: " + secondDistance + " cm");
                 distanceSurfaceTextView.setText("Distance to surface: " + firstDistance + " cm");
             }
+
+            //Here we are setting that the result is taken
+            setResult(RESULT_OK);
+
             Toast.makeText(this, "Second reading (arm) set to " + distance + " cm", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Both readings are already set", Toast.LENGTH_SHORT).show();
