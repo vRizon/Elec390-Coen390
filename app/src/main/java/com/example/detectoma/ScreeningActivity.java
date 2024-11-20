@@ -6,8 +6,18 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Locale;
 
 public class ScreeningActivity extends AppCompatActivity {
 
@@ -39,7 +49,26 @@ public class ScreeningActivity extends AppCompatActivity {
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
-        analyzeButton.setOnClickListener(v -> openResultsActivity());
+        analyzeButton.setOnClickListener(v -> {
+            //Make current timestamp in firebase
+            long timestamp = System.currentTimeMillis(); // Capture timestamp
+            String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
+            String uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
+            DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
+            databaseRef.child(formattedDate).setValue("")
+                    .addOnSuccessListener(aVoid -> {
+                        // Successfully written to the database
+                        Toast.makeText(ScreeningActivity.this, "Timestamp saved successfully!", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        // Failed to write to the database
+                        Toast.makeText(ScreeningActivity.this, "Failed to save timestamp.", Toast.LENGTH_SHORT).show();
+                    });
+            Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
+            intent.putExtra("TIMESTAMP", timestamp);
+            startActivity(intent);
+
+        });
 
         updateButtonState();
     }
