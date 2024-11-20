@@ -9,6 +9,8 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 
 import androidx.annotation.Nullable;
@@ -51,22 +53,54 @@ public class ScreeningActivity extends AppCompatActivity {
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
 
         analyzeButton.setOnClickListener(v -> {
-            long timestamp = System.currentTimeMillis(); // Capture Unix timestamp
+            long timestamp = System.currentTimeMillis(); // Capture the current timestamp
             String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
             DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
-            databaseRef.child(formattedDate).setValue("Screening completed")
+            DatabaseReference timestampRef = databaseRef.child(formattedDate); // Reference for this timestamp
+
+            // Example temperature and distance data (Replace these with actual values)
+            double currentTemperature = 37.5; // Replace with actual temperature value
+            double currentDistance = 15.0; // Replace with actual distance value
+
+            // Save temperature and distance to RTDB
+            timestampRef.child("temperature").setValue(currentTemperature);
+            timestampRef.child("distance").setValue(currentDistance)
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(ScreeningActivity.this, "Timestamp saved successfully!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
-                        intent.putExtra("FORMATTED_DATE", formattedDate); // Pass formatted date
-                        startActivity(intent);
+                        Toast.makeText(ScreeningActivity.this, "Data saved successfully!", Toast.LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(ScreeningActivity.this, "Failed to save timestamp.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ScreeningActivity.this, "Failed to save data.", Toast.LENGTH_SHORT).show();
                     });
+
+            // Rename the current image in Firebase Storage
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference oldImageRef = storage.getReference("/Patients/" + uid + "/photo.jpg");
+            StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/" + formattedDate + ".jpg");
+
+            oldImageRef.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
+                // Copy the image to the new path with the new name
+                newImageRef.putBytes(bytes).addOnSuccessListener(taskSnapshot -> {
+                    // Delete the old image after copying
+                    oldImageRef.delete().addOnSuccessListener(aVoid -> {
+                        Toast.makeText(ScreeningActivity.this, "Image renamed successfully!", Toast.LENGTH_SHORT).show();
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(ScreeningActivity.this, "Failed to delete old image.", Toast.LENGTH_SHORT).show();
+                    });
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(ScreeningActivity.this, "Failed to rename image.", Toast.LENGTH_SHORT).show();
+                });
+            }).addOnFailureListener(e -> {
+                Toast.makeText(ScreeningActivity.this, "Failed to access current image.", Toast.LENGTH_SHORT).show();
+            });
+
+            // Navigate to resultsActivity and pass the timestamp
+            Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
+            intent.putExtra("FORMATTED_DATE", formattedDate);
+            startActivity(intent);
         });
+
 
 
         updateButtonState();
