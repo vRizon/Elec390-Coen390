@@ -81,5 +81,19 @@
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+    <EditText
+        android:id="@+id/linkCodeEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Doctor's Code"
+        app:layout_constraintTop_toBottomOf="@id/btnGoToResults" />
+
+    <Button
+        android:id="@+id/linkToDoctorButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Link to Doctor"
+        app:layout_constraintTop_toBottomOf="@id/linkCodeEditText" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
