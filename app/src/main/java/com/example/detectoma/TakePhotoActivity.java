@@ -3,6 +3,7 @@ package com.example.detectoma;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ public class TakePhotoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_take_photo);
 
         imageView = findViewById(R.id.imageView_takePhoto);
+        imageView.setVisibility(View.GONE); // or View.INVISIBLE
 
         // Initialize the Upload Photo button
         Button uploadPhotoButton = findViewById(R.id.uploadPhotoButton);
@@ -54,7 +56,7 @@ public class TakePhotoActivity extends AppCompatActivity {
                     setResult(RESULT_OK);
 
                     // Finish the activity and return to ScreeningActivity
-                    finish();
+//                    finish();
                 })
                 .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                 .show();
@@ -66,12 +68,14 @@ public class TakePhotoActivity extends AppCompatActivity {
         StorageReference imageRef = storage.getReference("/Patients/" + uid + "/photo.jpg");
 
         // Load image using Glide
-        imageRef.getDownloadUrl().addOnSuccessListener(uri ->
-                Glide.with(this)
-                        .load(uri)
-                        .into(imageView)
-        ).addOnFailureListener(exception ->
-                Log.e("Firebase Storage", "Error fetching image", exception)
-        );
+        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            Glide.with(this).load(uri).into(imageView);
+            // Make the ImageView visible
+            imageView.setVisibility(View.VISIBLE);
+        }).addOnFailureListener(exception -> {
+                Log.e("Firebase Storage", "Error fetching image", exception);
+                // Display a toast message to the user
+                Toast.makeText(this, "Photo not available", Toast.LENGTH_SHORT).show();
+        });
     }
 }
