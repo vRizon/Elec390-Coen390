@@ -28,6 +28,7 @@ public class UserDataActivity extends AppCompatActivity {
         submitButton.setOnClickListener(v -> submitData());
     }
 
+    ///
     private void submitData() {
         // Collect the states of all switches
         boolean asymmetry = asymmetrySwitch.isChecked();
