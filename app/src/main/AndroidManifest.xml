@@ -30,9 +30,6 @@
             android:name=".HealthcareProvider_ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ScreeningMlActivity"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
