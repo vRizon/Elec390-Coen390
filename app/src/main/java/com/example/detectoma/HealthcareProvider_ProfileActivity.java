@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
@@ -20,8 +22,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
@@ -29,6 +35,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private Button generateCodeButton;
+    private Button addPatientFromListButton;
     private TextView viewCodeTextView;
     private String generatedCode;
     private LinearLayout patientsContainer;
@@ -67,13 +74,104 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Code has already been generated: " + generatedCode, Toast.LENGTH_SHORT).show();
             }
         });
+
+        addPatientFromListButton = findViewById(R.id.addPatientFromListButton);
+        addPatientFromListButton.setOnClickListener(v -> showPatientListDialog());
     }
 
     private void initializeViews() {
         generateCodeButton = findViewById(R.id.generateCodeButton);
         viewCodeTextView = findViewById(R.id.viewCodeTextView);
         patientsContainer = findViewById(R.id.patientsContainer);
+        addPatientFromListButton = findViewById(R.id.addPatientFromListButton);
     }
+    private void showPatientListDialog() {
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference("profiles");
+        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<String> patientList = new ArrayList<>();
+                List<String> patientUIDs = new ArrayList<>();
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    if (snapshot.child("linkedDoctorId").getValue() == null) {
+                        String firstName = snapshot.child("firstName").getValue(String.class);
+                        String lastName = snapshot.child("lastName").getValue(String.class);
+                        if (firstName != null && lastName != null) {
+                            String fullName = firstName + " " + lastName;
+                            patientList.add(fullName);
+                            patientUIDs.add(snapshot.getKey());
+                        }
+                    }
+                }
+
+                if (patientList.isEmpty()) {
+                    Toast.makeText(HealthcareProvider_ProfileActivity.this, "No available patients to add.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(HealthcareProvider_ProfileActivity.this);
+                builder.setTitle("Add Patient from List");
+
+                LinearLayout patientListLayout = new LinearLayout(HealthcareProvider_ProfileActivity.this);
+                patientListLayout.setOrientation(LinearLayout.VERTICAL);
+                for (int i = 0; i < patientList.size(); i++) {
+                    String patientName = patientList.get(i);
+                    String patientUID = patientUIDs.get(i);
+
+                    TextView patientTextView = new TextView(HealthcareProvider_ProfileActivity.this);
+                    patientTextView.setText(patientName);
+                    patientTextView.setTextSize(18);
+                    patientTextView.setPadding(8, 8, 8, 8);
+                    patientTextView.setOnClickListener(v -> addPatientConfirmation(patientUID, patientName));
+                    patientListLayout.addView(patientTextView);
+                }
+
+                ScrollView scrollView = new ScrollView(HealthcareProvider_ProfileActivity.this);
+                scrollView.addView(patientListLayout);
+                builder.setView(scrollView);
+
+                builder.setNegativeButton("Close", (dialog, which) -> dialog.dismiss());
+                builder.show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patients.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addPatientConfirmation(String patientUID, String patientName) {
+        new AlertDialog.Builder(this)
+                .setTitle("Add Patient")
+                .setMessage("Do you want to add " + patientName + " to your list?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                    if (currentUser != null) {
+                        String doctorUID = currentUser.getUid();
+                        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference("profiles");
+
+                        rootRef.child(doctorUID).child("patients").child(patientUID).setValue(true)
+                                .addOnSuccessListener(aVoid -> {
+                                    rootRef.child(patientUID).child("linkedDoctorId").setValue(doctorUID)
+                                            .addOnSuccessListener(aVoid1 -> {
+                                                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Patient added successfully!", Toast.LENGTH_SHORT).show();
+                                                // Remove any existing UI to avoid duplication, then reload
+                                                patientsContainer.removeAllViews();
+                                                loadPatientData();
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to link patient.", Toast.LENGTH_SHORT).show();
+                                            });
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to add patient.", Toast.LENGTH_SHORT).show());
+                    }
+                })
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
 
     private void loadPatientData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -198,14 +296,19 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
                     DatabaseReference doctorRef = mDatabase.child("patients").child(patientId);
                     DatabaseReference patientRef = mDatabase.getParent().child(patientId).child("linkedDoctorId");
 
+                    // Remove patient from doctor's list
                     doctorRef.removeValue().addOnSuccessListener(aVoid -> {
+                        // Remove doctor reference from patient's profile
                         patientRef.removeValue().addOnSuccessListener(aVoid1 -> {
                             Toast.makeText(HealthcareProvider_ProfileActivity.this, "Patient unlinked successfully!", Toast.LENGTH_SHORT).show();
+                            // Remove any existing UI to avoid duplication, then reload
+                            patientsContainer.removeAllViews();
                             loadPatientData();
-                        }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient.", Toast.LENGTH_SHORT).show());
-                    }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient.", Toast.LENGTH_SHORT).show());
+                        }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from patient's profile.", Toast.LENGTH_SHORT).show());
+                    }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from doctor's profile.", Toast.LENGTH_SHORT).show());
                 })
                 .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+
 }
