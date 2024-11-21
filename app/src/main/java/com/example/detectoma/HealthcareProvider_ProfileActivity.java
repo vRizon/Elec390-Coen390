@@ -1,14 +1,16 @@
 package com.example.detectoma;
 
+import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -20,188 +22,190 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 
-
-//    private ListView listPatients;
-//    private FirebaseAuth mAuth;
-//    private DatabaseReference mDatabase;  // Reference to Firebase Realtime Database
-//    private List<String> patientNames;     // List to hold patient names
-//    private ArrayAdapter<String> adapter;  // Adapter to display the patient names in the ListView
-
-
-    private ListView listPatients;
     private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;  // Reference to Firebase Realtime Database
-    private List<String> patientNames;     // List to hold patient names
-    private ArrayAdapter<String> adapter;  // Adapter to display the patient names in the ListView
-    private TextView userNameTextView;     // TextView to display the user's name
-
-
+    private DatabaseReference mDatabase;
+    private Button generateCodeButton;
+    private TextView viewCodeTextView;
+    private String generatedCode;
+    private LinearLayout patientsContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_healthcare_provider_profile);
+
+        // Adjust window insets for edge-to-edge UI
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(
+                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).left,
+                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).top,
+                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).right,
+                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom);
             return insets;
         });
 
+        initializeViews();
 
-//        listPatients = findViewById(R.id.listViewPatients);
-//        mAuth = FirebaseAuth.getInstance();
-//        mDatabase = FirebaseDatabase.getInstance().getReference("Names");  // Reference to the "Names" node
-//        patientNames = new ArrayList<>();  // Initialize the list to hold patient names
-//
-//        // Adapter for ListView
-//        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, patientNames);
-//        listPatients.setAdapter(adapter);
-//
-//        // Load patient data from Firebase Realtime Database
-//        loadPatientData();
-
-        listPatients = findViewById(R.id.listViewPatients);
-//        userNameTextView = findViewById(R.id.greetingText);  // Reference to the TextView for the user's name
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("profiles");  // Reference to the "profiles" node
-        patientNames = new ArrayList<>();  // Initialize the list to hold patient names
-
-        // Adapter for ListView
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, patientNames);
-        listPatients.setAdapter(adapter);
-
-        // Load user data and patient data from Firebase Realtime Database
-        loadUserName();
-        loadPatientData();
-
-
-
-    }
-//
-//    private void loadPatientData() {
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//
-//        if (currentUser == null) {
-//            Toast.makeText(HealthcareProvider_ProfileActivity.this, "No user is signed in.", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        // Check if the current user is the doctor
-//        String doctorEmail = "val.nikandrova2000@gmail.com";  // Doctor's email (hardcoded for demo)
-//
-//        if (currentUser.getEmail().equals(doctorEmail)) {
-//            // Load all patient names from the "Names" node
-//            mDatabase.addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(DataSnapshot dataSnapshot) {
-//                    // Clear previous data
-//                    patientNames.clear();
-//
-//                    // Loop through the snapshot and add patient names
-//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                        String patientName = snapshot.getValue(String.class);  // Get the patient's name from the value
-//                        if (patientName != null) {
-//                            patientNames.add(patientName);  // Add to the list
-//                        }
-//                    }
-//
-//                    // Notify the adapter that data has changed
-//                    adapter.notifyDataSetChanged();
-//                }
-//
-//                @Override
-//                public void onCancelled(DatabaseError databaseError) {
-//                    // Handle database read failure
-//                    Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patients.", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//        } else {
-//            Toast.makeText(HealthcareProvider_ProfileActivity.this, "You are not authorized to view this page.", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
-
-
-    private void loadUserName() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if (currentUser == null) {
-            Toast.makeText(HealthcareProvider_ProfileActivity.this, "No user is signed in.", Toast.LENGTH_SHORT).show();
-            return;
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            mDatabase = FirebaseDatabase.getInstance().getReference("profiles").child(userId);
+            loadExistingCode();
+            loadPatientData();
         }
 
-        String userId = currentUser.getUid();  // Get the current user's UID
-
-        // Fetch the user's name from the "Users" node in the database
-        mDatabase.child(userId).child("firstName").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-//                String userName = dataSnapshot.getValue(String.class);  // Get the user's first name
-//                if (userName != null) {
-//                    userNameTextView.setText("Hello, " + userName);  // Display the user's name
-//                } else {
-//                    userNameTextView.setText("Hello, User");  // Fallback if name is not found
-//                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load user name.", Toast.LENGTH_SHORT).show();
+        generateCodeButton.setOnClickListener(v -> {
+            if (generatedCode == null) {
+                generateAndSaveCode();
+            } else {
+                Toast.makeText(this, "Code has already been generated: " + generatedCode, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void initializeViews() {
+        generateCodeButton = findViewById(R.id.generateCodeButton);
+        viewCodeTextView = findViewById(R.id.viewCodeTextView);
+        patientsContainer = findViewById(R.id.patientsContainer);
     }
 
     private void loadPatientData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
-
         if (currentUser == null) {
-            Toast.makeText(HealthcareProvider_ProfileActivity.this, "No user is signed in.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No user is signed in.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Check if the current user is the doctor (you could use an email check or role check)
-        String doctorEmail = "val.nikandrova2000@gmail.com";  // Doctor's email (hardcoded for demo)
-
-        if (currentUser.getEmail().equals(doctorEmail)) {
-            // Load all patient names (firstName and lastName) from the "profiles" node
-            mDatabase.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    // Clear previous data
-                    patientNames.clear();
-
-                    // Loop through the snapshot and add patient full names (firstName and lastName)
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        String firstName = snapshot.child("firstName").getValue(String.class);
-                        String lastName = snapshot.child("lastName").getValue(String.class);
-
-                        if (firstName != null && lastName != null) {
-                            // Combine firstName and lastName
-                            String fullName = firstName + " " + lastName;
-                            patientNames.add(fullName);  // Add full name to the list
-                        }
-                    }
-
-                    // Notify the adapter that data has changed
-                    adapter.notifyDataSetChanged();
+        String doctorId = currentUser.getUid();
+        mDatabase.child("patients").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                patientsContainer.removeAllViews();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String patientId = snapshot.getKey();
+                    loadPatientDetails(patientId);
                 }
+            }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    // Handle database read failure
-                    Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patients.", Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            Toast.makeText(HealthcareProvider_ProfileActivity.this, "You are not authorized to view this page.", Toast.LENGTH_SHORT).show();
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patients.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
+    private void loadPatientDetails(String patientId) {
+        mDatabase.getParent().child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
+                String firstName = patientSnapshot.child("firstName").getValue(String.class);
+                String lastName = patientSnapshot.child("lastName").getValue(String.class);
+                if (firstName != null && lastName != null) {
+                    String fullName = firstName + " " + lastName;
+                    addPatientView(fullName, patientId);
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patient details.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addPatientView(String fullName, String patientId) {
+        LinearLayout patientLayout = new LinearLayout(this);
+        patientLayout.setOrientation(LinearLayout.HORIZONTAL);
+        patientLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        patientLayout.setPadding(16, 16, 16, 16);
+
+        TextView patientNameTextView = new TextView(this);
+        patientNameTextView.setText(fullName);
+        patientNameTextView.setLayoutParams(new LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1.0f
+        ));
+
+        TextView unlinkTextView = new TextView(this);
+        unlinkTextView.setText("Unlink");
+        unlinkTextView.setTextColor(Color.RED);
+        unlinkTextView.setPadding(16, 0, 16, 0);
+        unlinkTextView.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        unlinkTextView.setOnClickListener(v -> unlinkPatient(patientId));
+
+        patientLayout.addView(patientNameTextView);
+        patientLayout.addView(unlinkTextView);
+
+        patientsContainer.addView(patientLayout);
+    }
+
+    private void generateAndSaveCode() {
+        generatedCode = generate6DigitCode();
+        mDatabase.child("linkCode").setValue(generatedCode)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Code generated successfully!", Toast.LENGTH_SHORT).show();
+                    viewCodeTextView.setText("Your code: " + generatedCode);
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to generate code.", Toast.LENGTH_SHORT).show());
+    }
+
+    private String generate6DigitCode() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder code = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            code.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return code.toString();
+    }
+
+    private void loadExistingCode() {
+        mDatabase.child("linkCode").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    generatedCode = snapshot.getValue(String.class);
+                    viewCodeTextView.setText("Your code: " + generatedCode);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load code.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void unlinkPatient(String patientId) {
+        new AlertDialog.Builder(this)
+                .setTitle("Unlink Patient")
+                .setMessage("Are you sure you want to unlink this patient?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    String doctorId = mAuth.getCurrentUser().getUid();
+                    DatabaseReference doctorRef = mDatabase.child("patients").child(patientId);
+                    DatabaseReference patientRef = mDatabase.getParent().child(patientId).child("linkedDoctorId");
+
+                    doctorRef.removeValue().addOnSuccessListener(aVoid -> {
+                        patientRef.removeValue().addOnSuccessListener(aVoid1 -> {
+                            Toast.makeText(HealthcareProvider_ProfileActivity.this, "Patient unlinked successfully!", Toast.LENGTH_SHORT).show();
+                            loadPatientData();
+                        }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient.", Toast.LENGTH_SHORT).show());
+                    }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient.", Toast.LENGTH_SHORT).show());
+                })
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
 }
