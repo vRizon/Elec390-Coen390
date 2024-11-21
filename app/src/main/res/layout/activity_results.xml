@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -9,6 +10,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Title for the Results Section -->
         <TextView
             android:id="@+id/resultsTitle"
             android:layout_width="wrap_content"
@@ -19,6 +21,26 @@
             android:layout_gravity="center_horizontal"
             android:paddingBottom="12dp" />
 
+        <!-- ImageView to Display the Original and CAM Overlay Image -->
+        <ImageView
+            android:id="@+id/imageView_image"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Screening Image"
+            android:paddingBottom="12dp" />
+
+        <!-- TextView to Display the AI Prediction -->
+        <TextView
+            android:id="@+id/predictionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Prediction: "
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingBottom="12dp" />
+
+        <!-- TextView to Display Questionnaire-Based Analysis -->
         <TextView
             android:id="@+id/resultsTextView"
             android:layout_width="match_parent"
@@ -27,6 +49,7 @@
             android:textSize="16sp"
             android:paddingTop="12dp" />
 
+        <!-- TextView to Display Recommendations -->
         <TextView
             android:id="@+id/recommendationTextView"
             android:layout_width="match_parent"
