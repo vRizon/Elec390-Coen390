@@ -14,9 +14,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,15 +21,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-
 public class ProfileActivity extends AppCompatActivity {
     private EditText linkCodeEditText;
     private Button linkToDoctorButton;
     private DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
-
-
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -46,6 +39,7 @@ public class ProfileActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Initialize UI components
         linkCodeEditText = findViewById(R.id.linkCodeEditText);
         linkToDoctorButton = findViewById(R.id.linkToDoctorButton);
         mAuth = FirebaseAuth.getInstance();
@@ -58,45 +52,8 @@ public class ProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(ProfileActivity.this, ScreeningActivity.class);
             startActivity(intent);
         });
-
-        Button goToResultsButton = findViewById(R.id.btnGoToResults);
-        goToResultsButton.setOnClickListener(v -> {
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
-
-            databaseRef.orderByKey().limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            String formattedDate = snapshot.getKey(); // Formatted date key
-                            String details = snapshot.getValue(String.class);
-
-                            Intent intent = new Intent(ProfileActivity.this, resultsActivity.class);
-                            intent.putExtra("FORMATTED_DATE", formattedDate); // Pass formatted date
-                            intent.putExtra("DETAILS", details != null ? details : "No additional details available");
-                            startActivity(intent);
-                        }
-                    } else {
-                        Toast.makeText(ProfileActivity.this, "No screening results available.", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Toast.makeText(ProfileActivity.this, "Failed to fetch screening results.", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-
-
-
-
-
-
-
-
     }
+
     private void linkToHealthcareProvider() {
         String linkCode = linkCodeEditText.getText().toString().trim();
 
@@ -141,7 +98,4 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
     }
-
-
-
 }
