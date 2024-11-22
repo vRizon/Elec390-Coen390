@@ -58,6 +58,11 @@ public class ScreeningActivity extends AppCompatActivity {
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
 
+
+
+
+
+        //ANALYSE BUTTON
         analyzeButton.setOnClickListener(v -> {
             long timestamp = System.currentTimeMillis(); // Capture the current timestamp
             String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
@@ -70,9 +75,14 @@ public class ScreeningActivity extends AppCompatActivity {
             double currentTemperature = 37.5; // Replace with actual temperature value
             double currentDistance = 15.0; // Replace with actual distance value
 
-            // Save temperature and distance to RTDB
+            // Save temperature, distance, and other boolean values to RTDB
             timestampRef.child("temperature").setValue(currentTemperature);
-            timestampRef.child("distance").setValue(currentDistance)
+            timestampRef.child("distance").setValue(currentDistance);
+            timestampRef.child("asymmetry").setValue(asymmetry);
+            timestampRef.child("border").setValue(border);
+            timestampRef.child("color").setValue(color);
+            timestampRef.child("diameter").setValue(diameter);
+            timestampRef.child("evolving").setValue(evolving)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(ScreeningActivity.this, "Data saved successfully!", Toast.LENGTH_SHORT).show();
                     })
@@ -100,6 +110,7 @@ public class ScreeningActivity extends AppCompatActivity {
             }).addOnFailureListener(e -> {
                 Toast.makeText(ScreeningActivity.this, "Failed to access current image.", Toast.LENGTH_SHORT).show();
             });
+
             Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
             intent.putExtra("asymmetry", asymmetry);
             intent.putExtra("border", border);
@@ -108,16 +119,20 @@ public class ScreeningActivity extends AppCompatActivity {
             intent.putExtra("evolving", evolving);
             intent.putExtra("FORMATTED_DATE", formattedDate);
             startActivity(intent);
-            // Navigate to resultsActivity and pass the timestamp
-            //Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
-            intent.putExtra("FORMATTED_DATE", formattedDate);
-            startActivity(intent);
         });
 
 
 
         updateButtonState();
     }
+
+
+
+
+
+
+
+    ///
 
     private void updateButtonState() {
         takePhotoButton.setEnabled(userDataCheckBox.isChecked());
@@ -147,6 +162,8 @@ public class ScreeningActivity extends AppCompatActivity {
         startActivityForResult(intent, TAKE_DISTANCE_REQUEST_CODE);
     }
 
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -175,24 +192,24 @@ public class ScreeningActivity extends AppCompatActivity {
     }
 
 
-    private void openResultsActivity() {
-        if (userDataCheckBox.isChecked() && takePhotoCheckBox.isChecked() &&
-                takeTempCheckBox.isChecked() && takeDistCheckBox.isChecked()) {
-
-            // Create an intent to start ResultsActivity
-            Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
-
-            // Pass questionnaire data
-            intent.putExtra("asymmetry", asymmetry);
-            intent.putExtra("border", border);
-            intent.putExtra("color", color);
-            intent.putExtra("diameter", diameter);
-            intent.putExtra("evolving", evolving);
-
-            startActivity(intent);
-        } else {
-            Toast.makeText(this, "Complete all steps before analyzing.", Toast.LENGTH_SHORT).show();
-        }
-    }
+//    private void openResultsActivity() {
+//        if (userDataCheckBox.isChecked() && takePhotoCheckBox.isChecked() &&
+//                takeTempCheckBox.isChecked() && takeDistCheckBox.isChecked()) {
+//
+//            // Create an intent to start ResultsActivity
+//            Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
+//
+//            // Pass questionnaire data
+//            intent.putExtra("asymmetry", asymmetry);
+//            intent.putExtra("border", border);
+//            intent.putExtra("color", color);
+//            intent.putExtra("diameter", diameter);
+//            intent.putExtra("evolving", evolving);
+//
+//            startActivity(intent);
+//        } else {
+//            Toast.makeText(this, "Complete all steps before analyzing.", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
 }
