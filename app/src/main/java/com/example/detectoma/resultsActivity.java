@@ -10,6 +10,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,6 +64,12 @@ public class resultsActivity extends AppCompatActivity {
     private TextView predictionTextView;
     private ImageView imageView;
 
+
+    private boolean isHeatmapVisible = false; // Track heatmap state
+    private Bitmap originalBitmap; // Store the original image
+    private Bitmap heatmapBitmap;  // Store the heatmap overlay
+
+
     // Views for Questionnaire Results
     private TextView resultsTextView;
     private TextView recommendationTextView;
@@ -90,6 +98,10 @@ public class resultsActivity extends AppCompatActivity {
 
         // Initialize Firebase
         FirebaseApp.initializeApp(this);
+
+        // Initialize Toggle Heatmap Button
+        Button toggleHeatmapButton = findViewById(R.id.toggleHeatmapButton);
+        toggleHeatmapButton.setOnClickListener(v -> toggleHeatmap()); // Set click listener
 
         // Initialize AI Prediction Views
         predictionTextView = findViewById(R.id.predictionTextView);
@@ -314,6 +326,9 @@ public class resultsActivity extends AppCompatActivity {
             return;
         }
 
+        // Save the original bitmap for toggling later
+        originalBitmap = bitmap;
+
         // Preprocess the image
         TensorImage tensorImage = preprocessImage(bitmap);
 
@@ -361,12 +376,13 @@ public class resultsActivity extends AppCompatActivity {
 
             if (camBitmap != null) {
                 // Overlay the CAM on the original image
-                Bitmap overlayedImage = overlayHeatmapOnImage(camBitmap, bitmap);
+                heatmapBitmap = overlayHeatmapOnImage(camBitmap, bitmap); // Save heatmap bitmap
 
-                // Display the result and the image with heatmap
+                // Display the original image by default
                 runOnUiThread(() -> {
+                    isHeatmapVisible = false; // Start with the original image
                     predictionTextView.setText("Prediction: " + result + " (" + String.format("%.4f", prediction) + ")");
-                    imageView.setImageBitmap(overlayedImage);
+                    imageView.setImageBitmap(originalBitmap); // Set the original image
                 });
             } else {
                 showErrorToUser("Failed to compute CAM.");
@@ -377,6 +393,27 @@ public class resultsActivity extends AppCompatActivity {
             showErrorToUser("Error during model inference.");
         }
     }
+
+
+    public void toggleHeatmap() {
+        if (heatmapBitmap == null || originalBitmap == null) {
+            Toast.makeText(this, "Heatmap or original image not ready.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (isHeatmapVisible) {
+            // Switch to original image
+            imageView.setImageBitmap(originalBitmap);
+            isHeatmapVisible = false;
+        } else {
+            // Switch to heatmap overlay
+            imageView.setImageBitmap(heatmapBitmap);
+            isHeatmapVisible = true;
+        }
+    }
+
+
+
 
     /**
      * Preprocesses the input bitmap to match the model's expected input format.
