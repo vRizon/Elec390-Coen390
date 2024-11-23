@@ -2,6 +2,7 @@ package com.example.detectoma;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -172,6 +173,12 @@ public class TakeTempActivity extends AppCompatActivity {
                 Log.e(TAG, "Error fetching data: " + error.getMessage());
             }
         });
+    }
+
+    public void debugcontinue(View v){
+        setResult(RESULT_OK);
+        Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     private void startTemperatureMeasurement() {
