@@ -21,18 +21,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Upload Photo Button -->
+
+
     <Button
-        android:id="@+id/uploadPhotoButton"
+        android:id="@+id/savePhotoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/darkGreen"
-        android:minHeight="48dp"
-        android:padding="16dp"
-        android:text="Upload Photo"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/instructionsTextView"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="88dp"
+        android:text="Save Photo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView_takePhoto" />
 
     <ImageView
         android:id="@+id/imageView_takePhoto"

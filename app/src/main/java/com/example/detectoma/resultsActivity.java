@@ -41,6 +41,7 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -223,31 +224,61 @@ public class resultsActivity extends AppCompatActivity {
      * Downloads the image from Firebase Storage and initiates processing.
      */
     private void processImageFromFirebase() {
-        Log.d(TAG, "Starting image download...");
-        storageRef.getBytes(ONE_MEGABYTE)
-                .addOnSuccessListener(bytes -> {
-                    Log.d(TAG, "Image download successful.");
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        Log.d(TAG, "Starting image processing...");
 
-                    // Display the original image
-                    imageView.setImageBitmap(bitmap);
+        // Check if a locally saved image exists
+        File localFile = new File(getFilesDir(), "saved_image.jpg");
+        if (localFile.exists()) {
+            Log.d(TAG, "Found locally saved image. Loading from internal storage.");
+            Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
 
-                    // Run the model on the image
-                    runModel(bitmap);
-                })
-                .addOnFailureListener(exception -> {
-                    Log.e(TAG, "Error downloading image", exception);
-                    if (exception instanceof com.google.firebase.storage.StorageException) {
-                        com.google.firebase.storage.StorageException se = (com.google.firebase.storage.StorageException) exception;
-                        if (se.getErrorCode() == com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUND) {
-                            showErrorToUser("Image not found at the specified location.");
-                        } else {
-                            showErrorToUser("Failed to download image. Please try again later.");
-                        }
-                    } else {
-                        showErrorToUser("Failed to download image. Please try again later.");
-                    }
-                });
+            // Display the locally saved image
+            imageView.setImageBitmap(bitmap);
+
+            // Proceed to run the model with the loaded image
+            runModel(bitmap);
+        } else {
+            Log.d(TAG, "No locally saved image found. Attempting to fetch from Firebase.");
+
+            // Proceed to fetch the image from Firebase Storage
+            storageRef.getBytes(ONE_MEGABYTE)
+                    .addOnSuccessListener(bytes -> {
+                        Log.d(TAG, "Image successfully fetched from Firebase.");
+
+                        // Decode the image bytes into a Bitmap
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // Display the image in the ImageView
+                        imageView.setImageBitmap(bitmap);
+
+                        // Save the fetched image locally for future use
+                        saveImageLocally(bitmap);
+
+                        // Run the model on the fetched image
+                        runModel(bitmap);
+                    })
+                    .addOnFailureListener(exception -> {
+                        Log.e(TAG, "Error fetching image from Firebase", exception);
+                        showErrorToUser("Failed to fetch image from Firebase. Please try again later.");
+                    });
+        }
+    }
+
+    private void saveImageLocally(Bitmap bitmap) {
+        try {
+            // Open a file output stream to save the image
+            FileOutputStream fos = openFileOutput("saved_image.jpg", MODE_PRIVATE);
+
+            // Compress the bitmap and save it as JPEG
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
+            // Close the output stream
+            fos.close();
+            Log.d(TAG, "Image saved locally as saved_image.jpg.");
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving image locally", e);
+            showErrorToUser("Failed to save image locally.");
+        }
     }
 
     /**
