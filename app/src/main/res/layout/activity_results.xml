@@ -67,6 +67,13 @@
             android:paddingBottom="12dp" />
 
         <!-- TextView to Display the AI Prediction -->
+
+        <Button
+            android:id="@+id/toggleHeatmapButton"
+            android:layout_width="124dp"
+            android:layout_height="wrap_content"
+            android:text="Toggle heat " />
+
         <TextView
             android:id="@+id/predictionTextView"
             android:layout_width="match_parent"

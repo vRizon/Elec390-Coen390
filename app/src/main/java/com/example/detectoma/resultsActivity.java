@@ -10,6 +10,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +43,7 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -60,6 +63,12 @@ public class resultsActivity extends AppCompatActivity {
     // Views for AI Prediction
     private TextView predictionTextView;
     private ImageView imageView;
+
+
+    private boolean isHeatmapVisible = false; // Track heatmap state
+    private Bitmap originalBitmap; // Store the original image
+    private Bitmap heatmapBitmap;  // Store the heatmap overlay
+
 
     // Views for Questionnaire Results
     private TextView resultsTextView;
@@ -89,6 +98,10 @@ public class resultsActivity extends AppCompatActivity {
 
         // Initialize Firebase
         FirebaseApp.initializeApp(this);
+
+        // Initialize Toggle Heatmap Button
+        Button toggleHeatmapButton = findViewById(R.id.toggleHeatmapButton);
+        toggleHeatmapButton.setOnClickListener(v -> toggleHeatmap()); // Set click listener
 
         // Initialize AI Prediction Views
         predictionTextView = findViewById(R.id.predictionTextView);
@@ -223,31 +236,61 @@ public class resultsActivity extends AppCompatActivity {
      * Downloads the image from Firebase Storage and initiates processing.
      */
     private void processImageFromFirebase() {
-        Log.d(TAG, "Starting image download...");
-        storageRef.getBytes(ONE_MEGABYTE)
-                .addOnSuccessListener(bytes -> {
-                    Log.d(TAG, "Image download successful.");
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        Log.d(TAG, "Starting image processing...");
 
-                    // Display the original image
-                    imageView.setImageBitmap(bitmap);
+        // Check if a locally saved image exists
+        File localFile = new File(getFilesDir(), "saved_image.jpg");
+        if (localFile.exists()) {
+            Log.d(TAG, "Found locally saved image. Loading from internal storage.");
+            Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
 
-                    // Run the model on the image
-                    runModel(bitmap);
-                })
-                .addOnFailureListener(exception -> {
-                    Log.e(TAG, "Error downloading image", exception);
-                    if (exception instanceof com.google.firebase.storage.StorageException) {
-                        com.google.firebase.storage.StorageException se = (com.google.firebase.storage.StorageException) exception;
-                        if (se.getErrorCode() == com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUND) {
-                            showErrorToUser("Image not found at the specified location.");
-                        } else {
-                            showErrorToUser("Failed to download image. Please try again later.");
-                        }
-                    } else {
-                        showErrorToUser("Failed to download image. Please try again later.");
-                    }
-                });
+            // Display the locally saved image
+            imageView.setImageBitmap(bitmap);
+
+            // Proceed to run the model with the loaded image
+            runModel(bitmap);
+        } else {
+            Log.d(TAG, "No locally saved image found. Attempting to fetch from Firebase.");
+
+            // Proceed to fetch the image from Firebase Storage
+            storageRef.getBytes(ONE_MEGABYTE)
+                    .addOnSuccessListener(bytes -> {
+                        Log.d(TAG, "Image successfully fetched from Firebase.");
+
+                        // Decode the image bytes into a Bitmap
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // Display the image in the ImageView
+                        imageView.setImageBitmap(bitmap);
+
+                        // Save the fetched image locally for future use
+                        saveImageLocally(bitmap);
+
+                        // Run the model on the fetched image
+                        runModel(bitmap);
+                    })
+                    .addOnFailureListener(exception -> {
+                        Log.e(TAG, "Error fetching image from Firebase", exception);
+                        showErrorToUser("Failed to fetch image from Firebase. Please try again later.");
+                    });
+        }
+    }
+
+    private void saveImageLocally(Bitmap bitmap) {
+        try {
+            // Open a file output stream to save the image
+            FileOutputStream fos = openFileOutput("saved_image.jpg", MODE_PRIVATE);
+
+            // Compress the bitmap and save it as JPEG
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
+            // Close the output stream
+            fos.close();
+            Log.d(TAG, "Image saved locally as saved_image.jpg.");
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving image locally", e);
+            showErrorToUser("Failed to save image locally.");
+        }
     }
 
     /**
@@ -282,6 +325,9 @@ public class resultsActivity extends AppCompatActivity {
             showErrorToUser("Model is not loaded.");
             return;
         }
+
+        // Save the original bitmap for toggling later
+        originalBitmap = bitmap;
 
         // Preprocess the image
         TensorImage tensorImage = preprocessImage(bitmap);
@@ -330,12 +376,13 @@ public class resultsActivity extends AppCompatActivity {
 
             if (camBitmap != null) {
                 // Overlay the CAM on the original image
-                Bitmap overlayedImage = overlayHeatmapOnImage(camBitmap, bitmap);
+                heatmapBitmap = overlayHeatmapOnImage(camBitmap, bitmap); // Save heatmap bitmap
 
-                // Display the result and the image with heatmap
+                // Display the original image by default
                 runOnUiThread(() -> {
+                    isHeatmapVisible = false; // Start with the original image
                     predictionTextView.setText("Prediction: " + result + " (" + String.format("%.4f", prediction) + ")");
-                    imageView.setImageBitmap(overlayedImage);
+                    imageView.setImageBitmap(originalBitmap); // Set the original image
                 });
             } else {
                 showErrorToUser("Failed to compute CAM.");
@@ -346,6 +393,27 @@ public class resultsActivity extends AppCompatActivity {
             showErrorToUser("Error during model inference.");
         }
     }
+
+
+    public void toggleHeatmap() {
+        if (heatmapBitmap == null || originalBitmap == null) {
+            Toast.makeText(this, "Heatmap or original image not ready.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (isHeatmapVisible) {
+            // Switch to original image
+            imageView.setImageBitmap(originalBitmap);
+            isHeatmapVisible = false;
+        } else {
+            // Switch to heatmap overlay
+            imageView.setImageBitmap(heatmapBitmap);
+            isHeatmapVisible = true;
+        }
+    }
+
+
+
 
     /**
      * Preprocesses the input bitmap to match the model's expected input format.
