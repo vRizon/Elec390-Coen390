@@ -103,6 +103,11 @@ public class resultsActivity extends AppCompatActivity {
         Button toggleHeatmapButton = findViewById(R.id.toggleHeatmapButton);
         toggleHeatmapButton.setOnClickListener(v -> toggleHeatmap()); // Set click listener
 
+        ImageView backIcon = findViewById(R.id.backIcon);
+        backIcon.setOnClickListener(v -> {
+            finish(); // Close the current activity and navigate back
+        });
+
         // Initialize AI Prediction Views
         predictionTextView = findViewById(R.id.predictionTextView);
         imageView = findViewById(R.id.imageView_image);

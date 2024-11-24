@@ -38,7 +38,10 @@ public class TakePhotoActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.imageView_takePhoto);
         imageView.setVisibility(View.GONE);
-
+        ImageView backIcon = findViewById(R.id.backIcon);
+        backIcon.setOnClickListener(v -> {
+            finish(); // Close the current activity and navigate back
+        });
         // Initialize the Save Photo button
         Button savePhotoButton = findViewById(R.id.savePhotoButton);
 
@@ -55,18 +58,26 @@ public class TakePhotoActivity extends AppCompatActivity {
 
         // Set up click listener for the Save Photo button
         savePhotoButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
+            AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle("Confirmation")
                     .setMessage("Are you sure you want to save this photo?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
+                    .setPositiveButton("Yes", (dialogInterface, which) -> {
                         saveImageToDevice(); // Save the image to the device
                         Toast.makeText(this, "Photo saved successfully", Toast.LENGTH_SHORT).show();
                         setResult(RESULT_OK);
                         finish();
                     })
-                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                    .show();
+                    .setNegativeButton("No", (dialogInterface, which) -> dialogInterface.dismiss())
+                    .create();
+
+            dialog.setOnShowListener(dialogInterface -> {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+            });
+
+            dialog.show();
         });
+
     }
 
     private void setupFirebaseImageReference(String uid) {

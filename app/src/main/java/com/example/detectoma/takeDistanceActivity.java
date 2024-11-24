@@ -3,6 +3,7 @@ package com.example.detectoma;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +38,10 @@ public class takeDistanceActivity extends AppCompatActivity {
         Button startDistanceMeasurementButton = findViewById(R.id.retreiveDistanceMeasurement);
         distanceSurfaceTextView = findViewById(R.id.distanceSurface); // Corrected to use class-level variable
         distanceArmTextView = findViewById(R.id.distanceArm); // Corrected to use class-level variable
-
+        ImageView backIcon = findViewById(R.id.backIcon);
+        backIcon.setOnClickListener(v -> {
+            finish(); // Close the current activity and navigate back
+        });
         // Set up click listener for the Start Distance Measurement button
         startDistanceMeasurementButton.setOnClickListener(v -> {
             // Retrieve distance data from Firebase
@@ -94,22 +98,28 @@ public class takeDistanceActivity extends AppCompatActivity {
                 distanceArmTextView.setText("Distance to arm: " + secondDistance + " cm");
                 distanceSurfaceTextView.setText("Distance to surface: " + firstDistance + " cm");
             }
-            new AlertDialog.Builder(this)
-                .setTitle("Confirmation")
-                .setMessage("Are you sure you want to submit this data?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    // Determine which distance is shorter and which is longer
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle("Confirmation")
+                    .setMessage("Are you sure you want to submit this data?")
+                    .setPositiveButton("Yes", (dialogInterface, which) -> {
+                        setResult(RESULT_OK);
+                        Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .setNegativeButton("No", (dialogInterface, which) -> {
+                        dialogInterface.dismiss();
+                        firstDistance = null;
+                        secondDistance = null;
+                    })
+                    .create();
 
-                    setResult(RESULT_OK);
-                    Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .setNegativeButton("No", (dialog, which) ->{
-                    dialog.dismiss();
-                    firstDistance = null;
-                    secondDistance = null;
-                } )
-                .show();
+            dialog.setOnShowListener(dialogInterface -> {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+            });
+
+            dialog.show();
+
         } else {
             Toast.makeText(this, "Both readings are already set", Toast.LENGTH_SHORT).show();
         }
