@@ -36,6 +36,7 @@ public class SignUpActivity extends AppCompatActivity {
     Button dateOfBirth;
 
     @SuppressLint({"MissingInflatedId", "WrongViewCast"})
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
@@ -43,32 +44,24 @@ public class SignUpActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("profiles");
 
-
         firstNameEditText = findViewById(R.id.firstNameEditText);
         lastNameEditText = findViewById(R.id.lastNameEditText);
         dobEditText = findViewById(R.id.dobEditText);
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
 
-        findViewById(R.id.btnSignUp).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerUser();
-            }
-        });
+        // Initialize the toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar_signup);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
-        //
-//        dateOfBirth = findViewById(R.id.dateOfBirth);
-//        dateOfBirth.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                showDatePickerDialog();
-//            }
-//        });
+        // Handle the back button functionality
+        toolbar.setNavigationOnClickListener(v -> finish());
 
-
+        findViewById(R.id.btnSignUp).setOnClickListener(v -> registerUser());
     }
+
 
 
     //show date Picker Dialog

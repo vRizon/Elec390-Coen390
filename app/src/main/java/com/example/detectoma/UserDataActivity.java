@@ -3,6 +3,7 @@ package com.example.detectoma;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Switch;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +27,10 @@ public class UserDataActivity extends AppCompatActivity {
 
         // Set up the submit button click listener
         submitButton.setOnClickListener(v -> submitData());
+        ImageView backIcon = findViewById(R.id.backIcon);
+        backIcon.setOnClickListener(v -> {
+            finish(); // Close the current activity and navigate back
+        });
     }
 
     ///

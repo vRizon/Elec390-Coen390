@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -12,12 +13,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -53,93 +52,30 @@ public class ScreeningActivity extends AppCompatActivity {
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
 
+        // Set up button listeners
         userDataButton.setOnClickListener(v -> openUserDataActivity());
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
-
-
-
-
-
-        //ANALYSE BUTTON
-        analyzeButton.setOnClickListener(v -> {
-            long timestamp = System.currentTimeMillis(); // Capture the current timestamp
-            String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-            DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
-            DatabaseReference timestampRef = databaseRef.child(formattedDate); // Reference for this timestamp
-
-            // Example temperature and distance data (Replace these with actual values)
-            double currentTemperature = 37.5; // Replace with actual temperature value
-            double currentDistance = 15.0; // Replace with actual distance value
-
-            // Save temperature, distance, and other boolean values to RTDB
-            timestampRef.child("temperature").setValue(currentTemperature);
-            timestampRef.child("distance").setValue(currentDistance);
-            timestampRef.child("asymmetry").setValue(asymmetry);
-            timestampRef.child("border").setValue(border);
-            timestampRef.child("color").setValue(color);
-            timestampRef.child("diameter").setValue(diameter);
-            timestampRef.child("evolving").setValue(evolving)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(ScreeningActivity.this, "Data saved successfully!", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(ScreeningActivity.this, "Failed to save data.", Toast.LENGTH_SHORT).show();
-                    });
-
-            // Rename the current image in Firebase Storage
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference oldImageRef = storage.getReference("/Patients/" + uid + "/photo.jpg");
-            StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/" + formattedDate + ".jpg");
-
-            oldImageRef.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
-                // Copy the image to the new path with the new name
-                newImageRef.putBytes(bytes).addOnSuccessListener(taskSnapshot -> {
-                    // Delete the old image after copying
-                    oldImageRef.delete().addOnSuccessListener(aVoid -> {
-                        Toast.makeText(ScreeningActivity.this, "Image renamed successfully!", Toast.LENGTH_SHORT).show();
-                    }).addOnFailureListener(e -> {
-                        Toast.makeText(ScreeningActivity.this, "Failed to delete old image.", Toast.LENGTH_SHORT).show();
-                    });
-                }).addOnFailureListener(e -> {
-                    Toast.makeText(ScreeningActivity.this, "Failed to rename image.", Toast.LENGTH_SHORT).show();
-                });
-            }).addOnFailureListener(e -> {
-                Toast.makeText(ScreeningActivity.this, "Failed to access current image.", Toast.LENGTH_SHORT).show();
-            });
-
-            Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
-            intent.putExtra("asymmetry", asymmetry);
-            intent.putExtra("border", border);
-            intent.putExtra("color", color);
-            intent.putExtra("diameter", diameter);
-            intent.putExtra("evolving", evolving);
-            intent.putExtra("FORMATTED_DATE", formattedDate);
-            startActivity(intent);
+        ImageView backIcon = findViewById(R.id.backIcon);
+        backIcon.setOnClickListener(v -> {
+            finish(); // Close the current activity and navigate back
         });
-
-
+        // Analyze button listener
+        analyzeButton.setOnClickListener(v -> analyzeAndSaveResults());
 
         updateButtonState();
     }
 
-
-
-
-
-
-
-    ///
-
     private void updateButtonState() {
+        // Enable or disable buttons based on the completion of previous steps
         takePhotoButton.setEnabled(userDataCheckBox.isChecked());
         takeTempButton.setEnabled(takePhotoCheckBox.isChecked());
         takeDistButton.setEnabled(takeTempCheckBox.isChecked());
-        analyzeButton.setEnabled(userDataCheckBox.isChecked() && takePhotoCheckBox.isChecked()
-                && takeTempCheckBox.isChecked() && takeDistCheckBox.isChecked());
+        analyzeButton.setEnabled(userDataCheckBox.isChecked() &&
+                takePhotoCheckBox.isChecked() &&
+                takeTempCheckBox.isChecked() &&
+                takeDistCheckBox.isChecked());
     }
 
     private void openUserDataActivity() {
@@ -162,54 +98,72 @@ public class ScreeningActivity extends AppCompatActivity {
         startActivityForResult(intent, TAKE_DISTANCE_REQUEST_CODE);
     }
 
+    private void analyzeAndSaveResults() {
+        long timestamp = System.currentTimeMillis(); // Capture the current timestamp
+        String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
+        DatabaseReference timestampRef = databaseRef.child(formattedDate); // Reference for this timestamp
+
+        double currentTemperature = 37.5; // Replace with actual temperature value
+        double currentDistance = 15.0; // Replace with actual distance value
+
+        timestampRef.child("temperature").setValue(currentTemperature);
+        timestampRef.child("distance").setValue(currentDistance);
+        timestampRef.child("asymmetry").setValue(asymmetry);
+        timestampRef.child("border").setValue(border);
+        timestampRef.child("color").setValue(color);
+        timestampRef.child("diameter").setValue(diameter);
+        timestampRef.child("evolving").setValue(evolving)
+                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Data saved successfully!", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to save data.", Toast.LENGTH_SHORT).show());
+
+        renameImageInStorage(uid, formattedDate);
+
+        Intent intent = new Intent(this, resultsActivity.class);
+        intent.putExtra("asymmetry", asymmetry);
+        intent.putExtra("border", border);
+        intent.putExtra("color", color);
+        intent.putExtra("diameter", diameter);
+        intent.putExtra("evolving", evolving);
+        intent.putExtra("FORMATTED_DATE", formattedDate);
+        startActivity(intent);
+    }
+
+    private void renameImageInStorage(String uid, String formattedDate) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference oldImageRef = storage.getReference("/Patients/" + uid + "/photo.jpg");
+        StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/" + formattedDate + ".jpg");
+
+        oldImageRef.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
+            newImageRef.putBytes(bytes).addOnSuccessListener(taskSnapshot -> {
+                oldImageRef.delete().addOnSuccessListener(aVoid ->
+                        Toast.makeText(this, "Image renamed successfully!", Toast.LENGTH_SHORT).show());
+            }).addOnFailureListener(e -> Toast.makeText(this, "Failed to rename image.", Toast.LENGTH_SHORT).show());
+        }).addOnFailureListener(e -> Toast.makeText(this, "Failed to access current image.", Toast.LENGTH_SHORT).show());
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == USER_DATA_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            // Retrieve questionnaire responses
             asymmetry = data.getBooleanExtra("asymmetry", false);
             border = data.getBooleanExtra("border", false);
             color = data.getBooleanExtra("color", false);
             diameter = data.getBooleanExtra("diameter", false);
             evolving = data.getBooleanExtra("evolving", false);
 
-            // Check the User Data checkbox and enable the next button
             userDataCheckBox.setChecked(true);
-            updateButtonState();
         } else if (requestCode == TAKE_PHOTO_REQUEST_CODE && resultCode == RESULT_OK) {
             takePhotoCheckBox.setChecked(true);
-            updateButtonState();
         } else if (requestCode == TAKE_TEMPERATURE_REQUEST_CODE && resultCode == RESULT_OK) {
             takeTempCheckBox.setChecked(true);
-            updateButtonState();
         } else if (requestCode == TAKE_DISTANCE_REQUEST_CODE && resultCode == RESULT_OK) {
             takeDistCheckBox.setChecked(true);
-            updateButtonState();
         }
+
+        updateButtonState();
     }
-
-
-//    private void openResultsActivity() {
-//        if (userDataCheckBox.isChecked() && takePhotoCheckBox.isChecked() &&
-//                takeTempCheckBox.isChecked() && takeDistCheckBox.isChecked()) {
-//
-//            // Create an intent to start ResultsActivity
-//            Intent intent = new Intent(ScreeningActivity.this, resultsActivity.class);
-//
-//            // Pass questionnaire data
-//            intent.putExtra("asymmetry", asymmetry);
-//            intent.putExtra("border", border);
-//            intent.putExtra("color", color);
-//            intent.putExtra("diameter", diameter);
-//            intent.putExtra("evolving", evolving);
-//
-//            startActivity(intent);
-//        } else {
-//            Toast.makeText(this, "Complete all steps before analyzing.", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
 }

@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:text="Hello, Doctor"
             android:textColor="#FFFFFF"
-            android:textSize="34sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             tools:ignore="DuplicateIds" />
 

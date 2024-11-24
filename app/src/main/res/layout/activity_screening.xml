@@ -4,128 +4,236 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ScreeningActivity">
 
+    <!-- Top Toolbar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
-        android:layout_width="match_parent"
-        android:layout_height="79dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:background="@color/darkGreen"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <FrameLayout
+            android:id="@+id/backIconContainer"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
 
-    <Button
-        android:id="@+id/userDataButton"
+            <ImageView
+                android:id="@+id/backIcon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/baseline_arrow_back_24"
+                android:contentDescription="Back"
+                android:layout_gravity="center" />
+        </FrameLayout>
+        <TextView
+            android:id="@+id/toolbarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Screening Steps"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Checklist Cards Container -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardContainer"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:backgroundTint="@color/darkGreen"
-        android:text="User Data"
-        android:textSize="16sp"
-        app:cornerRadius="10dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:backgroundTint="#FFFFFF"
+        app:cardCornerRadius="12dp"
         app:layout_constraintTop_toBottomOf="@id/topMenuBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/userDataCheckBox"
-        app:layout_constraintWidth_max="300dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/analyzeButton">
 
-    <CheckBox
-        android:id="@+id/userDataCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        app:layout_constraintTop_toTopOf="@id/userDataButton"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <Button
-        android:id="@+id/takePhotoButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:backgroundTint="@color/darkGreen"
-        android:text="Take Photo"
-        android:enabled="false"
-        android:textSize="16sp"
-        app:cornerRadius="10dp"
-        app:layout_constraintTop_toBottomOf="@id/userDataButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/takePhotoCheckBox"
-        app:layout_constraintWidth_max="300dp" />
+            <!-- User Data Step -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingVertical="8dp">
 
-    <CheckBox
-        android:id="@+id/takePhotoCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        app:layout_constraintTop_toTopOf="@id/takePhotoButton"
-        app:layout_constraintEnd_toEndOf="parent" />
+                <TextView
+                    android:id="@+id/userDataStep"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="User Data"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
 
-    <Button
-        android:id="@+id/takeTempButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:backgroundTint="@color/darkGreen"
-        android:text="Take Temperature"
-        android:enabled="false"
-        android:textSize="16sp"
-        app:cornerRadius="10dp"
-        app:layout_constraintTop_toBottomOf="@id/takePhotoButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/takeTempCheckBox"
-        app:layout_constraintWidth_max="300dp" />
+                <CheckBox
+                    android:id="@+id/userDataCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false" />
+            </LinearLayout>
 
-    <CheckBox
-        android:id="@+id/takeTempCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        app:layout_constraintTop_toTopOf="@id/takeTempButton"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <Button
+                android:id="@+id/userDataButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enter User Data"
+                android:backgroundTint="@color/darkGreen"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                app:cornerRadius="10dp" />
 
-    <Button
-        android:id="@+id/takeDistButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:backgroundTint="@color/darkGreen"
-        android:text="Take Distance"
-        android:enabled="false"
-        android:textSize="16sp"
-        app:cornerRadius="10dp"
-        app:layout_constraintTop_toBottomOf="@id/takeTempButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/takeDistCheckBox"
-        app:layout_constraintWidth_max="300dp" />
+            <!-- Take Photo Step -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginVertical="8dp" />
 
-    <CheckBox
-        android:id="@+id/takeDistCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        app:layout_constraintTop_toTopOf="@id/takeDistButton"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingVertical="8dp">
 
+                <TextView
+                    android:id="@+id/takePhotoStep"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Take Photo"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
+
+                <CheckBox
+                    android:id="@+id/takePhotoCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/takePhotoButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Take Photo"
+                android:backgroundTint="@color/darkGreen"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                app:cornerRadius="10dp" />
+
+            <!-- Take Temperature Step -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginVertical="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:id="@+id/takeTempStep"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Take Temperature"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
+
+                <CheckBox
+                    android:id="@+id/takeTempCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/takeTempButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Take Temperature"
+                android:backgroundTint="@color/darkGreen"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                app:cornerRadius="10dp" />
+
+            <!-- Take Distance Step -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginVertical="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:id="@+id/takeDistStep"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Take Distance"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
+
+                <CheckBox
+                    android:id="@+id/takeDistCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/takeDistButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Take Distance"
+                android:backgroundTint="@color/darkGreen"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                app:cornerRadius="10dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Analyze Button -->
     <Button
         android:id="@+id/analyzeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="@color/darkGreen"
         android:text="Analyze"
-        android:enabled="false"
+        android:backgroundTint="@color/darkGreen"
+        android:textColor="@android:color/white"
         android:textSize="16sp"
         app:cornerRadius="10dp"
-        app:layout_constraintTop_toBottomOf="@id/takeDistButton"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

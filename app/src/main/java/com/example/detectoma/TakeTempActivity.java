@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +41,10 @@ public class TakeTempActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_take_temp);
-
+        ImageView backIcon = findViewById(R.id.backIcon);
+        backIcon.setOnClickListener(v -> {
+            finish(); // Close the current activity and navigate back
+        });
         // Initialize Firebase Auth and Database Reference
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("profiles");
@@ -276,16 +280,24 @@ public class TakeTempActivity extends AppCompatActivity {
         }
 
         // Show a confirmation dialog
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Measurement Complete")
                 .setMessage("Temperature measurement has stopped. Do you want to submit this data?")
-                .setPositiveButton("Yes", (dialog, which) -> {
+                .setPositiveButton("Yes", (dialogInterface, which) -> {
                     setResult(RESULT_OK);
                     Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
                     finish();
                 })
-                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                .show();
+                .setNegativeButton("No", (dialogInterface, which) -> dialogInterface.dismiss())
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+        });
+
+        dialog.show();
+
     }
 
     @Override
