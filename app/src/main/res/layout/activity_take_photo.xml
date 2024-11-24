@@ -1,48 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".TakePhotoActivity">
+
+    <!-- Top Menu Bar -->
+    <LinearLayout
+        android:id="@+id/topMenuBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/darkGreen"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/toolbarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Take Photo"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <!-- Instructions TextView -->
     <TextView
         android:id="@+id/instructionsTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:paddingBottom="20dp"
+        android:layout_marginTop="16dp"
         android:text="Please position the camera carefully and ensure proper lighting to capture a clear image."
         android:textAlignment="center"
         android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topMenuBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Upload Photo Button -->
-
-
-    <Button
-        android:id="@+id/savePhotoButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="144dp"
-        android:layout_marginTop="88dp"
-        android:text="Save Photo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView_takePhoto" />
-
+    <!-- Image Placeholder -->
     <ImageView
         android:id="@+id/imageView_takePhoto"
         android:layout_width="328dp"
         android:layout_height="314dp"
-        android:layout_marginTop="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/instructionsTextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/instructionsTextView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/edittext_background" />
+
+    <!-- Save Photo Button -->
+    <Button
+        android:id="@+id/savePhotoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Save Photo"
+        android:backgroundTint="@color/darkGreen"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/imageView_takePhoto"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

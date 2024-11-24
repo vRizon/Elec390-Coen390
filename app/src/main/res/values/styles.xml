@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-        <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-            <item name="android:statusBarColor">@android:color/black</item>
-        </style>
-    </resources>
+    <!-- App Theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:statusBarColor">@android:color/black</item>
+    </style>
+
+    <!-- Custom AlertDialog Theme -->
+    <style name="CustomAlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!-- Accent color for buttons -->
+        <item name="colorAccent">@color/darkGreen</item>
+        <!-- Button text color -->
+        <item name="android:textColorPrimary">@color/darkGreen</item>
+        <!-- Dialog background color -->
+        <item name="android:background">@android:color/white</item>
+    </style>
+</resources>
