@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Green background -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/darkGreen" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <!-- White tick -->
+    <item android:gravity="center">
+        <vector
+            android:width="24dp"
+            android:height="24dp"
+            android:tint="@android:color/white"
+            android:src="@drawable/ic_check" />
+    </item>
+</layer-list>
