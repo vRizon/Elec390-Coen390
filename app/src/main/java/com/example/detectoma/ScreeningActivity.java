@@ -62,25 +62,28 @@ public class ScreeningActivity extends AppCompatActivity {
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
+
         ImageView backIcon = findViewById(R.id.backIcon);
-        backIcon.setOnClickListener(v -> {
-            finish(); // Close the current activity and navigate back
-        });
+        backIcon.setOnClickListener(v -> finish());
+
         // Analyze button listener
         analyzeButton.setOnClickListener(v -> analyzeAndSaveResults());
 
-        updateButtonState();
+        // Set initial state of the Analyze button
+        updateAnalyzeButtonState();
     }
 
-    private void updateButtonState() {
-        // Enable or disable buttons based on the completion of previous steps
-        takePhotoButton.setEnabled(userDataCheckBox.isChecked());
-        takeTempButton.setEnabled(takePhotoCheckBox.isChecked());
-        takeDistButton.setEnabled(takeTempCheckBox.isChecked());
-        analyzeButton.setEnabled(userDataCheckBox.isChecked() &&
+    private void updateAnalyzeButtonState() {
+        // Enable Analyze button only when all tasks are completed
+        boolean allStepsCompleted = userDataCheckBox.isChecked() &&
                 takePhotoCheckBox.isChecked() &&
                 takeTempCheckBox.isChecked() &&
-                takeDistCheckBox.isChecked());
+                takeDistCheckBox.isChecked();
+
+        analyzeButton.setEnabled(allStepsCompleted);
+        analyzeButton.setBackgroundTintList(getResources().getColorStateList(
+                allStepsCompleted ? R.color.darkGreen : R.color.grey
+        ));
     }
 
     private void openUserDataActivity() {
@@ -104,7 +107,7 @@ public class ScreeningActivity extends AppCompatActivity {
     }
 
     private void analyzeAndSaveResults() {
-        long timestamp = System.currentTimeMillis(); // Capture the current timestamp
+        long timestamp = System.currentTimeMillis();
         String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -208,6 +211,7 @@ public class ScreeningActivity extends AppCompatActivity {
             takeDistCheckBox.setChecked(true);
         }
 
-        updateButtonState();
+        // Update Analyze button state after each step
+        updateAnalyzeButtonState();
     }
 }
