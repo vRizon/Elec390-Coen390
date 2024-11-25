@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -15,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,6 +46,35 @@ public class ProfileActivity extends AppCompatActivity {
         linkToDoctorButton = findViewById(R.id.linkToDoctorButton);
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        TextView greetingText = findViewById(R.id.greetingText);
+
+        // Fetch current user's name and update greetingText
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            DatabaseReference userRef = databaseReference.child("profiles").child(userId);
+
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    UserProfile userProfile = snapshot.getValue(UserProfile.class);
+                    if (userProfile != null) {
+                        String firstName = userProfile.getFirstName();
+                        greetingText.setText("Hello " + firstName);
+                    } else {
+                        greetingText.setText("Hello");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(ProfileActivity.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            greetingText.setText("Hello");
+        }
 
         linkToDoctorButton.setOnClickListener(v -> linkToHealthcareProvider());
 
