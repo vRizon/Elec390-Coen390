@@ -53,27 +53,26 @@ public class ScreeningActivity extends AppCompatActivity {
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
 
-
         // Set up button listeners
         userDataButton.setOnClickListener(v -> openUserDataActivity());
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
+
         ImageView backIcon = findViewById(R.id.backIcon);
         backIcon.setOnClickListener(v -> {
             finish(); // Close the current activity and navigate back
         });
+
         // Analyze button listener
         analyzeButton.setOnClickListener(v -> analyzeAndSaveResults());
 
-        updateButtonState();
+        // Initially disable Analyze button
+        analyzeButton.setEnabled(false);
     }
 
-    private void updateButtonState() {
-        // Enable or disable buttons based on the completion of previous steps
-        takePhotoButton.setEnabled(userDataCheckBox.isChecked());
-        takeTempButton.setEnabled(takePhotoCheckBox.isChecked());
-        takeDistButton.setEnabled(takeTempCheckBox.isChecked());
+    private void checkAnalyzeButtonState() {
+        // Enable Analyze button only when all tasks are completed
         analyzeButton.setEnabled(userDataCheckBox.isChecked() &&
                 takePhotoCheckBox.isChecked() &&
                 takeTempCheckBox.isChecked() &&
@@ -176,6 +175,6 @@ public class ScreeningActivity extends AppCompatActivity {
             takeDistCheckBox.setChecked(true);
         }
 
-        updateButtonState();
+        checkAnalyzeButtonState();
     }
 }
