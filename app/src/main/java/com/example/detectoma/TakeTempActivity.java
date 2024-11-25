@@ -1,5 +1,6 @@
 package com.example.detectoma;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -19,8 +26,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class TakeTempActivity extends AppCompatActivity {
@@ -36,6 +47,7 @@ public class TakeTempActivity extends AppCompatActivity {
     private ValueEventListener temperatureListener;
     private DatabaseReference buttonRef;
     private ValueEventListener buttonListener;
+    private LineChart temperatureChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +64,10 @@ public class TakeTempActivity extends AppCompatActivity {
         // Initialize UI components
         tempTextView = findViewById(R.id.tempTextView); // Add this TextView to your layout
         startMeasurementButton = findViewById(R.id.startMeasurementButton);
+        temperatureChart = findViewById(R.id.temperatureChart);
+
+        // Configure the chart
+        configureChart();
 
 
 
@@ -135,6 +151,40 @@ public class TakeTempActivity extends AppCompatActivity {
 //        });
     }
 
+    private void configureChart() {
+        // Customize your chart
+        temperatureChart.getDescription().setEnabled(false);
+        temperatureChart.setTouchEnabled(true);
+        temperatureChart.setDragEnabled(true);
+        temperatureChart.setScaleEnabled(true);
+        temperatureChart.setDrawGridBackground(false);
+        temperatureChart.setPinchZoom(true);
+
+        // Configure X-axis
+        XAxis xAxis = temperatureChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f); // one second intervals
+        xAxis.setValueFormatter(new ValueFormatter() {
+            private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss");
+
+            @Override
+            public String getFormattedValue(float value) {
+                if (temperatureReadings.isEmpty()) {
+                    return "";
+                }
+                long millis = (long) (value * 1000L) + temperatureReadings.get(0).getTimestamp();
+                return mFormat.format(new Date(millis));
+            }
+        });
+
+        // Configure Y-axis
+        YAxis leftAxis = temperatureChart.getAxisLeft();
+        leftAxis.setDrawGridLines(true);
+
+        YAxis rightAxis = temperatureChart.getAxisRight();
+        rightAxis.setEnabled(false);
+    }
+
     private void updateMeasurementButtonUI(boolean isMeasuring) {
         if (isMeasuring) {
             startMeasurementButton.setText("Measurement Ongoing");
@@ -193,6 +243,8 @@ public class TakeTempActivity extends AppCompatActivity {
 
             // Clear previous readings
             temperatureReadings.clear();
+            // Clear the chart
+            temperatureChart.clear();
 
             // Set up the listener
             DatabaseReference tempRef = databaseReference.child(userId).child("Temperature");
@@ -207,11 +259,14 @@ public class TakeTempActivity extends AppCompatActivity {
                         temperatureReadings.add(reading);
 
                         // Update UI
-                        tempTextView.setText("Latest Temperature: " + temperature + "°C at " + timestamp);
+                        tempTextView.setText("Latest Temperature: " + temperature + "°C");
                         Log.d(TAG, "Temperature reading: " + temperature + " at " + timestamp);
 
                         // Check for significant difference
                         checkForSignificantDifference();
+
+                        // Update the chart with the new data point
+                        addEntryToChart(reading);
                     } else {
                         Log.e(TAG, "Temperature data is null");
                     }
@@ -228,6 +283,51 @@ public class TakeTempActivity extends AppCompatActivity {
             Log.e(TAG, "User not logged in");
         }
     }
+
+    private void addEntryToChart(TemperatureReading reading) {
+        float xValue = (reading.getTimestamp() - temperatureReadings.get(0).getTimestamp()) / 1000f; // Time in seconds since first reading
+        float yValue = (float) reading.getTemperature();
+
+        Entry entry = new Entry(xValue, yValue);
+
+        LineData data = temperatureChart.getData();
+        if (data == null) {
+            data = new LineData();
+            temperatureChart.setData(data);
+        }
+
+        ILineDataSet set = data.getDataSetByIndex(0);
+        if (set == null) {
+            set = createSet();
+            data.addDataSet(set);
+        }
+
+        data.addEntry(entry, 0);
+        data.notifyDataChanged();
+
+        // let the chart know it's data has changed
+        temperatureChart.notifyDataSetChanged();
+
+        // limit the number of visible entries
+        temperatureChart.setVisibleXRangeMaximum(10);
+
+        // move to the latest entry
+        temperatureChart.moveViewToX(data.getEntryCount());
+    }
+
+    private LineDataSet createSet() {
+        LineDataSet set = new LineDataSet(null, "Temperature over Time");
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        set.setColor(Color.BLUE);
+        set.setCircleColor(Color.BLUE);
+        set.setLineWidth(2f);
+        set.setCircleRadius(4f);
+        set.setDrawCircleHole(false);
+        set.setValueTextSize(10f);
+        set.setValueTextColor(Color.BLACK);
+        return set;
+    }
+
 
     private void stopTemperatureMeasurement() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -273,11 +373,42 @@ public class TakeTempActivity extends AppCompatActivity {
             return;
         }
 
+        // Create a list of Entry objects for the chart
+        List<Entry> entries = new ArrayList<>();
+
+        long startTime = temperatureReadings.get(0).getTimestamp();
+
         // You can perform additional analysis here if needed
         // For this example, we'll just log the collected readings
         for (TemperatureReading reading : temperatureReadings) {
             Log.d(TAG, "Collected Temperature: " + reading.getTemperature() + " at " + reading.getTimestamp());
+            // Convert timestamp to seconds relative to startTime
+            float xValue = (reading.getTimestamp() - startTime) / 1000f;
+            float yValue = (float) reading.getTemperature();
+
+            entries.add(new Entry(xValue, yValue));
         }
+
+        // Create a LineDataSet with the entries
+        LineDataSet dataSet = new LineDataSet(entries, "Temperature over Time");
+
+        // Customize the LineDataSet (optional)
+        dataSet.setColor(Color.BLUE);
+        dataSet.setCircleColor(Color.BLUE);
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleRadius(4f);
+        dataSet.setDrawCircleHole(false);
+        dataSet.setValueTextSize(10f);
+        dataSet.setValueTextColor(Color.BLACK);
+
+        // Create LineData object with the dataSet
+        LineData lineData = new LineData(dataSet);
+
+        // Set data to the chart
+        temperatureChart.setData(lineData);
+
+        // Refresh the chart
+        temperatureChart.invalidate(); // Refreshes the chart
 
         // Show a confirmation dialog
         AlertDialog dialog = new AlertDialog.Builder(this)
