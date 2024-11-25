@@ -1,6 +1,8 @@
 package com.example.detectoma;
 
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 
 import android.content.Intent;
@@ -89,17 +91,66 @@ public class SignUpActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
+                        // Sign-up successful
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            String userUID = user.getUid();
-                            saveUserProfile(userUID, firstName, lastName, dob);
-                            sendUserUIDToDatabase(user.getUid());
-                            navigateToHome();
+                            // Send verification email
+                            user.sendEmailVerification()
+                                    .addOnCompleteListener(verificationTask -> {
+                                        if (verificationTask.isSuccessful()) {
+                                            // Email sent
+                                            Toast.makeText(SignUpActivity.this,
+                                                    "Verification email sent to " + user.getEmail(),
+                                                    Toast.LENGTH_SHORT).show();
+
+                                            // Save user profile information
+                                            String userUID = user.getUid();
+                                            saveUserProfile(userUID, firstName, lastName, dob);
+
+                                            // Sign out the user to prevent access before verification
+                                            mAuth.signOut();
+
+                                            // Redirect to login or appropriate activity
+                                            navigateToLogin();
+                                        } else {
+                                            // Email not sent
+                                            Toast.makeText(SignUpActivity.this,
+                                                    "Failed to send verification email.",
+                                                    Toast.LENGTH_SHORT).show();
+                                            Log.e(TAG, "sendEmailVerification", verificationTask.getException());
+                                        }
+                                    });
                         }
                     } else {
-                        Toast.makeText(SignUpActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        // Sign-up failed
+                        Toast.makeText(SignUpActivity.this,
+                                "Authentication failed: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "createUserWithEmail:failure", task.getException());
                     }
                 });
+
+        // Create user with email and password in Firebase Authentication
+//        mAuth.createUserWithEmailAndPassword(email, password)
+//                .addOnCompleteListener(this, task -> {
+//                    if (task.isSuccessful()) {
+//                        FirebaseUser user = mAuth.getCurrentUser();
+//                        if (user != null) {
+//                            String userUID = user.getUid();
+//                            saveUserProfile(userUID, firstName, lastName, dob);
+//                            sendUserUIDToDatabase(user.getUid());
+//                            navigateToHome();
+//                        }
+//                    } else {
+//                        Toast.makeText(SignUpActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+    }
+
+    private void navigateToLogin() {
+        Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();  // Close the sign-up activity
     }
 
     private void saveUserProfile(String userUID, String firstName, String lastName, String dob) {
@@ -110,8 +161,10 @@ public class SignUpActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(SignUpActivity.this, "User profile created successfully", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "User profile created successfully");
                     } else {
                         Toast.makeText(SignUpActivity.this, "Failed to create user profile", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Failed to create user profile", task.getException());
                     }
                 });
     }

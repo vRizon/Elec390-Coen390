@@ -72,6 +72,18 @@
             android:clickable="true"
             android:focusable="true"/>
 
+        <Button
+            android:id="@+id/forgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="Forgot Password?"
+            android:textColor="@color/green"
+            android:textSize="18sp" />
+
     </LinearLayout>
 
     <TextView
