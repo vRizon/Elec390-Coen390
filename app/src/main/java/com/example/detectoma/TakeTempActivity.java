@@ -1,5 +1,7 @@
 package com.example.detectoma;
 
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,6 +51,7 @@ public class TakeTempActivity extends AppCompatActivity {
     private DatabaseReference buttonRef;
     private ValueEventListener buttonListener;
     private LineChart temperatureChart;
+    double Tempdifference = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -352,11 +356,11 @@ public class TakeTempActivity extends AppCompatActivity {
         TemperatureReading lastReading = temperatureReadings.get(lastIndex);
         TemperatureReading previousReading = temperatureReadings.get(lastIndex - 1);
 
-        double difference = Math.abs(lastReading.getTemperature() - previousReading.getTemperature());
+        Tempdifference = Math.abs(lastReading.getTemperature() - previousReading.getTemperature());
 
-        if (difference > 2.0) {
+        if (Tempdifference > 2.0) {
             // Found a significant difference
-            String message = "Significant temperature change detected: " + difference + "°C";
+            String message = "Significant temperature change detected: " + Tempdifference + "°C";
             Log.d(TAG, message);
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
@@ -416,6 +420,8 @@ public class TakeTempActivity extends AppCompatActivity {
                 .setMessage("Temperature measurement has stopped. Do you want to submit this data?")
                 .setPositiveButton("Yes", (dialogInterface, which) -> {
                     setResult(RESULT_OK);
+                    saveGraphToDevice();
+                    saveTempDifferenceToPreferences();
                     Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
                     finish();
                 })
@@ -429,6 +435,39 @@ public class TakeTempActivity extends AppCompatActivity {
 
         dialog.show();
 
+    }
+
+    private void saveTempDifferenceToPreferences() {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat("TempDifference", (float) Tempdifference);
+        editor.apply(); // or editor.commit();
+
+        Log.d(TAG, "Temperature difference saved to SharedPreferences: " + Tempdifference);
+    }
+
+    private void saveGraphToDevice() {
+        if (temperatureChart.getData() == null || temperatureChart.getData().getEntryCount() == 0) {
+            Toast.makeText(this, "No graph data available to save", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // Get the Bitmap from the LineChart
+            Bitmap bitmap = temperatureChart.getChartBitmap();
+
+            // Save the bitmap to internal storage
+            String filename = "saved_graph.jpg"; // Adjust filename as needed
+            FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.close();
+
+            Toast.makeText(this, "Graph saved successfully to device storage", Toast.LENGTH_SHORT).show();
+            Log.d("TakeTempActivity", "Graph saved successfully to device storage.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to save graph", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
