@@ -45,7 +45,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Initialize UI components
         linkCodeEditText = findViewById(R.id.linkCodeEditText);
         linkToDoctorButton = findViewById(R.id.linkToDoctorButton);
-        ImageView logoutIcon = findViewById(R.id.logoutIcon);
+        ImageView logoutIcon = findViewById(R.id.logoutIcon); // Logout icon
         TextView greetingText = findViewById(R.id.greetingText);
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -77,24 +77,22 @@ public class ProfileActivity extends AppCompatActivity {
             greetingText.setText("Hello");
         }
 
-        // Link to doctor button
         linkToDoctorButton.setOnClickListener(v -> linkToHealthcareProvider());
 
-        // Start screening button
         Button startScreeningButton = findViewById(R.id.startScreeningButton);
         startScreeningButton.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, ScreeningActivity.class);
             startActivity(intent);
         });
 
-        // Logout button functionality
+        // Logout icon functionality
         logoutIcon.setOnClickListener(v -> {
-            mAuth.signOut();
+            mAuth.signOut(); // Firebase sign out
             Toast.makeText(ProfileActivity.this, "Logged out successfully!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear activity stack
             startActivity(intent);
-            finish();
+            finish(); // Finish current activity
         });
     }
 
