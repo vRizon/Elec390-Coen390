@@ -16,6 +16,7 @@ import com.google.firebase.storage.StorageReference;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -120,7 +121,7 @@ public class ScreeningActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> Toast.makeText(this, "Data saved successfully!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to save data.", Toast.LENGTH_SHORT).show());
 
-        renameImageInStorage(uid, formattedDate);
+        renameLocalImageAndUpload(uid, formattedDate);
 
         Intent intent = new Intent(this, resultsActivity.class);
         intent.putExtra("asymmetry", asymmetry);
@@ -132,17 +133,27 @@ public class ScreeningActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void renameImageInStorage(String uid, String formattedDate) {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference oldImageRef = storage.getReference("/Patients/" + uid + "/photo.jpg");
-        StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/" + formattedDate + ".jpg");
+    private void renameLocalImageAndUpload(String uid, String formattedDate) {
+        try {
+            // Load the existing image from internal storage
+            FileInputStream fis = openFileInput("image.jpg");
+            byte[] imageBytes = new byte[fis.available()];
+            fis.read(imageBytes);
+            fis.close();
 
-        oldImageRef.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
-            newImageRef.putBytes(bytes).addOnSuccessListener(taskSnapshot -> {
-                oldImageRef.delete().addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, "Image renamed successfully!", Toast.LENGTH_SHORT).show());
-            }).addOnFailureListener(e -> Toast.makeText(this, "Failed to rename image.", Toast.LENGTH_SHORT).show());
-        }).addOnFailureListener(e -> Toast.makeText(this, "Failed to access current image.", Toast.LENGTH_SHORT).show());
+            // Rename and upload to Firebase Storage
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
+
+            newImageRef.putBytes(imageBytes).addOnSuccessListener(taskSnapshot ->
+                            Toast.makeText(this, "Image renamed and uploaded successfully!", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Failed to rename and upload image.", Toast.LENGTH_SHORT).show());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to access the local image.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
