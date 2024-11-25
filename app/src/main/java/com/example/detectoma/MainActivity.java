@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private Button loginButton;
     private Button signUpButton;
+    private Button forgotPassword;
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference;
 
@@ -44,9 +45,12 @@ public class MainActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         signUpButton = findViewById(R.id.signUpButton);
+        forgotPassword = findViewById(R.id.forgotPassword);
 
         loginButton.setOnClickListener(v -> loginUser());
         signUpButton.setOnClickListener(v -> navigateToSignUp());
+        forgotPassword.setOnClickListener(v -> resetPassword());
+
     }
 
     private void loginUser() {
@@ -98,6 +102,41 @@ public class MainActivity extends AppCompatActivity {
 
                 });
     }
+
+    private void resetPassword() {
+        String email = usernameEditText.getText().toString().trim();
+
+        if (email.isEmpty()) {
+            // Prompt the user to enter their email
+            usernameEditText.setError("Please enter your registered email");
+            usernameEditText.requestFocus();
+            return;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            // Check if the email format is valid
+            usernameEditText.setError("Please enter a valid email address");
+            usernameEditText.requestFocus();
+            return;
+        }
+
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Password reset email sent
+                        Toast.makeText(MainActivity.this,
+                                "Password reset email sent. Please check your email.",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        // Failed to send reset email
+                        Toast.makeText(MainActivity.this,
+                                "Failed to send password reset email. Please try again.",
+                                Toast.LENGTH_LONG).show();
+                        Log.e("ResetPassword", "Error: " + task.getException().getMessage());
+                    }
+                });
+    }
+
 
     private void navigateToSignUp() {
         Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
