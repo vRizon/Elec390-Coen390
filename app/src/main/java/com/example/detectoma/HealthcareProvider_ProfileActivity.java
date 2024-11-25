@@ -1,9 +1,11 @@
 package com.example.detectoma;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,8 +75,20 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
         generateCodeButton = findViewById(R.id.generateCodeButton);
         viewCodeTextView = findViewById(R.id.viewCodeTextView);
         patientsContainer = findViewById(R.id.patientsContainer);
+        ImageView logoutIcon = findViewById(R.id.logoutIcon);
+        logoutIcon.setOnClickListener(v -> logOutUser());
     }
+    private void logOutUser() {
+        // Log out from Firebase Auth
+        FirebaseAuth.getInstance().signOut();
 
+        // Redirect to LoginActivity or the main entry point
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(HealthcareProvider_ProfileActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
     private void loadPatientData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
@@ -190,26 +204,30 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
     }
 
     private void unlinkPatient(String patientId) {
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Unlink Patient")
                 .setMessage("Are you sure you want to unlink this patient?")
-                .setPositiveButton("Yes", (dialog, which) -> {
+                .setPositiveButton("Yes", (dialogInterface, which) -> {
                     String doctorId = mAuth.getCurrentUser().getUid();
                     DatabaseReference doctorRef = mDatabase.child("patients").child(patientId);
                     DatabaseReference patientRef = mDatabase.getParent().child(patientId).child("linkedDoctorId");
 
-                    // Remove patient from doctor's list
                     doctorRef.removeValue().addOnSuccessListener(aVoid -> {
-                        // Remove doctor reference from patient's profile
                         patientRef.removeValue().addOnSuccessListener(aVoid1 -> {
                             Toast.makeText(HealthcareProvider_ProfileActivity.this, "Patient unlinked successfully!", Toast.LENGTH_SHORT).show();
-                            // Remove any existing UI to avoid duplication, then reload
                             patientsContainer.removeAllViews();
                             loadPatientData();
                         }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from patient's profile.", Toast.LENGTH_SHORT).show());
                     }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from doctor's profile.", Toast.LENGTH_SHORT).show());
                 })
-                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                .show();
+                .setNegativeButton("No", (dialogInterface, which) -> dialogInterface.dismiss())
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+        });
+
+        dialog.show();
     }
 }
