@@ -13,5 +13,12 @@
         <item name="android:textColorPrimary">@color/darkGreen</item>
         <!-- Dialog background color -->
         <item name="android:background">@android:color/white</item>
+
+    </style>
+
+    <style name="CustomCheckBox">CustomCheckBox
+        <item name="colorControlHighlight">@color/darkGreen</item>
+        <item name="colorControlActivated">@color/darkGreen</item>
+        <item name="android:buttonTint">@color/darkGreen</item>
     </style>
 </resources>

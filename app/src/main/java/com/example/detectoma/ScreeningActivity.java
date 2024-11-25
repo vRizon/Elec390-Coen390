@@ -53,31 +53,33 @@ public class ScreeningActivity extends AppCompatActivity {
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
 
-
         // Set up button listeners
         userDataButton.setOnClickListener(v -> openUserDataActivity());
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
+
         ImageView backIcon = findViewById(R.id.backIcon);
-        backIcon.setOnClickListener(v -> {
-            finish(); // Close the current activity and navigate back
-        });
+        backIcon.setOnClickListener(v -> finish());
+
         // Analyze button listener
         analyzeButton.setOnClickListener(v -> analyzeAndSaveResults());
 
-        updateButtonState();
+        // Set initial state of the Analyze button
+        updateAnalyzeButtonState();
     }
 
-    private void updateButtonState() {
-        // Enable or disable buttons based on the completion of previous steps
-        takePhotoButton.setEnabled(userDataCheckBox.isChecked());
-        takeTempButton.setEnabled(takePhotoCheckBox.isChecked());
-        takeDistButton.setEnabled(takeTempCheckBox.isChecked());
-        analyzeButton.setEnabled(userDataCheckBox.isChecked() &&
+    private void updateAnalyzeButtonState() {
+        // Enable Analyze button only when all tasks are completed
+        boolean allStepsCompleted = userDataCheckBox.isChecked() &&
                 takePhotoCheckBox.isChecked() &&
                 takeTempCheckBox.isChecked() &&
-                takeDistCheckBox.isChecked());
+                takeDistCheckBox.isChecked();
+
+        analyzeButton.setEnabled(allStepsCompleted);
+        analyzeButton.setBackgroundTintList(getResources().getColorStateList(
+                allStepsCompleted ? R.color.darkGreen : R.color.grey
+        ));
     }
 
     private void openUserDataActivity() {
@@ -101,12 +103,12 @@ public class ScreeningActivity extends AppCompatActivity {
     }
 
     private void analyzeAndSaveResults() {
-        long timestamp = System.currentTimeMillis(); // Capture the current timestamp
+        long timestamp = System.currentTimeMillis();
         String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
-        DatabaseReference timestampRef = databaseRef.child(formattedDate); // Reference for this timestamp
+        DatabaseReference timestampRef = databaseRef.child(formattedDate);
 
         double currentTemperature = 37.5; // Replace with actual temperature value
         double currentDistance = 15.0; // Replace with actual distance value
@@ -135,13 +137,11 @@ public class ScreeningActivity extends AppCompatActivity {
 
     private void renameLocalImageAndUpload(String uid, String formattedDate) {
         try {
-            // Load the existing image from internal storage
             FileInputStream fis = openFileInput("image.jpg");
             byte[] imageBytes = new byte[fis.available()];
             fis.read(imageBytes);
             fis.close();
 
-            // Rename and upload to Firebase Storage
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
 
@@ -176,6 +176,7 @@ public class ScreeningActivity extends AppCompatActivity {
             takeDistCheckBox.setChecked(true);
         }
 
-        updateButtonState();
+        // Update Analyze button state after each step
+        updateAnalyzeButtonState();
     }
 }
