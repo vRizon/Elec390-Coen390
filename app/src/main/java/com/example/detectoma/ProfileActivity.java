@@ -5,10 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -33,8 +33,9 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_profile);
+
+        // Adjust window insets for edge-to-edge UI
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.profile), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -44,10 +45,10 @@ public class ProfileActivity extends AppCompatActivity {
         // Initialize UI components
         linkCodeEditText = findViewById(R.id.linkCodeEditText);
         linkToDoctorButton = findViewById(R.id.linkToDoctorButton);
+        ImageView logoutIcon = findViewById(R.id.logoutIcon);
+        TextView greetingText = findViewById(R.id.greetingText);
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
-
-        TextView greetingText = findViewById(R.id.greetingText);
 
         // Fetch current user's name and update greetingText
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -76,12 +77,24 @@ public class ProfileActivity extends AppCompatActivity {
             greetingText.setText("Hello");
         }
 
+        // Link to doctor button
         linkToDoctorButton.setOnClickListener(v -> linkToHealthcareProvider());
 
+        // Start screening button
         Button startScreeningButton = findViewById(R.id.startScreeningButton);
         startScreeningButton.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, ScreeningActivity.class);
             startActivity(intent);
+        });
+
+        // Logout button functionality
+        logoutIcon.setOnClickListener(v -> {
+            mAuth.signOut();
+            Toast.makeText(ProfileActivity.this, "Logged out successfully!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear activity stack
+            startActivity(intent);
+            finish();
         });
     }
 
