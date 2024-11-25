@@ -11,82 +11,119 @@
     <!-- Toolbar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/darkGreen"
+        android:layout_width="420dp"
+        android:layout_height="75dp"
+        android:background="@drawable/backgroundnavbar"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="20dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/greetingText"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Hello"
+            android:layout_weight="1"
+            android:text="Hello, Patient"
             android:textColor="#FFFFFF"
             android:textSize="22sp"
             android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/logoutIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Logout Icon"
+            android:src="@drawable/icon_logout" />
     </LinearLayout>
 
+    <!-- Link to Doctor Section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linkDoctorSection"
+        android:layout_width="312dp"
+        android:layout_height="103dp"
+        android:layout_marginTop="16dp"
+        android:background="#E0E0E0"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topMenuBar">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Link to your doctor"
+            android:textColor="#363636"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/linkCodeEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="20dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/darkGreen"
+            android:hint="Ex.123456"
+            android:padding="12dp"
+            android:textColorHint="@color/darkGreen"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/linkToDoctorButton"
+            android:layout_width="82dp"
+            android:layout_height="49dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="40dp"
+            android:backgroundTint="@color/darkGreen"
+            android:text="Link"
+            android:textColor="#FFF"
+            android:textSize="16sp"
+            app:cornerRadius="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <!-- Start Screening Button -->
+
+    <!-- Past Screenings Section -->
     <Button
         android:id="@+id/startScreeningButton"
-        android:layout_width="240dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="363dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="32dp"
         android:backgroundTint="@color/darkGreen"
-        android:text="Start new screening"
+        android:padding="16dp"
+        android:text="Start screening"
         android:textColor="#FFF"
-        android:textSize="16sp"
-        app:cornerRadius="10dp"
-        app:layout_constraintTop_toBottomOf="@id/topMenuBar"
+        android:textSize="18sp"
+        app:cornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/linkDoctorSection" />
 
-    <!-- Add Screening Button -->
-    <Button
-        android:id="@+id/btnAddScreening"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/darkGreen"
-        android:text="+"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
-        app:cornerRadius="35dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Doctor's Code EditText -->
-    <EditText
-        android:id="@+id/linkCodeEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    <TextView
+        android:id="@+id/pastListingsText"
+        android:layout_width="359dp"
+        android:layout_height="63dp"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
-        android:hint="Enter Doctor's Code"
-        android:padding="12dp"
-        android:backgroundTint="@color/darkGreen"
-        app:layout_constraintTop_toBottomOf="@id/startScreeningButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Link to Doctor Button -->
-    <Button
-        android:id="@+id/linkToDoctorButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Link to Doctor"
+        android:background="#E0E0E0"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="You have no past screenings."
+        android:textColor="#757575"
         android:textSize="16sp"
-        android:backgroundTint="@color/darkGreen"
-        android:textColor="#FFF"
-        app:cornerRadius="10dp"
-        app:layout_constraintTop_toBottomOf="@id/linkCodeEditText"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/startScreeningButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
