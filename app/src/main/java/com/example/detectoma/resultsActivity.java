@@ -280,7 +280,8 @@ public class resultsActivity extends AppCompatActivity {
 
         // Update storage reference to the path of the current user's image
         storageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
-
+       // StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
+        //StorageReference storageRef = storage.getReference("/Patients/4t34RojIIuNPeJ79j1OKWZJ75EJ2/i_2024-11-26 10:32.jpg");
         Log.d(TAG, "Fetching image from path: /Patients/" + uid + "/i_" + formattedDate + ".jpg");
 
         // Proceed to fetch the image from Firebase Storage

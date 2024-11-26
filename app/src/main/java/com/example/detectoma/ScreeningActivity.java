@@ -17,12 +17,18 @@ import com.google.firebase.storage.StorageReference;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.tasks.TaskCompletionSource;
+
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScreeningActivity extends AppCompatActivity {
 
@@ -59,7 +65,6 @@ public class ScreeningActivity extends AppCompatActivity {
         takePhotoCheckBox = findViewById(R.id.takePhotoCheckBox);
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
-
 
         // Set up button listeners
         userDataButton.setOnClickListener(v -> openUserDataActivity());
@@ -112,10 +117,13 @@ public class ScreeningActivity extends AppCompatActivity {
 
     private void analyzeAndSaveResults() {
         long timestamp = System.currentTimeMillis();
-        String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
+        String formattedDate = new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.getDefault()).format(new Date(timestamp));
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance()
+                .getReference("profiles")
+                .child(uid)
+                .child("screenings");
         DatabaseReference timestampRef = databaseRef.child(formattedDate); // Reference for this timestamp
 
         // Retrieve the distance values from SharedPreferences
@@ -130,7 +138,7 @@ public class ScreeningActivity extends AppCompatActivity {
             bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
             roundedDistanceSurfaceStr = bd.toPlainString();
         } else {
-            // Handle the case where TempDifference is not found
+            // Handle the case where distanceSurface is not found
             roundedDistanceSurfaceStr = "0.00";
         }
 
@@ -140,22 +148,11 @@ public class ScreeningActivity extends AppCompatActivity {
             bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
             roundedDistanceArmStr = bd.toPlainString();
         } else {
-            // Handle the case where TempDifference is not found
+            // Handle the case where distanceArm is not found
             roundedDistanceArmStr = "0.00";
         }
 
-
-
-        if (distanceSurface != -1 && distanceArm != -1) {
-            timestampRef.child("distanceSurface").setValue(roundedDistanceSurfaceStr);
-            timestampRef.child("distanceArm").setValue(roundedDistanceArmStr);
-        } else {
-            Toast.makeText(this, "Distance data is missing!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-
-        // Retrieve Tempdifference from SharedPreferences
+        // Retrieve TempDifference from SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         float tempDifferenceFloat = sharedPreferences.getFloat("TempDifference", -1.0f);
 
@@ -171,29 +168,45 @@ public class ScreeningActivity extends AppCompatActivity {
             roundedTempDifferenceStr = "0.00";
         }
 
-        timestampRef.child("temperatureDiff").setValue(roundedTempDifferenceStr);
-        timestampRef.child("asymmetry").setValue(asymmetry);
-        timestampRef.child("border").setValue(border);
-        timestampRef.child("color").setValue(color);
-        timestampRef.child("diameter").setValue(diameter);
-        timestampRef.child("evolving").setValue(evolving)
-                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Data saved successfully!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to save data.", Toast.LENGTH_SHORT).show());
+        // Collect all database write tasks
+        List<Task<Void>> databaseTasks = new ArrayList<>();
+        databaseTasks.add(timestampRef.child("asymmetry").setValue(asymmetry));
+        databaseTasks.add(timestampRef.child("border").setValue(border));
+        databaseTasks.add(timestampRef.child("color").setValue(color));
+        databaseTasks.add(timestampRef.child("diameter").setValue(diameter));
+        databaseTasks.add(timestampRef.child("evolving").setValue(evolving));
+        databaseTasks.add(timestampRef.child("temperatureDiff").setValue(roundedTempDifferenceStr));
+        databaseTasks.add(timestampRef.child("distanceSurface").setValue(roundedDistanceSurfaceStr));
+        databaseTasks.add(timestampRef.child("distanceArm").setValue(roundedDistanceArmStr));
 
-        renameLocalImageAndUpload(uid, formattedDate);
+        // Get the image upload task
+        Task<Void> uploadTask = renameLocalImageAndUpload(uid, formattedDate);
 
-        Intent intent = new Intent(this, resultsActivity.class);
-        //intent.putExtra("asymmetry", asymmetry);
-        //intent.putExtra("border", border);
-        //intent.putExtra("color", color);
-        //intent.putExtra("diameter", diameter);
-        //intent.putExtra("evolving", evolving);
-        intent.putExtra("FORMATTED_DATE", formattedDate);
-        intent.putExtra("UID", uid);
-        startActivity(intent);
+        // Combine all tasks
+        List<Task<?>> allTasks = new ArrayList<>();
+        allTasks.addAll(databaseTasks);
+        allTasks.add(uploadTask);
+
+        // Wait for all tasks to complete
+        Tasks.whenAll(allTasks)
+                .addOnSuccessListener(aVoid -> {
+                    // All tasks completed successfully
+                    Toast.makeText(this, "Data saved and image uploaded successfully!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, resultsActivity.class);
+                    intent.putExtra("FORMATTED_DATE", formattedDate);
+                    intent.putExtra("UID", uid);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                    // At least one of the tasks failed
+                    Toast.makeText(this, "Failed to complete all tasks.", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                });
     }
 
-    private void renameLocalImageAndUpload(String uid, String formattedDate) {
+    private Task<Void> renameLocalImageAndUpload(String uid, String formattedDate) {
+        TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
+
         try {
             // Load the existing image from internal storage
             FileInputStream fis = openFileInput("image.jpg");
@@ -205,17 +218,25 @@ public class ScreeningActivity extends AppCompatActivity {
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
 
-            newImageRef.putBytes(imageBytes).addOnSuccessListener(taskSnapshot ->
-                            Toast.makeText(this, "Image renamed and uploaded successfully!", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "Failed to rename and upload image.", Toast.LENGTH_SHORT).show());
+            newImageRef.putBytes(imageBytes)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Image uploaded successfully
+                        taskCompletionSource.setResult(null);
+                    })
+                    .addOnFailureListener(e -> {
+                        // Failed to upload image
+                        e.printStackTrace();
+                        taskCompletionSource.setException(e);
+                    });
 
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to access the local image.", Toast.LENGTH_SHORT).show();
+            taskCompletionSource.setException(e);
         }
-    }
 
+        return taskCompletionSource.getTask();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
