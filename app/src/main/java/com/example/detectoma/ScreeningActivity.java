@@ -183,12 +183,13 @@ public class ScreeningActivity extends AppCompatActivity {
         renameLocalImageAndUpload(uid, formattedDate);
 
         Intent intent = new Intent(this, resultsActivity.class);
-        intent.putExtra("asymmetry", asymmetry);
-        intent.putExtra("border", border);
-        intent.putExtra("color", color);
-        intent.putExtra("diameter", diameter);
-        intent.putExtra("evolving", evolving);
+        //intent.putExtra("asymmetry", asymmetry);
+        //intent.putExtra("border", border);
+        //intent.putExtra("color", color);
+        //intent.putExtra("diameter", diameter);
+        //intent.putExtra("evolving", evolving);
         intent.putExtra("FORMATTED_DATE", formattedDate);
+        intent.putExtra("UID", uid);
         startActivity(intent);
     }
 
