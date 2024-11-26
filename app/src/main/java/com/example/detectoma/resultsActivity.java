@@ -25,7 +25,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -71,25 +74,36 @@ public class resultsActivity extends AppCompatActivity {
     private TextView predictionTextView;
     private ImageView imageView;
 
-
     private boolean isHeatmapVisible = false; // Track heatmap state
     private Bitmap originalBitmap; // Store the original image
     private Bitmap heatmapBitmap;  // Store the heatmap overlay
 
-
     // Views for Questionnaire Results
     private TextView resultsTextView;
     private TextView recommendationTextView;
-//2024-11-21 12:30.jpg
+
     // Firebase Storage reference
     private FirebaseStorage storage = FirebaseStorage.getInstance();
-
     private StorageReference storageRef;
 
     private Interpreter tflite;
     private final long ONE_MEGABYTE = 5 * 1024 * 1024; // 5 MB
 
     private float[] classWeights; // To store the classification layer weights
+
+    // Declare booleans for questionnaire results
+    private boolean asymmetry = false;
+    private boolean border = false;
+    private boolean color = false;
+    private boolean diameter = false;
+    private boolean evolving = false;
+
+    // Variables to hold Intent extras
+    private String formattedDate;
+    private String uid;
+
+    // Path to questionnaire results in Firebase Database
+    private String questionnaireResultsPathTemplate = "/profiles/%s/screenings/%s/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,28 +138,58 @@ public class resultsActivity extends AppCompatActivity {
         resultsTextView = findViewById(R.id.resultsTextView);
         recommendationTextView = findViewById(R.id.recommendationTextView);
 
+        // Retrieve Intent extras
+        Intent intent = getIntent();
+        formattedDate = intent.getStringExtra("FORMATTED_DATE");
+        uid = intent.getStringExtra("UID");
+
+        if (formattedDate == null || uid == null) {
+            Log.e(TAG, "FORMATTED_DATE or UID not provided in Intent");
+            showErrorToUser("Required data not provided. Please try again.");
+            return;
+        }
+
         // Load the classification layer weights
         loadClassWeights();
 
         // Download and load the model
-        // If you prefer to load the model from assets, comment the following line and uncomment loadModelFromAssets()
         downloadAndLoadModel();
 
-        // For loading model from assets, use:
-        // loadModelFromAssets();
+        // Fetch questionnaire results from Firebase
+        fetchQuestionnaireResults();
+    }
 
-        // Retrieve questionnaire results from Intent
-        Intent intent = getIntent();
-        boolean asymmetry = intent.getBooleanExtra("asymmetry", false);
-        boolean border = intent.getBooleanExtra("border", false);
-        boolean color = intent.getBooleanExtra("color", false);
-        boolean diameter = intent.getBooleanExtra("diameter", false);
-        boolean evolving = intent.getBooleanExtra("evolving", false);
+    /**
+     * Fetches the questionnaire results from Firebase Realtime Database.
+     */
+    private void fetchQuestionnaireResults() {
+        // Build the path using UID and formattedDate
+        String questionnaireResultsPath = String.format(questionnaireResultsPathTemplate, uid, formattedDate);
 
-        // Analyze and display questionnaire results
-        analyzeResults(asymmetry, border, color, diameter, evolving);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(questionnaireResultsPath);
 
-        processImageFromFirebase();
+        // Add a listener to retrieve the data
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // Retrieve the booleans
+                asymmetry = dataSnapshot.child("asymmetry").getValue(Boolean.class) != null ? dataSnapshot.child("asymmetry").getValue(Boolean.class) : false;
+                border = dataSnapshot.child("border").getValue(Boolean.class) != null ? dataSnapshot.child("border").getValue(Boolean.class) : false;
+                color = dataSnapshot.child("color").getValue(Boolean.class) != null ? dataSnapshot.child("color").getValue(Boolean.class) : false;
+                diameter = dataSnapshot.child("diameter").getValue(Boolean.class) != null ? dataSnapshot.child("diameter").getValue(Boolean.class) : false;
+                evolving = dataSnapshot.child("evolving").getValue(Boolean.class) != null ? dataSnapshot.child("evolving").getValue(Boolean.class) : false;
+
+                // Now analyze and display questionnaire results
+                analyzeResults(asymmetry, border, color, diameter, evolving);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "Failed to read questionnaire results", databaseError.toException());
+                showErrorToUser("Failed to load questionnaire results.");
+            }
+        });
     }
 
     /**
@@ -196,8 +240,6 @@ public class resultsActivity extends AppCompatActivity {
 
                 // Proceed to process the image
                 processImageFromFirebase();
-                // Or use a local image for testing
-                // processImageFromAssets();
             } catch (Exception e) {
                 Log.e(TAG, "Error initializing interpreter", e);
                 showErrorToUser("Failed to initialize the model.");
@@ -224,125 +266,42 @@ public class resultsActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads the TensorFlow Lite model from the app's assets directory.
-     */
-    private void loadModelFromAssets() {
-        try {
-            AssetFileDescriptor fileDescriptor = getAssets().openFd("model_with_cam.tflite");
-            FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
-            FileChannel fileChannel = inputStream.getChannel();
-            long startOffset = fileDescriptor.getStartOffset();
-            long declaredLength = fileDescriptor.getDeclaredLength();
-            MappedByteBuffer modelBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
-
-            // Initialize the interpreter
-            tflite = new Interpreter(modelBuffer);
-            Log.d(TAG, "Interpreter initialized from assets.");
-
-            // Proceed to process the image
-            processImageFromAssets();
-        } catch (IOException e) {
-            Log.e(TAG, "Error loading model from assets", e);
-            showErrorToUser("Failed to load model from assets.");
-        }
-    }
-
-    /**
      * Downloads the image from Firebase Storage and initiates processing.
      */
     private void processImageFromFirebase() {
         Log.d(TAG, "Starting image processing...");
 
-        // Get the current user's ID from Firebase Authentication
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Log.e(TAG, "User not logged in");
-            showErrorToUser("Please log in to view your results.");
+        // Use the UID and formattedDate from Intent extras
+        if (uid == null || formattedDate == null) {
+            Log.e(TAG, "UID or FORMATTED_DATE is null");
+            showErrorToUser("Required data not provided. Please try again.");
             return;
         }
-        String userId = currentUser.getUid();
 
-        // Generate the current timestamp to get the latest image (assuming the file format includes a timestamp)
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date());
+        // Update storage reference to the path of the current user's image
+        storageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
+       // StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
+        //StorageReference storageRef = storage.getReference("/Patients/4t34RojIIuNPeJ79j1OKWZJ75EJ2/i_2024-11-26 10:32.jpg");
+        Log.d(TAG, "Fetching image from path: /Patients/" + uid + "/i_" + formattedDate + ".jpg");
 
-        // Update storage reference to the path of the current user's latest image
-        storageRef = storage.getReference("/Patients/" + userId + "/" + timestamp + ".jpg");
+        // Proceed to fetch the image from Firebase Storage
+        storageRef.getBytes(ONE_MEGABYTE)
+                .addOnSuccessListener(bytes -> {
+                    Log.d(TAG, "Image successfully fetched from Firebase.");
 
-        Log.d(TAG, "Fetching image from path: /Patients/" + userId + "/" + timestamp + ".jpg");
+                    // Decode the image bytes into a Bitmap
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-        // Check if a locally saved image exists
-        File localFile = new File(getFilesDir(), "saved_image.jpg");
-        if (localFile.exists()) {
-            Log.d(TAG, "Found locally saved image. Loading from internal storage.");
-            Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                    // Display the image in the ImageView
+                    imageView.setImageBitmap(bitmap);
 
-            // Display the locally saved image
-            imageView.setImageBitmap(bitmap);
-
-            // Proceed to run the model with the loaded image
-            runModel(bitmap);
-        } else {
-            Log.d(TAG, "No locally saved image found. Attempting to fetch from Firebase.");
-
-            // Proceed to fetch the image from Firebase Storage
-            storageRef.getBytes(ONE_MEGABYTE)
-                    .addOnSuccessListener(bytes -> {
-                        Log.d(TAG, "Image successfully fetched from Firebase.");
-
-                        // Decode the image bytes into a Bitmap
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                        // Display the image in the ImageView
-                        imageView.setImageBitmap(bitmap);
-
-                        // Save the fetched image locally for future use
-                        saveImageLocally(bitmap);
-
-                        // Run the model on the fetched image
-                        runModel(bitmap);
-                    })
-                    .addOnFailureListener(exception -> {
-                        Log.e(TAG, "Error fetching image from Firebase", exception);
-                        showErrorToUser("Failed to fetch image from Firebase. Please try again later.");
-                    });
-        }
-    }
-
-    private void saveImageLocally(Bitmap bitmap) {
-        try {
-            // Open a file output stream to save the image
-            FileOutputStream fos = openFileOutput("saved_image.jpg", MODE_PRIVATE);
-
-            // Compress the bitmap and save it as JPEG
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-
-            // Close the output stream
-            fos.close();
-            Log.d(TAG, "Image saved locally as saved_image.jpg.");
-        } catch (Exception e) {
-            Log.e(TAG, "Error saving image locally", e);
-            showErrorToUser("Failed to save image locally.");
-        }
-    }
-
-    /**
-     * Loads a local image from assets for testing purposes.
-     */
-    private void processImageFromAssets() {
-        try {
-            InputStream is = getAssets().open("2024-11-21 12:30.jpg"); // Ensure test1.jpg is in assets
-            Bitmap bitmap = BitmapFactory.decodeStream(is);
-            is.close();
-
-            // Display the original image
-            imageView.setImageBitmap(bitmap);
-
-            // Run the model on the image
-            runModel(bitmap);
-        } catch (IOException e) {
-            Log.e(TAG, "Error loading image from assets", e);
-            showErrorToUser("Failed to load image from assets.");
-        }
+                    // Run the model on the fetched image
+                    runModel(bitmap);
+                })
+                .addOnFailureListener(exception -> {
+                    Log.e(TAG, "Error fetching image from Firebase", exception);
+                    showErrorToUser("Failed to fetch image from Firebase. Please try again later.");
+                });
     }
 
     /**
@@ -426,7 +385,6 @@ public class resultsActivity extends AppCompatActivity {
         }
     }
 
-
     public void toggleHeatmap() {
         if (heatmapBitmap == null || originalBitmap == null) {
             Toast.makeText(this, "Heatmap or original image not ready.", Toast.LENGTH_SHORT).show();
@@ -443,9 +401,6 @@ public class resultsActivity extends AppCompatActivity {
             isHeatmapVisible = true;
         }
     }
-
-
-
 
     /**
      * Preprocesses the input bitmap to match the model's expected input format.
@@ -519,11 +474,11 @@ public class resultsActivity extends AppCompatActivity {
     /**
      * Computes the Class Activation Map (CAM) based on feature maps and class weights.
      *
-     * @param featureMaps    The output feature maps from the model.
-     * @param classWeights   The weights of the classification layer.
+     * @param featureMaps     The output feature maps from the model.
+     * @param classWeights    The weights of the classification layer.
      * @param featureMapShape The shape of the feature maps tensor.
-     * @param outputWidth    The desired width of the CAM bitmap.
-     * @param outputHeight   The desired height of the CAM bitmap.
+     * @param outputWidth     The desired width of the CAM bitmap.
+     * @param outputHeight    The desired height of the CAM bitmap.
      * @return A Bitmap representing the CAM heatmap.
      */
     private Bitmap computeCAM(float[] featureMaps, float[] classWeights, int[] featureMapShape, int outputWidth, int outputHeight) {
@@ -626,10 +581,10 @@ public class resultsActivity extends AppCompatActivity {
      * Analyzes the questionnaire results and displays appropriate messages.
      *
      * @param asymmetry Indicates if asymmetry was flagged.
-     * @param border     Indicates if border irregularity was flagged.
-     * @param color      Indicates if color variation was flagged.
-     * @param diameter   Indicates if diameter was flagged.
-     * @param evolving   Indicates if evolution was flagged.
+     * @param border    Indicates if border irregularity was flagged.
+     * @param color     Indicates if color variation was flagged.
+     * @param diameter  Indicates if diameter was flagged.
+     * @param evolving  Indicates if evolution was flagged.
      */
     private void analyzeResults(boolean asymmetry, boolean border, boolean color, boolean diameter, boolean evolving) {
         List<String> flaggedCriteria = new ArrayList<>();
