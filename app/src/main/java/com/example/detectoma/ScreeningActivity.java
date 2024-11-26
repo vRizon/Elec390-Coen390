@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.tasks.TaskCompletionSource;
-import com.google.gson.Gson;
+//import com.google.gson.Gson;
 
 import java.io.FileInputStream;
 import java.math.BigDecimal;
