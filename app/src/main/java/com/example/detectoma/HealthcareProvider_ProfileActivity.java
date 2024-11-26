@@ -30,7 +30,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private Button generateCodeButton;
+    private Button generateCodeButton, addPatientButton;
     private TextView viewCodeTextView;
     private String generatedCode;
     private LinearLayout patientsContainer;
