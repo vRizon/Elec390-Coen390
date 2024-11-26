@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,6 +26,9 @@ public class takeDistanceActivity extends AppCompatActivity {
     private TextView distanceArmTextView;
     private Double firstDistance = null; // Store the first reading
     private Double secondDistance = null; // Store the second reading
+    private static final String SHARED_PREFS = "SharedPrefs";
+    private static final String DISTANCE_SURFACE_KEY = "distanceSurface";
+    private static final String DISTANCE_ARM_KEY = "distanceArm";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,13 +88,12 @@ public class takeDistanceActivity extends AppCompatActivity {
 
     private void processDistanceReading(Double distance) {
         if (firstDistance == null) {
-            // Set the first reading
             firstDistance = distance;
             distanceSurfaceTextView.setText("Distance to surface: " + distance + " cm");
             Toast.makeText(this, "First reading (surface) set to " + distance + " cm", Toast.LENGTH_SHORT).show();
         } else if (secondDistance == null) {
-            // Set the second reading
             secondDistance = distance;
+
             if (firstDistance < secondDistance) {
                 distanceArmTextView.setText("Distance to arm: " + firstDistance + " cm");
                 distanceSurfaceTextView.setText("Distance to surface: " + secondDistance + " cm");
@@ -98,10 +101,18 @@ public class takeDistanceActivity extends AppCompatActivity {
                 distanceArmTextView.setText("Distance to arm: " + secondDistance + " cm");
                 distanceSurfaceTextView.setText("Distance to surface: " + firstDistance + " cm");
             }
+
             AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle("Confirmation")
                     .setMessage("Are you sure you want to submit this data?")
                     .setPositiveButton("Yes", (dialogInterface, which) -> {
+                        // Save distances to SharedPreferences
+                        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putFloat(DISTANCE_SURFACE_KEY, firstDistance.floatValue());
+                        editor.putFloat(DISTANCE_ARM_KEY, secondDistance.floatValue());
+                        editor.apply();
+
                         setResult(RESULT_OK);
                         Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
                         finish();
@@ -119,7 +130,6 @@ public class takeDistanceActivity extends AppCompatActivity {
             });
 
             dialog.show();
-
         } else {
             Toast.makeText(this, "Both readings are already set", Toast.LENGTH_SHORT).show();
         }

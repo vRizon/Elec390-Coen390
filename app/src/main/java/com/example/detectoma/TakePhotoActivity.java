@@ -131,6 +131,7 @@ public class TakePhotoActivity extends AppCompatActivity {
     }
 
 
+
     private void startImageAutoRefresh() {
         imageUpdateTask = new Runnable() {
             @Override

@@ -40,6 +40,10 @@ public class ScreeningActivity extends AppCompatActivity {
     private boolean diameter = false;
     private boolean evolving = false;
 
+    private static final String SHARED_PREFS = "SharedPrefs";
+    private static final String DISTANCE_SURFACE_KEY = "distanceSurface";
+    private static final String DISTANCE_ARM_KEY = "distanceArm";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,8 +118,42 @@ public class ScreeningActivity extends AppCompatActivity {
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
         DatabaseReference timestampRef = databaseRef.child(formattedDate); // Reference for this timestamp
 
-        double currentTemperature = 37.5; // Replace with actual temperature value
-        double currentDistance = 15.0; // Replace with actual distance value
+        // Retrieve the distance values from SharedPreferences
+        SharedPreferences sharedPreferencesL = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        float distanceSurface = sharedPreferencesL.getFloat(DISTANCE_SURFACE_KEY, -1.0f);
+        float distanceArm = sharedPreferencesL.getFloat(DISTANCE_ARM_KEY, -1.0f);
+
+        String roundedDistanceSurfaceStr, roundedDistanceArmStr;
+        if (distanceSurface != -1.0f) {
+            // Use BigDecimal for precise rounding
+            BigDecimal bd = new BigDecimal(Float.toString(distanceSurface));
+            bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
+            roundedDistanceSurfaceStr = bd.toPlainString();
+        } else {
+            // Handle the case where TempDifference is not found
+            roundedDistanceSurfaceStr = "0.00";
+        }
+
+        if (distanceArm != -1.0f) {
+            // Use BigDecimal for precise rounding
+            BigDecimal bd = new BigDecimal(Float.toString(distanceArm));
+            bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
+            roundedDistanceArmStr = bd.toPlainString();
+        } else {
+            // Handle the case where TempDifference is not found
+            roundedDistanceArmStr = "0.00";
+        }
+
+
+
+        if (distanceSurface != -1 && distanceArm != -1) {
+            timestampRef.child("distanceSurface").setValue(roundedDistanceSurfaceStr);
+            timestampRef.child("distanceArm").setValue(roundedDistanceArmStr);
+        } else {
+            Toast.makeText(this, "Distance data is missing!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
 
         // Retrieve Tempdifference from SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
@@ -133,9 +171,7 @@ public class ScreeningActivity extends AppCompatActivity {
             roundedTempDifferenceStr = "0.00";
         }
 
-        timestampRef.child("temperature").setValue(currentTemperature);
         timestampRef.child("temperatureDiff").setValue(roundedTempDifferenceStr);
-        timestampRef.child("distance").setValue(currentDistance);
         timestampRef.child("asymmetry").setValue(asymmetry);
         timestampRef.child("border").setValue(border);
         timestampRef.child("color").setValue(color);
@@ -158,32 +194,20 @@ public class ScreeningActivity extends AppCompatActivity {
 
     private void renameLocalImageAndUpload(String uid, String formattedDate) {
         try {
-            // Load the existing Take Photo image from internal storage
+            // Load the existing image from internal storage
             FileInputStream fis = openFileInput("image.jpg");
             byte[] imageBytes = new byte[fis.available()];
             fis.read(imageBytes);
             fis.close();
 
-            // Load the existing graph image from internal storage
-            FileInputStream fisG = openFileInput("saved_graph.jpg");
-            byte[] imageBytesGraph = new byte[fisG.available()];
-            fisG.read(imageBytesGraph);
-            fisG.close();
-
             // Rename and upload to Firebase Storage
             FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
-            StorageReference newImageRefGraph = storage.getReference("/Patients/" + uid + "/g_" + formattedDate + ".jpg");
+            StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/" + formattedDate + ".jpg");
 
             newImageRef.putBytes(imageBytes).addOnSuccessListener(taskSnapshot ->
                             Toast.makeText(this, "Image renamed and uploaded successfully!", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e ->
                             Toast.makeText(this, "Failed to rename and upload image.", Toast.LENGTH_SHORT).show());
-
-            newImageRefGraph.putBytes(imageBytesGraph).addOnSuccessListener(taskSnapshot ->
-                            Toast.makeText(this, "Graph Image renamed and uploaded successfully!", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "Failed to rename and upload Graph image.", Toast.LENGTH_SHORT).show());
 
         } catch (Exception e) {
             e.printStackTrace();
