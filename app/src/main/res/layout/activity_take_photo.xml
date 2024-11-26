@@ -10,9 +10,10 @@
     <!-- Top Menu Bar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/darkGreen"
+        android:layout_width="420dp"
+        android:layout_height="75dp"
+        android:background="@drawable/backgroundnavbar"
+
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="20dp"

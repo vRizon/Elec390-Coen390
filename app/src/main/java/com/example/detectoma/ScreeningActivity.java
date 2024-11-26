@@ -237,6 +237,17 @@ public class ScreeningActivity extends AppCompatActivity {
                         taskCompletionSource.setException(e);
                     });
 
+            newImageRefGraph.putBytes(imageBytesGraph)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Image uploaded successfully
+                        taskCompletionSource.setResult(null);
+                    })
+                    .addOnFailureListener(e -> {
+                        // Failed to upload image
+                        e.printStackTrace();
+                        taskCompletionSource.setException(e);
+                    });
+
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to access the local image.", Toast.LENGTH_SHORT).show();
