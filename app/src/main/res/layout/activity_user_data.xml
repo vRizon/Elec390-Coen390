@@ -8,9 +8,10 @@
     <!-- Toolbar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/darkGreen"
+        android:layout_width="420dp"
+        android:layout_height="75dp"
+        android:background="@drawable/backgroundnavbar"
+
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="20dp"
@@ -94,6 +95,7 @@
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:padding="12dp"
+
                 android:text="Have you noticed any asymmetrical moles or spots?"
                 android:textSize="14sp" />
 
