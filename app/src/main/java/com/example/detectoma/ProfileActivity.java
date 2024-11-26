@@ -73,6 +73,22 @@ public class ProfileActivity extends AppCompatActivity {
                     Toast.makeText(ProfileActivity.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
                 }
             });
+            // Check if the user is already linked to a doctor
+            userRef.child("linkedDoctorId").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        // If linked, disable the button and edit text
+                        setComponentsDisabled();
+                        Toast.makeText(ProfileActivity.this, "Already linked to a healthcare provider.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(ProfileActivity.this, "Failed to check link status.", Toast.LENGTH_SHORT).show();
+                }
+            });
         } else {
             greetingText.setText("Hello");
         }
@@ -120,6 +136,7 @@ public class ProfileActivity extends AppCompatActivity {
                                             databaseReference.child("profiles").child(patientId).child("linkedDoctorId").setValue(providerId)
                                                     .addOnSuccessListener(aVoid2 -> {
                                                         Toast.makeText(ProfileActivity.this, "Successfully linked to healthcare provider!", Toast.LENGTH_SHORT).show();
+                                                        setComponentsDisabled();
                                                     })
                                                     .addOnFailureListener(e -> {
                                                         Toast.makeText(ProfileActivity.this, "Failed to link to healthcare provider.", Toast.LENGTH_SHORT).show();
@@ -140,4 +157,14 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
     }
+    private void setComponentsDisabled() {
+        // Disable the button and EditText
+        linkToDoctorButton.setEnabled(false);
+        linkToDoctorButton.setAlpha(0.5f);
+        linkCodeEditText.setEnabled(false);
+        linkCodeEditText.setAlpha(0.5f);
+
+
+    }
+
 }

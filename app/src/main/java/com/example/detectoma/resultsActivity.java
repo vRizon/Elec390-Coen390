@@ -253,7 +253,6 @@ public class resultsActivity extends AppCompatActivity {
     private void processImageFromFirebase() {
         Log.d(TAG, "Starting image processing...");
 
-        // Get the current user's ID from Firebase Authentication
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Log.e(TAG, "User not logged in");
@@ -261,52 +260,33 @@ public class resultsActivity extends AppCompatActivity {
             return;
         }
         String userId = currentUser.getUid();
-
-        // Generate the current timestamp to get the latest image (assuming the file format includes a timestamp)
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date());
+        String timestamp = getIntent().getStringExtra("FORMATTED_DATE");
 
         // Update storage reference to the path of the current user's latest image
         storageRef = storage.getReference("/Patients/" + userId + "/" + timestamp + ".jpg");
 
-        Log.d(TAG, "Fetching image from path: /Patients/" + userId + "/" + timestamp + ".jpg");
+        storageRef.getBytes(ONE_MEGABYTE)
+                .addOnSuccessListener(bytes -> {
+                    Log.d(TAG, "Image successfully fetched from Firebase.");
 
-        // Check if a locally saved image exists
-        File localFile = new File(getFilesDir(), "saved_image.jpg");
-        if (localFile.exists()) {
-            Log.d(TAG, "Found locally saved image. Loading from internal storage.");
-            Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                    // Decode the image bytes into a Bitmap
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-            // Display the locally saved image
-            imageView.setImageBitmap(bitmap);
+                    // Display the image in the ImageView
+                    imageView.setImageBitmap(bitmap);
 
-            // Proceed to run the model with the loaded image
-            runModel(bitmap);
-        } else {
-            Log.d(TAG, "No locally saved image found. Attempting to fetch from Firebase.");
+                    // Save the fetched image locally for future use
+                    saveImageLocally(bitmap);
 
-            // Proceed to fetch the image from Firebase Storage
-            storageRef.getBytes(ONE_MEGABYTE)
-                    .addOnSuccessListener(bytes -> {
-                        Log.d(TAG, "Image successfully fetched from Firebase.");
-
-                        // Decode the image bytes into a Bitmap
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                        // Display the image in the ImageView
-                        imageView.setImageBitmap(bitmap);
-
-                        // Save the fetched image locally for future use
-                        saveImageLocally(bitmap);
-
-                        // Run the model on the fetched image
-                        runModel(bitmap);
-                    })
-                    .addOnFailureListener(exception -> {
-                        Log.e(TAG, "Error fetching image from Firebase", exception);
-                        showErrorToUser("Failed to fetch image from Firebase. Please try again later.");
-                    });
-        }
+                    // Run the model on the fetched image
+                    runModel(bitmap);
+                })
+                .addOnFailureListener(exception -> {
+                    Log.e(TAG, "Error fetching image from Firebase", exception);
+                    showErrorToUser("Failed to fetch image from Firebase. Please try again later.");
+                });
     }
+
 
     private void saveImageLocally(Bitmap bitmap) {
         try {

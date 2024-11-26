@@ -202,7 +202,7 @@ public class ScreeningActivity extends AppCompatActivity {
 
             // Rename and upload to Firebase Storage
             FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/" + formattedDate + ".jpg");
+            StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
 
             newImageRef.putBytes(imageBytes).addOnSuccessListener(taskSnapshot ->
                             Toast.makeText(this, "Image renamed and uploaded successfully!", Toast.LENGTH_SHORT).show())
@@ -214,6 +214,7 @@ public class ScreeningActivity extends AppCompatActivity {
             Toast.makeText(this, "Failed to access the local image.", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
