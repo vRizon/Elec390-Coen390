@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.content.SharedPreferences;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +37,10 @@ public class ScreeningActivity extends AppCompatActivity {
     private boolean color = false;
     private boolean diameter = false;
     private boolean evolving = false;
+
+    private static final String SHARED_PREFS = "SharedPrefs";
+    private static final String DISTANCE_SURFACE_KEY = "distanceSurface";
+    private static final String DISTANCE_ARM_KEY = "distanceArm";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,11 +113,22 @@ public class ScreeningActivity extends AppCompatActivity {
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("profiles").child(uid).child("screenings");
         DatabaseReference timestampRef = databaseRef.child(formattedDate); // Reference for this timestamp
 
+        // Retrieve the distance values from SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        float distanceSurface = sharedPreferences.getFloat(DISTANCE_SURFACE_KEY, -1);
+        float distanceArm = sharedPreferences.getFloat(DISTANCE_ARM_KEY, -1);
+
+        if (distanceSurface != -1 && distanceArm != -1) {
+            timestampRef.child("distanceSurface").setValue(distanceSurface);
+            timestampRef.child("distanceArm").setValue(distanceArm);
+        } else {
+            Toast.makeText(this, "Distance data is missing!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         double currentTemperature = 37.5; // Replace with actual temperature value
-        double currentDistance = 15.0; // Replace with actual distance value
 
         timestampRef.child("temperature").setValue(currentTemperature);
-        timestampRef.child("distance").setValue(currentDistance);
         timestampRef.child("asymmetry").setValue(asymmetry);
         timestampRef.child("border").setValue(border);
         timestampRef.child("color").setValue(color);
