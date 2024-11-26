@@ -1,12 +1,12 @@
 package com.example.detectoma;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.content.SharedPreferences;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -18,6 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.FileInputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -64,25 +66,28 @@ public class ScreeningActivity extends AppCompatActivity {
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
         takeDistButton.setOnClickListener(v -> openTakeDistanceActivity());
+
         ImageView backIcon = findViewById(R.id.backIcon);
-        backIcon.setOnClickListener(v -> {
-            finish(); // Close the current activity and navigate back
-        });
+        backIcon.setOnClickListener(v -> finish());
+
         // Analyze button listener
         analyzeButton.setOnClickListener(v -> analyzeAndSaveResults());
 
-        updateButtonState();
+        // Set initial state of the Analyze button
+        updateAnalyzeButtonState();
     }
 
-    private void updateButtonState() {
-        // Enable or disable buttons based on the completion of previous steps
-        takePhotoButton.setEnabled(userDataCheckBox.isChecked());
-        takeTempButton.setEnabled(takePhotoCheckBox.isChecked());
-        takeDistButton.setEnabled(takeTempCheckBox.isChecked());
-        analyzeButton.setEnabled(userDataCheckBox.isChecked() &&
+    private void updateAnalyzeButtonState() {
+        // Enable Analyze button only when all tasks are completed
+        boolean allStepsCompleted = userDataCheckBox.isChecked() &&
                 takePhotoCheckBox.isChecked() &&
                 takeTempCheckBox.isChecked() &&
-                takeDistCheckBox.isChecked());
+                takeDistCheckBox.isChecked();
+
+        analyzeButton.setEnabled(allStepsCompleted);
+        analyzeButton.setBackgroundTintList(getResources().getColorStateList(
+                allStepsCompleted ? R.color.darkGreen : R.color.grey
+        ));
     }
 
     private void openUserDataActivity() {
@@ -106,7 +111,7 @@ public class ScreeningActivity extends AppCompatActivity {
     }
 
     private void analyzeAndSaveResults() {
-        long timestamp = System.currentTimeMillis(); // Capture the current timestamp
+        long timestamp = System.currentTimeMillis();
         String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(timestamp));
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -114,9 +119,9 @@ public class ScreeningActivity extends AppCompatActivity {
         DatabaseReference timestampRef = databaseRef.child(formattedDate); // Reference for this timestamp
 
         // Retrieve the distance values from SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        float distanceSurface = sharedPreferences.getFloat(DISTANCE_SURFACE_KEY, -1);
-        float distanceArm = sharedPreferences.getFloat(DISTANCE_ARM_KEY, -1);
+        SharedPreferences sharedPreferencesL = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        float distanceSurface = sharedPreferencesL.getFloat(DISTANCE_SURFACE_KEY, -1);
+        float distanceArm = sharedPreferencesL.getFloat(DISTANCE_ARM_KEY, -1);
 
         if (distanceSurface != -1 && distanceArm != -1) {
             timestampRef.child("distanceSurface").setValue(distanceSurface);
@@ -127,8 +132,27 @@ public class ScreeningActivity extends AppCompatActivity {
         }
 
         double currentTemperature = 37.5; // Replace with actual temperature value
+        double currentDistance = 15.0; // Replace with actual distance value
+
+        // Retrieve Tempdifference from SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        float tempDifferenceFloat = sharedPreferences.getFloat("TempDifference", -1.0f);
+
+        // Check if tempDifferenceFloat is valid
+        String roundedTempDifferenceStr;
+        if (tempDifferenceFloat != -1.0f) {
+            // Use BigDecimal for precise rounding
+            BigDecimal bd = new BigDecimal(Float.toString(tempDifferenceFloat));
+            bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
+            roundedTempDifferenceStr = bd.toPlainString();
+        } else {
+            // Handle the case where TempDifference is not found
+            roundedTempDifferenceStr = "0.00";
+        }
 
         timestampRef.child("temperature").setValue(currentTemperature);
+        timestampRef.child("temperatureDiff").setValue(roundedTempDifferenceStr);
+        timestampRef.child("distance").setValue(currentDistance);
         timestampRef.child("asymmetry").setValue(asymmetry);
         timestampRef.child("border").setValue(border);
         timestampRef.child("color").setValue(color);
@@ -151,20 +175,32 @@ public class ScreeningActivity extends AppCompatActivity {
 
     private void renameLocalImageAndUpload(String uid, String formattedDate) {
         try {
-            // Load the existing image from internal storage
+            // Load the existing Take Photo image from internal storage
             FileInputStream fis = openFileInput("image.jpg");
             byte[] imageBytes = new byte[fis.available()];
             fis.read(imageBytes);
             fis.close();
 
+            // Load the existing graph image from internal storage
+            FileInputStream fisG = openFileInput("saved_graph.jpg");
+            byte[] imageBytesGraph = new byte[fisG.available()];
+            fisG.read(imageBytesGraph);
+            fisG.close();
+
             // Rename and upload to Firebase Storage
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
+            StorageReference newImageRefGraph = storage.getReference("/Patients/" + uid + "/g_" + formattedDate + ".jpg");
 
             newImageRef.putBytes(imageBytes).addOnSuccessListener(taskSnapshot ->
                             Toast.makeText(this, "Image renamed and uploaded successfully!", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e ->
                             Toast.makeText(this, "Failed to rename and upload image.", Toast.LENGTH_SHORT).show());
+
+            newImageRefGraph.putBytes(imageBytesGraph).addOnSuccessListener(taskSnapshot ->
+                            Toast.makeText(this, "Graph Image renamed and uploaded successfully!", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Failed to rename and upload Graph image.", Toast.LENGTH_SHORT).show());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -192,6 +228,7 @@ public class ScreeningActivity extends AppCompatActivity {
             takeDistCheckBox.setChecked(true);
         }
 
-        updateButtonState();
+        // Update Analyze button state after each step
+        updateAnalyzeButtonState();
     }
 }
