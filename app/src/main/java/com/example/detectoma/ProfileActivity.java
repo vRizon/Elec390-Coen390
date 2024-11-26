@@ -30,6 +30,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
     private EditText linkCodeEditText;
@@ -38,7 +39,8 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private RecyclerView pastScreeningsRecyclerView;
     private ScreeningAdapter adapter;
-    private List<Screening> screeningList = new ArrayList<>();
+//    private List<Screening> screeningList = new ArrayList<>();
+    private List<Map<String, Object>> screeningList = new ArrayList<>();
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -223,9 +225,12 @@ public class ProfileActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     screeningList.clear();
                     for (DataSnapshot screeningSnapshot : snapshot.getChildren()) {
-                        Screening screening = screeningSnapshot.getValue(Screening.class);
-                        if (screening != null){
-                        screeningList.add(screening);
+                        Map<String, Object> screeningData = (Map<String, Object>) screeningSnapshot.getValue();
+//                        Screening screening = screeningSnapshot.getValue(Screening.class);
+                        if (screeningData != null) {
+                            // Add the timestamp (key) to the data map
+                            screeningData.put("timestamp", screeningSnapshot.getKey());
+                            screeningList.add(screeningData);
                         }
                     }
                     adapter.notifyDataSetChanged();

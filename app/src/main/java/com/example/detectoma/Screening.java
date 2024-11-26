@@ -1,36 +1,90 @@
 package com.example.detectoma;
 
 public class Screening {
-    private String timestamp;
-    private String tempDifference;
-    private String distance1;
-    private String distance2;
+    private String timestamp;         // Add this if you store timestamp within each screening
+    private boolean asymmetry;
+    private boolean border;
+    private boolean color;
+    private boolean diameter;
+    private boolean evolving;
+    private String temperatureDiff;
+    private String distanceSurface;
+    private String distanceArm;
 
     public Screening() {
         // Default constructor for Firebase
     }
 
-    public Screening(String timestamp, String tempDifference, String distance1, String distance2) {
-        this.timestamp = timestamp;
-        this.tempDifference = tempDifference;
-        this.distance1 = distance1;
-        this.distance2 = distance2;
-    }
-
-    // Getters and setters for all fields
     public String getTimestamp() {
         return timestamp;
     }
 
-    public String getTempDifference() {
-        return tempDifference;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public String getDistance1() {
-        return distance1;
+    public boolean isAsymmetry() {
+        return asymmetry;
     }
 
-    public String getDistance2() {
-        return distance2;
+    public void setAsymmetry(boolean asymmetry) {
+        this.asymmetry = asymmetry;
+    }
+
+    public boolean isBorder() {
+        return border;
+    }
+
+    public void setBorder(boolean border) {
+        this.border = border;
+    }
+
+    public boolean isColor() {
+        return color;
+    }
+
+    public void setColor(boolean color) {
+        this.color = color;
+    }
+
+    public boolean isDiameter() {
+        return diameter;
+    }
+
+    public void setDiameter(boolean diameter) {
+        this.diameter = diameter;
+    }
+
+    public boolean isEvolving() {
+        return evolving;
+    }
+
+    public void setEvolving(boolean evolving) {
+        this.evolving = evolving;
+    }
+
+    public String getTemperatureDiff() {
+        return temperatureDiff;
+    }
+
+    public void setTemperatureDiff(String temperatureDiff) {
+        this.temperatureDiff = temperatureDiff;
+    }
+
+    public String getDistanceSurface() {
+        return distanceSurface;
+    }
+
+    public void setDistanceSurface(String distanceSurface) {
+        this.distanceSurface = distanceSurface;
+    }
+
+    public String getDistanceArm() {
+        return distanceArm;
+    }
+
+    public void setDistanceArm(String distanceArm) {
+        this.distanceArm = distanceArm;
     }
 }
+

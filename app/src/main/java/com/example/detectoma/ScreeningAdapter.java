@@ -11,12 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Map;
 
 public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.ViewHolder> {
-    private List<Screening> screeningList;
+//    private List<Screening> screeningList;
+    private List<Map<String, Object>> screeningList;
     private Context context;
 
-    public ScreeningAdapter(List<Screening> screeningList, Context context) {
+    public ScreeningAdapter(List<Map<String, Object>> screeningList, Context context) {
         this.screeningList = screeningList;
         this.context = context;
     }
@@ -30,18 +32,36 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Screening screening = screeningList.get(position);
-        holder.screeningDate.setText(screening.getTimestamp());
-        holder.temperature.setText("Temperature: " + screening.getTempDifference());
-        holder.distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
+        Map<String, Object> screeningData = screeningList.get(position);
+
+        // Safely access data with type checking and casting
+        // Get timestamp
+        String timestamp = screeningData.get("timestamp") != null ?
+                screeningData.get("timestamp").toString() : "N/A";
+        String temperatureDiff = screeningData.get("temperatureDiff") != null ?
+                String.valueOf(screeningData.get("temperatureDiff")) : "N/A";
+        String distanceSurface = screeningData.get("distanceSurface") != null ?
+                String.valueOf(screeningData.get("distanceSurface")) : "N/A";
+//        Boolean asymmetry = screeningData.get("asymmetry") != null ?
+//                (Boolean) screeningData.get("asymmetry") : null;
+
+        // Set data to your views
+        holder.screeningDate.setText(timestamp);
+        holder.temperature.setText("Temperature Difference: " + temperatureDiff + "°C");
+        holder.distances.setText("Distance Surface: " + distanceSurface + " cm");
+
+//        holder.asymmetryTextView.setText(asymmetry != null ? asymmetry.toString() : "N/A");
+
+//        holder.temperature.setText("Temperature: " + screening.getTempDifference());
+//        holder.distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ScreeningDetailsActivity.class);
-            intent.putExtra("timestamp", screening.getTimestamp());
-            intent.putExtra("temperature", screening.getTempDifference());
-            intent.putExtra("distance1", screening.getDistance1());
-            intent.putExtra("distance2", screening.getDistance2());
-            context.startActivity(intent);
+//            Intent intent = new Intent(context, ScreeningDetailsActivity.class);
+//            intent.putExtra("timestamp", screening.getTimestamp());
+//            intent.putExtra("temperature", screening.getTempDifference());
+//            intent.putExtra("distance1", screening.getDistance1());
+//            intent.putExtra("distance2", screening.getDistance2());
+//            context.startActivity(intent);
         });
     }
 
