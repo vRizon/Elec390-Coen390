@@ -77,6 +77,11 @@
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:padding="12dp"
+
+                android:buttonTint="@color/darkGreen"
+
+                android:textColor="#000"
+
                 android:text="Have you noticed any asymmetrical moles or spots?"
                 android:textSize="14sp" />
 

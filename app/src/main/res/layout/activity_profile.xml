@@ -116,24 +116,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linkDoctorSection" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/pastScreeningsRecyclerView"
-        android:layout_width="350dp"
-        android:layout_height="343dp"
-        android:layout_marginTop="16dp"
-        android:background="#E0E0E0"
-        app:layout_constraintBottom_toTopOf="@+id/startScreeningButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.508"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintVertical_bias="0.06" />
+
 
     <Button
         android:id="@+id/startScreeningButton"
         android:layout_width="363dp"
         android:layout_height="65dp"
-        android:layout_marginBottom="28dp"
         android:backgroundTint="@color/darkGreen"
         android:padding="16dp"
         android:text="Start screening"
@@ -143,6 +131,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.52"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.959" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
