@@ -33,6 +33,7 @@
                 android:layout_height="30dp"
                 android:src="@drawable/baseline_arrow_back_24"
                 android:contentDescription="Back"
+                app:tint="@color/white"
                 android:layout_gravity="center" />
         </FrameLayout>
 
@@ -62,13 +63,30 @@
             android:orientation="vertical">
 
             <!-- A for Asymmetry -->
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Asymmetry"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingTop="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Asymmetry"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/asymmetryInfo"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/info_ic"
+                    android:contentDescription="Asymmetry Info"
+                    app:tint="@color/darkGreen"
+                    android:padding="4dp" />
+            </LinearLayout>
 
             <CheckBox
                 android:id="@+id/asymmetryCheckBox"
@@ -80,13 +98,30 @@
                 android:textSize="14sp" />
 
             <!-- B for Border -->
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Border"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingTop="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Border"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/borderInfo"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/info_ic"
+                    android:contentDescription="Border Info"
+                    app:tint="@color/darkGreen"
+                    android:padding="4dp" />
+            </LinearLayout>
 
             <CheckBox
                 android:id="@+id/borderCheckBox"
@@ -98,13 +133,30 @@
                 android:textSize="14sp" />
 
             <!-- C for Color -->
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Color"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingTop="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Color"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/colorInfo"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/info_ic"
+                    android:contentDescription="Color Info"
+                    app:tint="@color/darkGreen"
+                    android:padding="4dp" />
+            </LinearLayout>
 
             <CheckBox
                 android:id="@+id/colorCheckBox"
@@ -115,14 +167,31 @@
                 android:text="Have you noticed moles with multiple colors?"
                 android:textSize="14sp" />
 
-            <!-- D for Diameter/Dark -->
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- D for Diameter -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Diameter/Dark"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingTop="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Diameter"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/diameterInfo"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/info_ic"
+                    android:contentDescription="Diameter Info"
+                    app:tint="@color/darkGreen"
+                    android:padding="4dp" />
+            </LinearLayout>
 
             <CheckBox
                 android:id="@+id/diameterCheckBox"
@@ -134,13 +203,30 @@
                 android:textSize="14sp" />
 
             <!-- E for Evolving -->
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Evolving"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingTop="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Evolving"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/evolvingInfo"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/info_ic"
+                    android:contentDescription="Evolving Info"
+                    app:tint="@color/darkGreen"
+                    android:padding="4dp" />
+            </LinearLayout>
 
             <CheckBox
                 android:id="@+id/evolvingCheckBox"
@@ -150,8 +236,6 @@
                 android:padding="12dp"
                 android:text="Have you noticed changes in size, shape, color, or new symptoms like itching or bleeding?"
                 android:textSize="14sp" />
-
-            <!-- Submit Button -->
             <Button
                 android:id="@+id/submitButton"
                 android:layout_width="wrap_content"
@@ -162,7 +246,10 @@
                 android:padding="12dp"
                 android:text="Submit"
                 android:backgroundTint="@color/darkGreen"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
