@@ -36,14 +36,22 @@ public class TakePhotoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_take_photo);
 
+        // Initialize ImageView for Firebase photo display
         imageView = findViewById(R.id.imageView_takePhoto);
         imageView.setVisibility(View.GONE);
+
+        // Initialize back button functionality
         ImageView backIcon = findViewById(R.id.backIcon);
-        backIcon.setOnClickListener(v -> {
-            finish(); // Close the current activity and navigate back
-        });
-        // Initialize the Save Photo button
+        backIcon.setOnClickListener(v -> finish());
+
+        // Initialize Save Photo button
         Button savePhotoButton = findViewById(R.id.savePhotoButton);
+
+        // Initialize tutorial GIF
+        ImageView tutorialGif = findViewById(R.id.tutorialGif);
+        Glide.with(this)
+                .load(R.drawable.take_photo) // Replace with the name of your GIF file in `res/drawable`
+                .into(tutorialGif);
 
         // Get the current user's UID
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -62,7 +70,7 @@ public class TakePhotoActivity extends AppCompatActivity {
                     .setTitle("Confirmation")
                     .setMessage("Are you sure you want to save this photo?")
                     .setPositiveButton("Yes", (dialogInterface, which) -> {
-                        saveImageToDevice(); // Save the image to the device
+                        saveImageToDevice();
                         Toast.makeText(this, "Photo saved successfully", Toast.LENGTH_SHORT).show();
                         setResult(RESULT_OK);
                         finish();
@@ -77,7 +85,6 @@ public class TakePhotoActivity extends AppCompatActivity {
 
             dialog.show();
         });
-
     }
 
     private void setupFirebaseImageReference(String uid) {
@@ -130,24 +137,22 @@ public class TakePhotoActivity extends AppCompatActivity {
         });
     }
 
-
-
     private void startImageAutoRefresh() {
         imageUpdateTask = new Runnable() {
             @Override
             public void run() {
-                loadUserImage(); // Fetch the image from Firebase
-                handler.postDelayed(this, REFRESH_INTERVAL); // Schedule the next refresh
+                loadUserImage();
+                handler.postDelayed(this, REFRESH_INTERVAL);
             }
         };
-        handler.postDelayed(imageUpdateTask, REFRESH_INTERVAL); // Start the refresh task
+        handler.postDelayed(imageUpdateTask, REFRESH_INTERVAL);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (handler != null && imageUpdateTask != null) {
-            handler.removeCallbacks(imageUpdateTask); // Stop the periodic updates
+            handler.removeCallbacks(imageUpdateTask);
         }
     }
 }
