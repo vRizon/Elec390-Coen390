@@ -124,7 +124,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider" />
 
-<!--    <LinearLayout-->
+
+
+
+
+
+    <!--    <LinearLayout-->
 <!--        android:id="@+id/headers"-->
 <!--        android:layout_width="300dp"-->
 <!--        android:layout_height="wrap_content"-->
@@ -156,18 +161,33 @@
 
     <!-- Add Screening Button -->
 
-    <LinearLayout
-        android:id="@+id/patientsContainer"
-        android:layout_width="344dp"
-        android:layout_height="431dp"
+<!--    <LinearLayout-->
+<!--        android:id="@+id/patientsContainer"-->
+<!--        android:layout_width="344dp"-->
+<!--        android:layout_height="431dp"-->
 
-        android:orientation="vertical"
+<!--        android:orientation="vertical"-->
+<!--        android:padding="5dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.492"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/patientListTitle"-->
+<!--        app:layout_constraintVertical_bias="0.134" />-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/patientsRecyclerView"
+        android:layout_width="410dp"
+        android:layout_height="316dp"
+        android:layout_marginBottom="112dp"
+        android:clipToPadding="false"
         android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/patientListTitle"
-        app:layout_constraintVertical_bias="0.134" />
+        app:layout_constraintVertical_bias="1.0" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
