@@ -2,6 +2,7 @@ package com.example.detectoma;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,12 +38,14 @@ public class TakePhotoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_take_photo);
 
+        // Existing ImageView for displaying the photo
         imageView = findViewById(R.id.imageView_takePhoto);
         imageView.setVisibility(View.GONE);
+
+        // Back button functionality
         ImageView backIcon = findViewById(R.id.backIcon);
-        backIcon.setOnClickListener(v -> {
-            finish(); // Close the current activity and navigate back
-        });
+        backIcon.setOnClickListener(v -> finish()); // Close the current activity and navigate back
+
         // Initialize the Save Photo button
         Button savePhotoButton = findViewById(R.id.savePhotoButton);
 
@@ -78,7 +82,14 @@ public class TakePhotoActivity extends AppCompatActivity {
             dialog.show();
         });
 
+        // New: Tutorial VideoView Setup
+        VideoView tutorialVideoView = findViewById(R.id.tutorialVideoView);
+        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.takePhoto);
+        tutorialVideoView.setVideoURI(videoUri);
+        tutorialVideoView.setOnPreparedListener(mediaPlayer -> mediaPlayer.setLooping(true)); // Loop the video
+        tutorialVideoView.start(); // Automatically start the video
     }
+
 
     private void setupFirebaseImageReference(String uid) {
         imageRef = storage.getReference("/Patients/" + uid + "/photo.jpg");
