@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.glide)
     implementation(libs.firebase.firestore)
+    implementation(libs.gson)
 //    implementation(libs.mpandroidchart)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

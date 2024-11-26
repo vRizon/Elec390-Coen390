@@ -110,20 +110,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/linkDoctorSection" />
 
-    <TextView
-        android:id="@+id/pastListingsText"
-        android:layout_width="359dp"
-        android:layout_height="63dp"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        android:background="#E0E0E0"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="You have no past screenings."
-        android:textColor="#757575"
-        android:textSize="16sp"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pastScreeningsRecyclerView"
+        android:layout_width="339dp"
+        android:layout_height="367dp"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/startScreeningButton" />
+        app:layout_constraintTop_toBottomOf="@+id/startScreeningButton"
+        tools:listitem="@layout/item_screening" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.gson.Gson;
 
 import java.io.FileInputStream;
 import java.math.BigDecimal;
@@ -46,9 +47,11 @@ public class ScreeningActivity extends AppCompatActivity {
     private boolean diameter = false;
     private boolean evolving = false;
 
-    private static final String SHARED_PREFS = "SharedPrefs";
+    public static final String SHARED_PREFS = "SharedPrefs";
     private static final String DISTANCE_SURFACE_KEY = "distanceSurface";
     private static final String DISTANCE_ARM_KEY = "distanceArm";
+
+//    private List<Screening> screeningList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,8 @@ public class ScreeningActivity extends AppCompatActivity {
         takePhotoCheckBox = findViewById(R.id.takePhotoCheckBox);
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
+
+//        screeningList = new ArrayList<>();
 
 
         // Set up button listeners
@@ -118,7 +123,7 @@ public class ScreeningActivity extends AppCompatActivity {
 
     private void analyzeAndSaveResults() {
         long timestamp = System.currentTimeMillis();
-        String formattedDate = new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.getDefault()).format(new Date(timestamp));
+        String formattedDate = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.getDefault()).format(new Date(timestamp));
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance()
@@ -144,7 +149,7 @@ public class ScreeningActivity extends AppCompatActivity {
         }
 
         if (distanceArm != -1.0f) {
-            // Use BigDecimal for precise rounding
+            // Use BigDecimal for precsise rounding
             BigDecimal bd = new BigDecimal(Float.toString(distanceArm));
             bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
             roundedDistanceArmStr = bd.toPlainString();
@@ -171,7 +176,6 @@ public class ScreeningActivity extends AppCompatActivity {
 
         // Collect all database write tasks
         List<Task<Void>> databaseTasks = new ArrayList<>();
-        databaseTasks.add(timestampRef.child("asymmetry").setValue(asymmetry));
         databaseTasks.add(timestampRef.child("border").setValue(border));
         databaseTasks.add(timestampRef.child("color").setValue(color));
         databaseTasks.add(timestampRef.child("diameter").setValue(diameter));
@@ -182,6 +186,17 @@ public class ScreeningActivity extends AppCompatActivity {
 
         // Get the image upload task
         Task<Void> uploadTask = renameLocalImageAndUpload(uid, formattedDate);
+
+        Screening screening = new Screening(formattedDate, roundedTempDifferenceStr, roundedDistanceSurfaceStr, roundedDistanceArmStr);
+//        screeningList.add(screening);
+
+        // Store the screening object in SharedPreferences
+        SharedPreferences sharedPreferencesScreening = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferencesScreening.edit();
+        Gson gson = new Gson();
+        String screeningJson = gson.toJson(screening);
+        editor.putString("lastScreening", screeningJson);
+        editor.apply();
 
         // Combine all tasks
         List<Task<?>> allTasks = new ArrayList<>();
