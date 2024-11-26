@@ -66,6 +66,7 @@ public class ScreeningActivity extends AppCompatActivity {
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
 
+
         // Set up button listeners
         userDataButton.setOnClickListener(v -> openUserDataActivity());
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
@@ -214,9 +215,16 @@ public class ScreeningActivity extends AppCompatActivity {
             fis.read(imageBytes);
             fis.close();
 
+            // Load the existing graph image from internal storage
+            FileInputStream fisG = openFileInput("saved_graph.jpg");
+            byte[] imageBytesGraph = new byte[fisG.available()];
+            fisG.read(imageBytesGraph);
+            fisG.close();
+
             // Rename and upload to Firebase Storage
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
+            StorageReference newImageRefGraph = storage.getReference("/Patients/" + uid + "/g_" + formattedDate + ".jpg");
 
             newImageRef.putBytes(imageBytes)
                     .addOnSuccessListener(taskSnapshot -> {
