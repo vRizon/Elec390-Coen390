@@ -1,0 +1,61 @@
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:orientation="horizontal"-->
+<!--    android:padding="12dp"-->
+<!--    android:background="#F0F0F0"-->
+<!--    android:layout_marginBottom="8dp">-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/patientName"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_weight="1"-->
+<!--        android:text="John Doe"-->
+<!--        android:textSize="16sp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:textColor="#363636" />-->
+
+<!--    <Button-->
+<!--        android:id="@+id/unlinkButton"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Unlink"-->
+<!--        android:textColor="#FFF"-->
+<!--        android:layout_marginStart="8dp" />-->
+<!--</LinearLayout>-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+
+    android:layout_marginBottom="8dp">
+
+    <!-- Patient Name -->
+    <TextView
+        android:id="@+id/patientName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="John Doe"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/darkGreen"
+        android:gravity="center_vertical" />
+
+    <!-- Screenings Count -->
+
+        <Button
+            android:id="@+id/unlinkButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Unlink"
+            android:backgroundTint="#AF2E18"
+
+            android:textColor="#FFF"
+            android:layout_marginStart="8dp"
+
+            />
+</LinearLayout>

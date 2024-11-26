@@ -3,6 +3,7 @@ package com.example.detectoma;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -134,37 +135,58 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
     }
 
     private void addPatientView(String fullName, String patientId) {
-        LinearLayout patientLayout = new LinearLayout(this);
-        patientLayout.setOrientation(LinearLayout.HORIZONTAL);
-        patientLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        ));
-        patientLayout.setPadding(16, 16, 16, 16);
+        // Inflate the custom layout
+        View patientView = getLayoutInflater().inflate(R.layout.patient_item, patientsContainer, false);
 
-        TextView patientNameTextView = new TextView(this);
+        // Get references to the UI elements in the custom layout
+        TextView patientNameTextView = ((View) patientView).findViewById(R.id.patientName);
+        Button unlinkButton = patientView.findViewById(R.id.unlinkButton);
+
+        // Set patient details
         patientNameTextView.setText(fullName);
-        patientNameTextView.setLayoutParams(new LinearLayout.LayoutParams(
-                0,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                1.0f
-        ));
 
-        TextView unlinkTextView = new TextView(this);
-        unlinkTextView.setText("Unlink");
-        unlinkTextView.setTextColor(Color.RED);
-        unlinkTextView.setPadding(16, 0, 16, 0);
-        unlinkTextView.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        ));
-        unlinkTextView.setOnClickListener(v -> unlinkPatient(patientId));
+        // Handle unlink button click
+        unlinkButton.setOnClickListener(v -> unlinkPatient(patientId));
 
-        patientLayout.addView(patientNameTextView);
-        patientLayout.addView(unlinkTextView);
-
-        patientsContainer.addView(patientLayout);
+        // Add the view to the container
+        patientsContainer.addView(patientView);
     }
+
+
+
+
+//    private void addPatientView(String fullName, String patientId) {
+//        LinearLayout patientLayout = new LinearLayout(this);
+//        patientLayout.setOrientation(LinearLayout.HORIZONTAL);
+//        patientLayout.setLayoutParams(new LinearLayout.LayoutParams(
+//                ViewGroup.LayoutParams.MATCH_PARENT,
+//                ViewGroup.LayoutParams.WRAP_CONTENT
+//        ));
+//        patientLayout.setPadding(16, 16, 16, 16);
+//
+//        TextView patientNameTextView = new TextView(this);
+//        patientNameTextView.setText(fullName);
+//        patientNameTextView.setLayoutParams(new LinearLayout.LayoutParams(
+//                0,
+//                ViewGroup.LayoutParams.WRAP_CONTENT,
+//                1.0f
+//        ));
+//
+//        TextView unlinkTextView = new TextView(this);
+//        unlinkTextView.setText("Unlink");
+//        unlinkTextView.setTextColor(Color.RED);
+//        unlinkTextView.setPadding(16, 0, 16, 0);
+//        unlinkTextView.setLayoutParams(new LinearLayout.LayoutParams(
+//                ViewGroup.LayoutParams.WRAP_CONTENT,
+//                ViewGroup.LayoutParams.WRAP_CONTENT
+//        ));
+//        unlinkTextView.setOnClickListener(v -> unlinkPatient(patientId));
+//
+//        patientLayout.addView(patientNameTextView);
+//        patientLayout.addView(unlinkTextView);
+//
+//        patientsContainer.addView(patientLayout);
+//    }
 
     private void generateAndSaveCode() {
         generatedCode = generate6DigitCode();
