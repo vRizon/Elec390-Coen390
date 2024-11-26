@@ -102,28 +102,35 @@ public class TakePhotoActivity extends AppCompatActivity {
     }
 
     private void saveImageToDevice() {
-        if (imageView.getDrawable() == null) {
-            Toast.makeText(this, "No image loaded to save", Toast.LENGTH_SHORT).show();
+        if (imageRef == null) {
+            Toast.makeText(this, "No image reference available", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        try {
-            // Get the Bitmap from the ImageView
-            BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
-            Bitmap bitmap = drawable.getBitmap();
+        imageRef.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
+            try {
+                // Save the image bytes to internal storage
+                String filename = "image.jpg";
+                FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
+                fos.write(bytes);
+                fos.close();
 
-            // Save the bitmap to internal storage
-            String filename = "saved_image.jpg"; // Adjust filename as needed
-            FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.close();
+                Log.d("TakePhotoActivity", "Image downloaded and saved successfully to device storage.");
+                Toast.makeText(this, "Photo saved successfully", Toast.LENGTH_SHORT).show();
 
-            Log.d("TakePhotoActivity", "Image saved successfully to device storage.");
-        } catch (Exception e) {
+                setResult(RESULT_OK);
+                finish();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to save image.", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
             e.printStackTrace();
-            Toast.makeText(this, "Failed to save image.", Toast.LENGTH_SHORT).show();
-        }
+            Toast.makeText(this, "Failed to download image from Firebase.", Toast.LENGTH_SHORT).show();
+        });
     }
+
+
 
     private void startImageAutoRefresh() {
         imageUpdateTask = new Runnable() {

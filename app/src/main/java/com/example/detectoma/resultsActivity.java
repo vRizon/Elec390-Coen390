@@ -23,6 +23,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -50,10 +54,13 @@ import java.io.InputStreamReader;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class resultsActivity extends AppCompatActivity {
@@ -76,8 +83,9 @@ public class resultsActivity extends AppCompatActivity {
 //2024-11-21 12:30.jpg
     // Firebase Storage reference
     private FirebaseStorage storage = FirebaseStorage.getInstance();
-    //private StorageReference storageRef = storage.getReference().child("Test/test1.jpg"); // Update the path accordingly
-    private StorageReference storageRef = storage.getReference("/Patients/4t34RojIIuNPeJ79j1OKWZJ75EJ2/2024-11-21 12:30.jpg");
+
+    private StorageReference storageRef;
+
     private Interpreter tflite;
     private final long ONE_MEGABYTE = 5 * 1024 * 1024; // 5 MB
 
@@ -136,6 +144,8 @@ public class resultsActivity extends AppCompatActivity {
 
         // Analyze and display questionnaire results
         analyzeResults(asymmetry, border, color, diameter, evolving);
+
+        processImageFromFirebase();
     }
 
     /**
@@ -242,6 +252,23 @@ public class resultsActivity extends AppCompatActivity {
      */
     private void processImageFromFirebase() {
         Log.d(TAG, "Starting image processing...");
+
+        // Get the current user's ID from Firebase Authentication
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.e(TAG, "User not logged in");
+            showErrorToUser("Please log in to view your results.");
+            return;
+        }
+        String userId = currentUser.getUid();
+
+        // Generate the current timestamp to get the latest image (assuming the file format includes a timestamp)
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date());
+
+        // Update storage reference to the path of the current user's latest image
+        storageRef = storage.getReference("/Patients/" + userId + "/" + timestamp + ".jpg");
+
+        Log.d(TAG, "Fetching image from path: /Patients/" + userId + "/" + timestamp + ".jpg");
 
         // Check if a locally saved image exists
         File localFile = new File(getFilesDir(), "saved_image.jpg");
