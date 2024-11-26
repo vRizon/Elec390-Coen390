@@ -122,29 +122,29 @@ public class ProfileActivity extends AppCompatActivity {
             finish(); // Finish current activity
         });
 
-        // Get the screening object from SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences(ScreeningActivity.SHARED_PREFS, MODE_PRIVATE);
-        String screeningJson = sharedPreferences.getString("lastScreening", null);
-
-        if (screeningJson != null) {
-            Gson gson = new Gson();
-            Screening screening = gson.fromJson(screeningJson, Screening.class);
-
-            screeningList.add(screening);
-
-//            // Set the data to the views
-//            screeningDate.setText(screening.getTimestamp());
-//            temperature.setText("Temperature: " + screening.getTemperature());
-//            distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
-
-            // Load image from Firebase Storage or use a placeholder if needed
-//            String timestamp = screening.getTimestamp();
-//            storageReference = FirebaseStorage.getInstance().getReference().child("screening_images").child(timestamp + ".jpg");
-//            loadScreeningImage();
-        } else {
-            Toast.makeText(this, "No screening data available.", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+//        // Get the screening object from SharedPreferences
+//        SharedPreferences sharedPreferences = getSharedPreferences(ScreeningActivity.SHARED_PREFS, MODE_PRIVATE);
+//        String screeningJson = sharedPreferences.getString("lastScreening", null);
+//
+//        if (screeningJson != null) {
+//            Gson gson = new Gson();
+//            Screening screening = gson.fromJson(screeningJson, Screening.class);
+//
+//            screeningList.add(screening);
+//
+////            // Set the data to the views
+////            screeningDate.setText(screening.getTimestamp());
+////            temperature.setText("Temperature: " + screening.getTemperature());
+////            distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
+//
+//            // Load image from Firebase Storage or use a placeholder if needed
+////            String timestamp = screening.getTimestamp();
+////            storageReference = FirebaseStorage.getInstance().getReference().child("screening_images").child(timestamp + ".jpg");
+////            loadScreeningImage();
+//        } else {
+//            Toast.makeText(this, "No screening data available.", Toast.LENGTH_SHORT).show();
+//            finish();
+//        }
 
         // Initialize RecyclerView
         pastScreeningsRecyclerView = findViewById(R.id.pastScreeningsRecyclerView);
@@ -238,5 +238,6 @@ public class ProfileActivity extends AppCompatActivity {
             });
         }
     }
+
 
 }

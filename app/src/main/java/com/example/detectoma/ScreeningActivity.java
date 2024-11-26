@@ -187,16 +187,16 @@ public class ScreeningActivity extends AppCompatActivity {
         // Get the image upload task
         Task<Void> uploadTask = renameLocalImageAndUpload(uid, formattedDate);
 
-        Screening screening = new Screening(formattedDate, roundedTempDifferenceStr, roundedDistanceSurfaceStr, roundedDistanceArmStr);
-//        screeningList.add(screening);
-
-        // Store the screening object in SharedPreferences
-        SharedPreferences sharedPreferencesScreening = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferencesScreening.edit();
-        Gson gson = new Gson();
-        String screeningJson = gson.toJson(screening);
-        editor.putString("lastScreening", screeningJson);
-        editor.apply();
+//        Screening screening = new Screening(formattedDate, roundedTempDifferenceStr, roundedDistanceSurfaceStr, roundedDistanceArmStr);
+////        screeningList.add(screening);
+//
+//        // Store the screening object in SharedPreferences
+//        SharedPreferences sharedPreferencesScreening = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPreferencesScreening.edit();
+//        Gson gson = new Gson();
+//        String screeningJson = gson.toJson(screening);
+//        editor.putString("lastScreening", screeningJson);
+//        editor.apply();
 
         // Combine all tasks
         List<Task<?>> allTasks = new ArrayList<>();
