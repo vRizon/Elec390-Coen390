@@ -42,21 +42,34 @@ public class UserDataActivity extends AppCompatActivity {
         boolean diameter = diameterCheckBox.isChecked();
         boolean evolving = evolvingCheckBox.isChecked();
 
-        // Check if any data was selected
-        if (asymmetry || border || color || diameter || evolving) {
-            // Pass data back to ScreeningActivity using Intent
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra("asymmetry", asymmetry);
-            resultIntent.putExtra("border", border);
-            resultIntent.putExtra("color", color);
-            resultIntent.putExtra("diameter", diameter);
-            resultIntent.putExtra("evolving", evolving);
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("asymmetry", asymmetry);
+        resultIntent.putExtra("border", border);
+        resultIntent.putExtra("color", color);
+        resultIntent.putExtra("diameter", diameter);
+        resultIntent.putExtra("evolving", evolving);
 
-            setResult(RESULT_OK, resultIntent); // Return the result
-            finish(); // Close UserDataActivity and go back to ScreeningActivity
-        } else {
-            // Notify the user if no options are selected
-            Toast.makeText(this, "Please select at least one checkbox to proceed.", Toast.LENGTH_SHORT).show();
-        }
+        setResult(RESULT_OK, resultIntent); // Return the result
+        finish();
+
+        // Check if any data was selected
+//        if (asymmetry || border || color || diameter || evolving) {
+//            // Pass data back to ScreeningActivity using Intent
+//            Intent resultIntent = new Intent();
+//            resultIntent.putExtra("asymmetry", asymmetry);
+//            resultIntent.putExtra("border", border);
+//            resultIntent.putExtra("color", color);
+//            resultIntent.putExtra("diameter", diameter);
+//            resultIntent.putExtra("evolving", evolving);
+//
+//            setResult(RESULT_OK, resultIntent); // Return the result
+//            finish(); // Close UserDataActivity and go back to ScreeningActivity
+//        } else {
+//            // Notify the user if no options are selected
+//            Toast.makeText(this, "Please select at least one checkbox to proceed.", Toast.LENGTH_SHORT).show();
+//        }
+
+
+
     }
 }
