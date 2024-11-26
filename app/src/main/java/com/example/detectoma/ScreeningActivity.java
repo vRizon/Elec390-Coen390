@@ -154,8 +154,6 @@ public class ScreeningActivity extends AppCompatActivity {
             return;
         }
 
-        double currentTemperature = 37.5; // Replace with actual temperature value
-        double currentDistance = 15.0; // Replace with actual distance value
 
         // Retrieve Tempdifference from SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
@@ -173,9 +171,7 @@ public class ScreeningActivity extends AppCompatActivity {
             roundedTempDifferenceStr = "0.00";
         }
 
-        timestampRef.child("temperature").setValue(currentTemperature);
         timestampRef.child("temperatureDiff").setValue(roundedTempDifferenceStr);
-        timestampRef.child("distance").setValue(currentDistance);
         timestampRef.child("asymmetry").setValue(asymmetry);
         timestampRef.child("border").setValue(border);
         timestampRef.child("color").setValue(color);
