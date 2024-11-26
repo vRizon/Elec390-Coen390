@@ -20,6 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
         <FrameLayout
             android:id="@+id/backIconContainer"
             android:layout_width="48dp"
@@ -37,6 +38,7 @@
                 android:contentDescription="Back"
                 android:layout_gravity="center" />
         </FrameLayout>
+
         <TextView
             android:id="@+id/toolbarTitle"
             android:layout_width="wrap_content"
@@ -47,16 +49,27 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Instructions TextView -->
+    <!-- GIF Tutorial -->
+    <ImageView
+        android:id="@+id/tutorialGif"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/topMenuBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="GIF Tutorial" />
+
+    <!-- Instructional Text -->
     <TextView
         android:id="@+id/instructionsTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Please position the camera carefully and ensure proper lighting to capture a clear image."
+        android:text="Please follow the above instructions for positioning your device properly."
         android:textAlignment="center"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/topMenuBar"
+        app:layout_constraintTop_toBottomOf="@id/tutorialGif"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -83,5 +96,4 @@
         app:layout_constraintTop_toBottomOf="@id/imageView_takePhoto"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
