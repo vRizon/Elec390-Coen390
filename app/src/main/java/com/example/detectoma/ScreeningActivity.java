@@ -120,12 +120,35 @@ public class ScreeningActivity extends AppCompatActivity {
 
         // Retrieve the distance values from SharedPreferences
         SharedPreferences sharedPreferencesL = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        float distanceSurface = sharedPreferencesL.getFloat(DISTANCE_SURFACE_KEY, -1);
-        float distanceArm = sharedPreferencesL.getFloat(DISTANCE_ARM_KEY, -1);
+        float distanceSurface = sharedPreferencesL.getFloat(DISTANCE_SURFACE_KEY, -1.0f);
+        float distanceArm = sharedPreferencesL.getFloat(DISTANCE_ARM_KEY, -1.0f);
+
+        String roundedDistanceSurfaceStr, roundedDistanceArmStr;
+        if (distanceSurface != -1.0f) {
+            // Use BigDecimal for precise rounding
+            BigDecimal bd = new BigDecimal(Float.toString(distanceSurface));
+            bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
+            roundedDistanceSurfaceStr = bd.toPlainString();
+        } else {
+            // Handle the case where TempDifference is not found
+            roundedDistanceSurfaceStr = "0.00";
+        }
+
+        if (distanceArm != -1.0f) {
+            // Use BigDecimal for precise rounding
+            BigDecimal bd = new BigDecimal(Float.toString(distanceArm));
+            bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
+            roundedDistanceArmStr = bd.toPlainString();
+        } else {
+            // Handle the case where TempDifference is not found
+            roundedDistanceArmStr = "0.00";
+        }
+
+
 
         if (distanceSurface != -1 && distanceArm != -1) {
-            timestampRef.child("distanceSurface").setValue(distanceSurface);
-            timestampRef.child("distanceArm").setValue(distanceArm);
+            timestampRef.child("distanceSurface").setValue(roundedDistanceSurfaceStr);
+            timestampRef.child("distanceArm").setValue(roundedDistanceArmStr);
         } else {
             Toast.makeText(this, "Distance data is missing!", Toast.LENGTH_SHORT).show();
             return;

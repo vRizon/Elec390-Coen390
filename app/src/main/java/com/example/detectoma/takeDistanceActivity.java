@@ -153,7 +153,7 @@ public class takeDistanceActivity extends AppCompatActivity {
                         Log.d(TAG, "Distances saved to SharedPreferences - Surface: " + firstDistance + ", Arm: " + secondDistance);
 
                         // Save distances to Firebase as Strings with two decimal places
-                        saveDistancesToFirebase(firstDistance, secondDistance);
+//                        saveDistancesToFirebase(firstDistance, secondDistance);
 
                         setResult(RESULT_OK);
                         Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
