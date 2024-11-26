@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.FileInputStream;
 import java.math.BigDecimal;
@@ -192,7 +193,7 @@ public class ScreeningActivity extends AppCompatActivity {
         Tasks.whenAll(allTasks)
                 .addOnSuccessListener(aVoid -> {
                     // All tasks completed successfully
-                    Toast.makeText(this, "Data saved and image uploaded successfully!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Data saved and images uploaded successfully!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, resultsActivity.class);
                     intent.putExtra("FORMATTED_DATE", formattedDate);
                     intent.putExtra("UID", uid);
@@ -226,24 +227,18 @@ public class ScreeningActivity extends AppCompatActivity {
             StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
             StorageReference newImageRefGraph = storage.getReference("/Patients/" + uid + "/g_" + formattedDate + ".jpg");
 
-            newImageRef.putBytes(imageBytes)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        // Image uploaded successfully
-                        taskCompletionSource.setResult(null);
-                    })
-                    .addOnFailureListener(e -> {
-                        // Failed to upload image
-                        e.printStackTrace();
-                        taskCompletionSource.setException(e);
-                    });
+            // Start the upload tasks
+            UploadTask uploadTask1 = newImageRef.putBytes(imageBytes);
+            UploadTask uploadTask2 = newImageRefGraph.putBytes(imageBytesGraph);
 
-            newImageRefGraph.putBytes(imageBytesGraph)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        // Image uploaded successfully
+            // Wait for both uploads to complete
+            Tasks.whenAll(uploadTask1, uploadTask2)
+                    .addOnSuccessListener(aVoid -> {
+                        // Both uploads succeeded
                         taskCompletionSource.setResult(null);
                     })
                     .addOnFailureListener(e -> {
-                        // Failed to upload image
+                        // At least one upload failed
                         e.printStackTrace();
                         taskCompletionSource.setException(e);
                     });
@@ -252,6 +247,7 @@ public class ScreeningActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "Failed to access the local image.", Toast.LENGTH_SHORT).show();
             taskCompletionSource.setException(e);
+            return taskCompletionSource.getTask(); // Return early to prevent further execution
         }
 
         return taskCompletionSource.getTask();
