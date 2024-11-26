@@ -193,6 +193,10 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     generatedCode = snapshot.getValue(String.class);
                     viewCodeTextView.setText("Your code: " + generatedCode);
+
+                    // Disable the button if a code already exists
+                    disableGenerateCodeButton();
+
                 }
             }
 
@@ -230,4 +234,11 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 
         dialog.show();
     }
+
+    private void disableGenerateCodeButton() {
+        generateCodeButton.setEnabled(false); //Disable btn
+        generateCodeButton.setAlpha(0.5f);   //change color
+    }
+
+
 }

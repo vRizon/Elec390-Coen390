@@ -142,7 +142,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Screenings"
+            android:text="Unlink Patient"
             android:textColor="#000000"
             android:textStyle="bold" />
     </LinearLayout>
@@ -150,8 +150,8 @@
     <!-- Patients Container -->
     <LinearLayout
         android:id="@+id/patientsContainer"
-        android:layout_width="382dp"
-        android:layout_height="344dp"
+        android:layout_width="345dp"
+        android:layout_height="322dp"
         android:orientation="vertical"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
