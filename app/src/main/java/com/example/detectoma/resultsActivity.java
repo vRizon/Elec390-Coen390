@@ -128,7 +128,6 @@ public class resultsActivity extends AppCompatActivity {
         });
 
         // Initialize AI Prediction Views
-        predictionTextView = findViewById(R.id.predictionTextView);
         imageView = findViewById(R.id.imageView_image);
 
         // Initialize Temperature Graph ImageView
