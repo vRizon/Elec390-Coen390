@@ -48,7 +48,7 @@
         android:layout_width="315dp"
         android:layout_height="134dp"
         android:layout_marginTop="96dp"
-        android:background="#E0E0E0"
+        android:background="#EEEEEE"
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
