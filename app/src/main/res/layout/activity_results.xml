@@ -69,6 +69,13 @@
             android:orientation="vertical">
 
             <!-- ImageView to Display the Original and CAM Overlay Image -->
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Analyzed skin lesion"
+                android:textSize="24sp" />
+
             <ImageView
                 android:id="@+id/imageView_image"
                 android:layout_width="match_parent"
@@ -78,15 +85,25 @@
                 android:paddingBottom="12dp" />
 
             <!-- Button to Toggle Heatmap -->
-            <Button
-                android:id="@+id/toggleHeatmapButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/darkGreen"
-                android:text="See relevant points"
-                android:textColor="@android:color/white" />
 
             <!-- New ImageView to Display the Temperature Graph Image -->
+
+            <Button
+                android:id="@+id/toggleHeatmapButton"
+                android:layout_width="365dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/darkGreen"
+                android:text="See relevant points on the image"
+                android:textColor="@android:color/white"
+                android:paddingBottom="16sp"/>
+
+            <TextView
+                android:id="@+id/textView9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Temperature analysis graph"
+                android:textSize="24sp" />
+
             <ImageView
                 android:id="@+id/imageView_temperature_graph"
                 android:layout_width="match_parent"
@@ -97,6 +114,13 @@
                 android:paddingBottom="12dp" />
 
             <!-- TextView to Display the AI Prediction -->
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Results summary"
+                android:textSize="24sp" />
+
             <TextView
                 android:id="@+id/predictionTextView"
                 android:layout_width="match_parent"
@@ -124,6 +148,12 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:paddingTop="20dp" />
+
+            <Button
+                android:id="@+id/backToHomeButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="End Analysis" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
