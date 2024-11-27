@@ -98,12 +98,14 @@
             <!-- Button to Toggle Heatmap -->
             <Button
                 android:id="@+id/toggleHeatmapButton"
-                android:layout_width="365dp"
-                android:layout_height="wrap_content"
                 android:text="See relevant points on the image"
                 android:backgroundTint="@color/darkGreen"
                 android:textColor="@android:color/white"
-                android:paddingBottom="16sp"/>
+                android:paddingBottom="16sp"
+                android:layout_width="363dp"
+                android:layout_height="65dp"
+                android:textSize="18sp"
+                app:cornerRadius="8dp"/>
 
             <TextView
                 android:id="@+id/textView9"
@@ -160,11 +162,13 @@
 
             <Button
                 android:id="@+id/backToHomeButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="End Analysis"
                 android:backgroundTint="@color/darkGreen"
-                android:textColor="@android:color/white"/>
+                android:textColor="@android:color/white"
+                android:layout_width="363dp"
+                android:layout_height="65dp"
+                android:textSize="18sp"
+                app:cornerRadius="8dp"/>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
