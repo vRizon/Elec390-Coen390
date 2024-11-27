@@ -80,11 +80,21 @@
             <!-- Button to Toggle Heatmap -->
             <Button
                 android:id="@+id/toggleHeatmapButton"
-                android:layout_width="124dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Toggle Heatmap"
                 android:backgroundTint="@color/darkGreen"
+                android:text="See relevant points"
                 android:textColor="@android:color/white" />
+
+            <!-- New ImageView to Display the Temperature Graph Image -->
+            <ImageView
+                android:id="@+id/imageView_temperature_graph"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="Temperature Graph"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
 
             <!-- TextView to Display the AI Prediction -->
             <TextView

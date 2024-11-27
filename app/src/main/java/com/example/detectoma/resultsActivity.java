@@ -1,7 +1,6 @@
 package com.example.detectoma;
 
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -23,8 +22,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -49,18 +46,11 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Locale;
@@ -77,6 +67,9 @@ public class resultsActivity extends AppCompatActivity {
     private boolean isHeatmapVisible = false; // Track heatmap state
     private Bitmap originalBitmap; // Store the original image
     private Bitmap heatmapBitmap;  // Store the heatmap overlay
+
+    // Views for Temperature Graph
+    private ImageView temperatureGraphImageView; // New ImageView for temperature graph
 
     // Views for Questionnaire Results
     private TextView resultsTextView;
@@ -102,8 +95,10 @@ public class resultsActivity extends AppCompatActivity {
     private String formattedDate;
     private String uid;
 
-    // Path to questionnaire results in Firebase Database
+    // Path templates
     private String questionnaireResultsPathTemplate = "/profiles/%s/screenings/%s/";
+    private String imagePathTemplate = "/Patients/%s/i_%s.jpg"; // Existing image path
+    private String temperatureGraphPathTemplate = "/Patients/%s/g_%s.jpg"; // New temperature graph path
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +129,9 @@ public class resultsActivity extends AppCompatActivity {
         predictionTextView = findViewById(R.id.predictionTextView);
         imageView = findViewById(R.id.imageView_image);
 
+        // Initialize Temperature Graph ImageView
+        temperatureGraphImageView = findViewById(R.id.imageView_temperature_graph);
+
         // Initialize Questionnaire Results Views
         resultsTextView = findViewById(R.id.resultsTextView);
         recommendationTextView = findViewById(R.id.recommendationTextView);
@@ -157,6 +155,9 @@ public class resultsActivity extends AppCompatActivity {
 
         // Fetch questionnaire results from Firebase
         fetchQuestionnaireResults();
+
+        // Fetch and display the temperature graph image
+        fetchTemperatureGraphImage();
     }
 
     /**
@@ -278,11 +279,12 @@ public class resultsActivity extends AppCompatActivity {
             return;
         }
 
+        // Build the image path
+        String imagePath = String.format(imagePathTemplate, uid, formattedDate);
+
         // Update storage reference to the path of the current user's image
-        storageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
-       // StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
-        //StorageReference storageRef = storage.getReference("/Patients/4t34RojIIuNPeJ79j1OKWZJ75EJ2/i_2024-11-26 10:32.jpg");
-        Log.d(TAG, "Fetching image from path: /Patients/" + uid + "/i_" + formattedDate + ".jpg");
+        storageRef = storage.getReference(imagePath);
+        Log.d(TAG, "Fetching image from path: " + imagePath);
 
         // Proceed to fetch the image from Firebase Storage
         storageRef.getBytes(ONE_MEGABYTE)
@@ -301,6 +303,31 @@ public class resultsActivity extends AppCompatActivity {
                 .addOnFailureListener(exception -> {
                     Log.e(TAG, "Error fetching image from Firebase", exception);
                     showErrorToUser("Failed to fetch image from Firebase. Please try again later.");
+                });
+    }
+
+    /**
+     * Fetches the temperature graph image from Firebase Storage and displays it.
+     */
+    private void fetchTemperatureGraphImage() {
+        String temperatureGraphPath = String.format(temperatureGraphPathTemplate, uid, formattedDate);
+        StorageReference temperatureGraphRef = storage.getReference(temperatureGraphPath);
+
+        Log.d(TAG, "Fetching temperature graph from path: " + temperatureGraphPath);
+
+        temperatureGraphRef.getBytes(ONE_MEGABYTE)
+                .addOnSuccessListener(bytes -> {
+                    Log.d(TAG, "Temperature graph image successfully fetched from Firebase.");
+
+                    // Decode the image bytes into a Bitmap
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                    // Display the image in the ImageView
+                    temperatureGraphImageView.setImageBitmap(bitmap);
+                })
+                .addOnFailureListener(exception -> {
+                    Log.e(TAG, "Error fetching temperature graph image from Firebase", exception);
+                    showErrorToUser("Failed to fetch temperature graph image from Firebase. Please try again later.");
                 });
     }
 

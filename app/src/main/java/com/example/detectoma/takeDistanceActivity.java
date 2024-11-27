@@ -1,5 +1,6 @@
 package com.example.detectoma;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -9,8 +10,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +25,7 @@ public class takeDistanceActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private TextView distanceSurfaceTextView;
     private TextView distanceArmTextView;
+    private ImageView tutorialGif;
     private Double firstDistance = null; // Store the first reading
     private Double secondDistance = null; // Store the second reading
     private static final String SHARED_PREFS = "SharedPrefs";
@@ -40,17 +42,22 @@ public class takeDistanceActivity extends AppCompatActivity {
 
         // Initialize UI elements
         Button startDistanceMeasurementButton = findViewById(R.id.retreiveDistanceMeasurement);
-        distanceSurfaceTextView = findViewById(R.id.distanceSurface); // Corrected to use class-level variable
-        distanceArmTextView = findViewById(R.id.distanceArm); // Corrected to use class-level variable
+        distanceSurfaceTextView = findViewById(R.id.distanceSurface);
+        distanceArmTextView = findViewById(R.id.distanceArm);
+        tutorialGif = findViewById(R.id.tutorialGif);
         ImageView backIcon = findViewById(R.id.backIcon);
-        backIcon.setOnClickListener(v -> {
-            finish(); // Close the current activity and navigate back
-        });
+
+        // Set up back button
+        backIcon.setOnClickListener(v -> finish());
+
+        // Load the GIF into the ImageView using Glide
+        Glide.with(this)
+                .asGif()
+                .load(R.drawable.take_distance) // Replace with the correct resource name for the GIF
+                .into(tutorialGif);
+
         // Set up click listener for the Start Distance Measurement button
-        startDistanceMeasurementButton.setOnClickListener(v -> {
-            // Retrieve distance data from Firebase
-            retrieveDistanceData();
-        });
+        startDistanceMeasurementButton.setOnClickListener(v -> retrieveDistanceData());
     }
 
     private void retrieveDistanceData() {
