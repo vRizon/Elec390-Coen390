@@ -35,6 +35,8 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -356,11 +358,13 @@ public class TakeTempActivity extends AppCompatActivity {
             return;
         }
 
-        int lastIndex = temperatureReadings.size() - 1;
-        TemperatureReading lastReading = temperatureReadings.get(lastIndex);
-        TemperatureReading previousReading = temperatureReadings.get(lastIndex - 1);
+//        int lastIndex = temperatureReadings.size() - 1;
+        int maxIndex = temperatureReadings.indexOf(Collections.max(temperatureReadings, Comparator.comparingDouble(TemperatureReading::getTemperature)));
+        int minIndex = temperatureReadings.indexOf(Collections.min(temperatureReadings, Comparator.comparingDouble(TemperatureReading::getTemperature)));
+        TemperatureReading maxReading = temperatureReadings.get(maxIndex);
+        TemperatureReading minReading = temperatureReadings.get(minIndex);
 
-        Tempdifference = Math.abs(lastReading.getTemperature() - previousReading.getTemperature());
+        Tempdifference = Math.abs(maxReading.getTemperature() - minReading.getTemperature());
 
         if (Tempdifference > 2.0) {
             // Found a significant difference
