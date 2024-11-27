@@ -92,8 +92,8 @@
                 android:id="@+id/toggleHeatmapButton"
                 android:layout_width="365dp"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/darkGreen"
                 android:text="See relevant points on the image"
+                android:backgroundTint="@color/darkGreen"
                 android:textColor="@android:color/white"
                 android:paddingBottom="16sp"/>
 
@@ -121,15 +121,6 @@
                 android:text="Results summary"
                 android:textSize="24sp" />
 
-            <TextView
-                android:id="@+id/predictionTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Prediction: "
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingBottom="12dp" />
-
             <!-- TextView to Display Questionnaire-Based Analysis -->
             <TextView
                 android:id="@+id/resultsTextView"
@@ -153,7 +144,9 @@
                 android:id="@+id/backToHomeButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="End Analysis" />
+                android:text="End Analysis"
+                android:backgroundTint="@color/darkGreen"
+                android:textColor="@android:color/white"/>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
