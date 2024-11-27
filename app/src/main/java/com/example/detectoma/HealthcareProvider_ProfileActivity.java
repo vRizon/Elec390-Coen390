@@ -3,6 +3,7 @@ package com.example.detectoma;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -98,6 +100,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 
         patientsRecyclerView = findViewById(R.id.patientsRecyclerView);
         patientsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        patientsRecyclerView.setItemAnimator(new DefaultItemAnimator());
         patientsList = new ArrayList<>();
         adapter = new PatientAdapter(patientsList, patient -> unlinkPatient(patient.getId()));
         patientsRecyclerView.setAdapter(adapter);
@@ -124,10 +127,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
             return;
         }
 
-
-
         String doctorId = currentUser.getUid();
-
 
         mDatabase.child("patients").addValueEventListener(new ValueEventListener() {
             @Override
@@ -146,36 +146,78 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
         });
     }
 
-
-
     private void loadPatientDetails(String patientId) {
         mDatabase.getParent().child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
+            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
+                String firstName = patientSnapshot.child("firstName").getValue(String.class);
+                String lastName = patientSnapshot.child("lastName").getValue(String.class);
+
+                // Check for null values
+                if (firstName == null) {
+                    firstName = "Unknown";
+                }
+                if (lastName == null) {
+                    lastName = "Patient";
+                }
+
+                Log.d("NAME",firstName);
+                Log.d("NAME",lastName);
+
+                String fullName = firstName + " " + lastName;
+
+                Log.d("PatientData", "Loaded: " + fullName); // Now, fullName won't be null
+
+                patientsList.add(new Patient(patientId, fullName));
+                adapter.notifyDataSetChanged();
+
+//                if (firstName != null && lastName != null) {
+//                    String fullName = firstName + " " + lastName;
+//
+//                    Toast.makeText(HealthcareProvider_ProfileActivity.this, "PatientData , Loaded: " + fullName, Toast.LENGTH_SHORT).show();
+//                    patientsList.add(new Patient(patientId, fullName));
+//                    adapter.notifyDataSetChanged();
+//                } else {
+//                    Log.d("PatientData", "Missing patient details for: " + patientId);
+//                    Toast.makeText(HealthcareProvider_ProfileActivity.this, "PatientData , Missing patient details for: " + patientId, Toast.LENGTH_SHORT).show();
+//                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("PatientData", "Error loading patient details: " + error.getMessage());
+            }
+        });
+    }
+
+//    private void loadPatientDetails(String patientId) {
+//        mDatabase.getParent().child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+////            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
+////                String firstName = patientSnapshot.child("firstName").getValue(String.class);
+////                String lastName = patientSnapshot.child("lastName").getValue(String.class);
+////                if (firstName != null && lastName != null) {
+////                    String fullName = firstName + " " + lastName;
+////                    addPatientView(fullName, patientId);
+////                }
+////            }
+//
 //            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
 //                String firstName = patientSnapshot.child("firstName").getValue(String.class);
 //                String lastName = patientSnapshot.child("lastName").getValue(String.class);
 //                if (firstName != null && lastName != null) {
 //                    String fullName = firstName + " " + lastName;
-//                    addPatientView(fullName, patientId);
+//                    patientsList.add(new Patient(patientId, fullName));
+//                    adapter.notifyDataSetChanged();
 //                }
 //            }
-
-            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
-                String firstName = patientSnapshot.child("firstName").getValue(String.class);
-                String lastName = patientSnapshot.child("lastName").getValue(String.class);
-                if (firstName != null && lastName != null) {
-                    String fullName = firstName + " " + lastName;
-                    patientsList.add(new Patient(patientId, fullName));
-                    adapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patient details.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patient details.", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     private void addPatientView(String fullName, String patientId) {
         // Inflate the custom layout
