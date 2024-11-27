@@ -385,8 +385,19 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
                 .setMessage("Are you sure you want to unlink this patient?")
                 .setPositiveButton("Yes", (dialogInterface, which) -> {
                     String doctorId = mAuth.getCurrentUser().getUid();
-                    DatabaseReference doctorRef = mDatabase.child("patients").child(patientId);
-                    DatabaseReference patientRef = mDatabase.getParent().child(patientId).child("linkedDoctorId");
+//                    DatabaseReference doctorRef = mDatabase.child("patients").child(patientId);
+//                    DatabaseReference patientRef = mDatabase.getParent().child(patientId).child("linkedDoctorId");
+
+                    DatabaseReference doctorRef = FirebaseDatabase.getInstance()
+                            .getReference("profiles")
+                            .child(doctorId)
+                            .child("patients")
+                            .child(patientId);
+
+                    DatabaseReference patientRef = FirebaseDatabase.getInstance()
+                            .getReference("profiles")
+                            .child(patientId)
+                            .child("linkedDoctorId");
 
                     doctorRef.removeValue().addOnSuccessListener(aVoid -> {
                         patientRef.removeValue().addOnSuccessListener(aVoid1 -> {

@@ -81,6 +81,9 @@ public class ProfileActivity extends AppCompatActivity {
                         // If linked, disable the button and edit text
                         setComponentsDisabled();
                         Toast.makeText(ProfileActivity.this, "Already linked to a healthcare provider.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // If not linked, enable the components
+                        setComponentsEnabled();
                     }
                 }
 
@@ -157,6 +160,15 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    private void setComponentsEnabled() {
+        // Enable the button and EditText
+        linkToDoctorButton.setEnabled(true);
+        linkToDoctorButton.setAlpha(1.0f);
+        linkCodeEditText.setEnabled(true);
+        linkCodeEditText.setAlpha(1.0f);
+    }
+
     private void setComponentsDisabled() {
         // Disable the button and EditText
         linkToDoctorButton.setEnabled(false);
