@@ -43,6 +43,10 @@ public class PatientAdapter extends RecyclerView.Adapter<PatientAdapter.PatientV
             Intent intent = new Intent(holder.itemView.getContext(), ProfileActivity.class);
             intent.putExtra("patientId", patient.getId()); // Pass the patient ID
             holder.itemView.getContext().startActivity(intent); // Start the ProfileActivity
+
+            Log.d("PATIENT ID", patient.getId());
+
+
         });
 
         // Handle unlink button click
