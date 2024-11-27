@@ -6,9 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 import java.util.Map;
@@ -17,11 +21,23 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
 //    private List<Screening> screeningList;
     private List<Map<String, Object>> screeningList;
     private Context context;
+    private String patientId; // Add this member variable
 
     public ScreeningAdapter(List<Map<String, Object>> screeningList, Context context) {
         this.screeningList = screeningList;
         this.context = context;
+
+        // Retrieve the current user's UID (patientId)
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            patientId = currentUser.getUid();
+        } else {
+            patientId = null;
+            // Optionally, you can handle the case where the user is not logged in
+        }
     }
+
+
 
     @NonNull
     @Override
@@ -56,12 +72,28 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
 
 //        holder.temperature.setText("Temperature: " + screening.getTempDifference());
 //        holder.distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
+//
+//        holder.itemView.setOnClickListener(v -> {
+//            Intent intent = new Intent(context, resultsActivity.class);
+//            intent.putExtra("FORMATTED_DATE", timestamp);
+//            context.startActivity(intent);
+//        });
 
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ShowPatientDetails.class);
-            intent.putExtra("timestamp", timestamp);
-            context.startActivity(intent);
-        });
+        // Ensure patientId is not null before setting the click listener
+        if (patientId != null) {
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(context, resultsActivity.class);
+                intent.putExtra("FORMATTED_DATE", timestamp);
+                intent.putExtra("UID", patientId); // Pass patientId to the intent
+                context.startActivity(intent);
+            });
+        } else {
+            // Handle the case where patientId is null
+            holder.itemView.setOnClickListener(v -> {
+                // Show an error message or redirect to login
+                Toast.makeText(context, "User not logged in.", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     @Override
