@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -42,6 +43,9 @@ public class ProfileActivity extends AppCompatActivity {
     private List<Map<String, Object>> screeningList = new ArrayList<>();
     private DatabaseReference linkedDoctorIdRef;
     private ValueEventListener linkedDoctorIdListener;
+    private String patientId;
+    private String currentUserId;
+    private boolean isCurrentUserProfile;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -56,6 +60,9 @@ public class ProfileActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Get the patientId from the intent if available
+        patientId = getIntent().getStringExtra("patientId");
+
         // Initialize UI components
         linkCodeEditText = findViewById(R.id.linkCodeEditText);
         linkToDoctorButton = findViewById(R.id.linkToDoctorButton);
@@ -66,51 +73,76 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Fetch current user's name and update greetingText
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-            DatabaseReference userRef = databaseReference.child("profiles").child(userId);
 
-            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    UserProfile userProfile = snapshot.getValue(UserProfile.class);
-                    if (userProfile != null) {
-                        String firstName = userProfile.getFirstName();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUid();
+            // If patientId is null, we are viewing the current user's profile
+            if (patientId == null) {
+                patientId = currentUserId;
+            }
+            isCurrentUserProfile = patientId.equals(currentUserId);
+        } else {
+            // Handle not logged in
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // Fetch user's name and update greetingText
+        DatabaseReference userRef = databaseReference.child("profiles").child(patientId);
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserProfile userProfile = snapshot.getValue(UserProfile.class);
+                if (userProfile != null) {
+                    String firstName = userProfile.getFirstName();
+                    if (isCurrentUserProfile) {
                         greetingText.setText("Hello " + firstName);
                     } else {
-                        greetingText.setText("Hello");
+                        greetingText.setText("Patient: " + firstName);
                     }
+                } else {
+                    greetingText.setText("Hello");
                 }
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(ProfileActivity.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
-                }
-            });
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(ProfileActivity.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
 
-            // Check if the user is already linked to a doctor
-//            userRef.child("linkedDoctorId").addListenerForSingleValueEvent(new ValueEventListener() {
+//        if (currentUser != null) {
+//            currentUserId = currentUser.getUid();
+//            // If patientId is null, we are viewing the current user's profile
+//            if (patientId == null) {
+//                patientId = currentUserId;
+//            }
+//            isCurrentUserProfile = patientId.equals(currentUserId);
+//            DatabaseReference userRef = databaseReference.child("profiles").child(patientId);
+//
+//            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
 //                @Override
 //                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    if (snapshot.exists()) {
-//                        // If linked, disable the button and edit text
-//                        setComponentsDisabled();
-//                        Toast.makeText(ProfileActivity.this, "Already linked to a healthcare provider.", Toast.LENGTH_SHORT).show();
+//                    UserProfile userProfile = snapshot.getValue(UserProfile.class);
+//                    if (userProfile != null) {
+//                        String firstName = userProfile.getFirstName();
+//                        greetingText.setText("Hello " + firstName);
 //                    } else {
-//                        // If not linked, enable the components
-//                        setComponentsEnabled();
+//                        greetingText.setText("Hello");
 //                    }
 //                }
 //
 //                @Override
 //                public void onCancelled(@NonNull DatabaseError error) {
-//                    Toast.makeText(ProfileActivity.this, "Failed to check link status.", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(ProfileActivity.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
 //                }
 //            });
-        } else {
-            greetingText.setText("Hello");
-        }
+//        } else {
+//            greetingText.setText("Hello");
+//        }
 
         linkToDoctorButton.setOnClickListener(v -> linkToHealthcareProvider());
 
@@ -158,11 +190,29 @@ public class ProfileActivity extends AppCompatActivity {
         pastScreeningsRecyclerView = findViewById(R.id.pastScreeningsRecyclerView);
         pastScreeningsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         pastScreeningsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        adapter = new ScreeningAdapter(screeningList, this);
+        adapter = new ScreeningAdapter(screeningList, this, patientId);
         pastScreeningsRecyclerView.setAdapter(adapter);
 
         // Load screenings from Firebase
         loadScreeningsFromFirebase();
+
+        if (isCurrentUserProfile) {
+            // The profile belongs to the current user
+            // Keep UI components enabled or visible
+            linkToDoctorButton.setVisibility(View.VISIBLE);
+            linkCodeEditText.setVisibility(View.VISIBLE);
+            logoutIcon.setVisibility(View.VISIBLE);
+            startScreeningButton.setVisibility(View.VISIBLE);
+        } else {
+            // Viewing another user's profile (e.g., doctor viewing patient)
+            // Hide or disable UI components not relevant
+            linkToDoctorButton.setVisibility(View.GONE);
+            linkCodeEditText.setVisibility(View.GONE);
+            logoutIcon.setVisibility(View.GONE);
+            startScreeningButton.setVisibility(View.GONE);
+        }
+
+
     }
 
     @Override
@@ -170,38 +220,40 @@ public class ProfileActivity extends AppCompatActivity {
         super.onStart();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-            DatabaseReference userRef = databaseReference.child("profiles").child(userId);
-            linkedDoctorIdRef = userRef.child("linkedDoctorId");
+        if (isCurrentUserProfile) {
+            if (currentUser != null) {
+                String userId = currentUser.getUid();
+                DatabaseReference userRef = databaseReference.child("profiles").child(userId);
+                linkedDoctorIdRef = userRef.child("linkedDoctorId");
 
-            linkedDoctorIdListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        // If linked, disable the button and edit text
-                        setComponentsDisabled();
-                        Toast.makeText(ProfileActivity.this, "Already linked to a healthcare provider.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // If not linked, enable the components
-                        setComponentsEnabled();
+                linkedDoctorIdListener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            // If linked, disable the button and edit text
+                            setComponentsDisabled();
+                            Toast.makeText(ProfileActivity.this, "Already linked to a healthcare provider.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // If not linked, enable the components
+                            setComponentsEnabled();
+                        }
                     }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(ProfileActivity.this, "Failed to check link status.", Toast.LENGTH_SHORT).show();
-                }
-            };
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(ProfileActivity.this, "Failed to check link status.", Toast.LENGTH_SHORT).show();
+                    }
+                };
 
-            linkedDoctorIdRef.addValueEventListener(linkedDoctorIdListener);
+                linkedDoctorIdRef.addValueEventListener(linkedDoctorIdListener);
+            }
         }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (linkedDoctorIdRef != null && linkedDoctorIdListener != null) {
+        if (isCurrentUserProfile && linkedDoctorIdRef != null && linkedDoctorIdListener != null) {
             linkedDoctorIdRef.removeEventListener(linkedDoctorIdListener);
         }
     }
@@ -268,39 +320,65 @@ public class ProfileActivity extends AppCompatActivity {
         linkToDoctorButton.setAlpha(0.5f);
         linkCodeEditText.setEnabled(false);
         linkCodeEditText.setAlpha(0.5f);
-
-
     }
+
     private void loadScreeningsFromFirebase() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-            DatabaseReference screeningsRef = FirebaseDatabase.getInstance().getReference()
-                    .child("profiles").child(userId).child("screenings");
+        DatabaseReference screeningsRef = FirebaseDatabase.getInstance().getReference()
+                .child("profiles").child(patientId).child("screenings");
 
-            screeningsRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    screeningList.clear();
-                    for (DataSnapshot screeningSnapshot : snapshot.getChildren()) {
-                        Map<String, Object> screeningData = (Map<String, Object>) screeningSnapshot.getValue();
-//                        Screening screening = screeningSnapshot.getValue(Screening.class);
-                        if (screeningData != null) {
-                            // Add the timestamp (key) to the data map
-                            screeningData.put("timestamp", screeningSnapshot.getKey());
-                            screeningList.add(screeningData);
-                        }
+        screeningsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                screeningList.clear();
+                for (DataSnapshot screeningSnapshot : snapshot.getChildren()) {
+                    Map<String, Object> screeningData = (Map<String, Object>) screeningSnapshot.getValue();
+                    if (screeningData != null) {
+                        // Add the timestamp (key) to the data map
+                        screeningData.put("timestamp", screeningSnapshot.getKey());
+                        screeningList.add(screeningData);
                     }
-                    adapter.notifyDataSetChanged();
                 }
+                adapter.notifyDataSetChanged();
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(ProfileActivity.this, "Failed to load screenings.", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(ProfileActivity.this, "Failed to load screenings.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+
+//    private void loadScreeningsFromFirebase() {
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
+//        if (currentUser != null) {
+//            String userId = currentUser.getUid();
+//            DatabaseReference screeningsRef = FirebaseDatabase.getInstance().getReference()
+//                    .child("profiles").child(userId).child("screenings");
+//
+//            screeningsRef.addValueEventListener(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    screeningList.clear();
+//                    for (DataSnapshot screeningSnapshot : snapshot.getChildren()) {
+//                        Map<String, Object> screeningData = (Map<String, Object>) screeningSnapshot.getValue();
+////                        Screening screening = screeningSnapshot.getValue(Screening.class);
+//                        if (screeningData != null) {
+//                            // Add the timestamp (key) to the data map
+//                            screeningData.put("timestamp", screeningSnapshot.getKey());
+//                            screeningList.add(screeningData);
+//                        }
+//                    }
+//                    adapter.notifyDataSetChanged();
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//                    Toast.makeText(ProfileActivity.this, "Failed to load screenings.", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        }
+//    }
 
 
 }
