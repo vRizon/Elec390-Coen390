@@ -118,7 +118,10 @@
                         android:layout_height="wrap_content"
                         android:text="Measure Surface"
                         android:backgroundTint="@color/darkGreen"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"
+                        android:padding="16dp"
+                        app:cornerRadius="8dp"
+                        />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -157,7 +160,11 @@
                         android:layout_height="wrap_content"
                         android:text="Measure Hand"
                         android:backgroundTint="@color/darkGreen"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"
+                        android:padding="16dp"
+                        app:cornerRadius="8dp"/>
+
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

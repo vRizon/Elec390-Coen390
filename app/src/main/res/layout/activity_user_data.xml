@@ -289,13 +289,15 @@
     <!-- Submit Button -->
     <Button
         android:id="@+id/submitButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:text="Submit"
         android:padding="16dp"
         android:backgroundTint="@color/darkGreen"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:cornerRadius="8dp"
+        android:layout_width="363dp"
+        android:layout_height="65dp"
+        android:textSize="18sp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

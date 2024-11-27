@@ -108,13 +108,17 @@
     <!-- Save Photo Button -->
     <Button
         android:id="@+id/savePhotoButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:text="Save Photo"
-        android:padding="16dp"
         android:backgroundTint="@color/darkGreen"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="456dp"
+        android:padding="16dp"
+        android:textSize="18sp"
+        app:cornerRadius="8dp"
+        android:layout_width="363dp"
+        android:layout_height="65dp"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>
