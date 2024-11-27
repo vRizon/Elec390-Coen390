@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -52,7 +53,7 @@ public class TakeTempActivity extends AppCompatActivity {
     private ValueEventListener buttonListener;
     private LineChart temperatureChart;
     double Tempdifference = 0.0;
-
+    private ImageView gifImageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +70,10 @@ public class TakeTempActivity extends AppCompatActivity {
         tempTextView = findViewById(R.id.tempTextView); // Add this TextView to your layout
         startMeasurementButton = findViewById(R.id.startMeasurementButton);
         temperatureChart = findViewById(R.id.temperatureChart);
+        gifImageView = findViewById(R.id.tutorialGif); // Initialize the GIF ImageView
 
+        // Load the GIF into the ImageView using Glide
+        Glide.with(this).asGif().load(R.drawable.take_temp).into(gifImageView);
         // Configure the chart
         configureChart();
 
