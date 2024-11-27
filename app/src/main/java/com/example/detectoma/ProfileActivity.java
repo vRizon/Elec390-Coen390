@@ -2,6 +2,7 @@ package com.example.detectoma;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,11 +27,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class ProfileActivity extends AppCompatActivity {
     private EditText linkCodeEditText;
     private Button linkToDoctorButton;
     private DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
+    private RecyclerView pastScreeningsRecyclerView;
+    private ScreeningAdapter adapter;
+//    private List<Screening> screeningList = new ArrayList<>();
+    private List<Map<String, Object>> screeningList = new ArrayList<>();
     private DatabaseReference linkedDoctorIdRef;
     private ValueEventListener linkedDoctorIdListener;
 
@@ -117,6 +129,40 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
             finish(); // Finish current activity
         });
+
+//        // Get the screening object from SharedPreferences
+//        SharedPreferences sharedPreferences = getSharedPreferences(ScreeningActivity.SHARED_PREFS, MODE_PRIVATE);
+//        String screeningJson = sharedPreferences.getString("lastScreening", null);
+//
+//        if (screeningJson != null) {
+//            Gson gson = new Gson();
+//            Screening screening = gson.fromJson(screeningJson, Screening.class);
+//
+//            screeningList.add(screening);
+//
+////            // Set the data to the views
+////            screeningDate.setText(screening.getTimestamp());
+////            temperature.setText("Temperature: " + screening.getTemperature());
+////            distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
+//
+//            // Load image from Firebase Storage or use a placeholder if needed
+////            String timestamp = screening.getTimestamp();
+////            storageReference = FirebaseStorage.getInstance().getReference().child("screening_images").child(timestamp + ".jpg");
+////            loadScreeningImage();
+//        } else {
+//            Toast.makeText(this, "No screening data available.", Toast.LENGTH_SHORT).show();
+//            finish();
+//        }
+
+        // Initialize RecyclerView
+        pastScreeningsRecyclerView = findViewById(R.id.pastScreeningsRecyclerView);
+        pastScreeningsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        pastScreeningsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        adapter = new ScreeningAdapter(screeningList, this);
+        pastScreeningsRecyclerView.setAdapter(adapter);
+
+        // Load screenings from Firebase
+        loadScreeningsFromFirebase();
     }
 
     @Override
@@ -225,5 +271,36 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     }
+    private void loadScreeningsFromFirebase() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            DatabaseReference screeningsRef = FirebaseDatabase.getInstance().getReference()
+                    .child("profiles").child(userId).child("screenings");
+
+            screeningsRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    screeningList.clear();
+                    for (DataSnapshot screeningSnapshot : snapshot.getChildren()) {
+                        Map<String, Object> screeningData = (Map<String, Object>) screeningSnapshot.getValue();
+//                        Screening screening = screeningSnapshot.getValue(Screening.class);
+                        if (screeningData != null) {
+                            // Add the timestamp (key) to the data map
+                            screeningData.put("timestamp", screeningSnapshot.getKey());
+                            screeningList.add(screeningData);
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(ProfileActivity.this, "Failed to load screenings.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
 
 }

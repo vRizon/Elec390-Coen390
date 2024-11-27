@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.glide)
     implementation(libs.firebase.firestore)
+    implementation(libs.gson)
 //    implementation(libs.mpandroidchart)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
@@ -58,6 +59,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-ml-modeldownloader")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation ("com.google.android.material:material:1.4.0")
 
 
 }
