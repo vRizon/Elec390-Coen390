@@ -128,11 +128,22 @@
         android:textColor="#FFF"
         android:textSize="18sp"
         app:cornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linkDoctorSection" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pastScreeningsRecyclerView"
+        android:layout_width="339dp"
+        android:layout_height="367dp"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.959" />
+        app:layout_constraintTop_toBottomOf="@+id/startScreeningButton"
+        tools:listitem="@layout/item_screening" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

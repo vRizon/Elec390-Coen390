@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.storage.UploadTask;
+//import com.google.gson.Gson;
 
 import java.io.FileInputStream;
 import java.math.BigDecimal;
@@ -47,9 +48,11 @@ public class ScreeningActivity extends AppCompatActivity {
     private boolean diameter = false;
     private boolean evolving = false;
 
-    private static final String SHARED_PREFS = "SharedPrefs";
+    public static final String SHARED_PREFS = "SharedPrefs";
     private static final String DISTANCE_SURFACE_KEY = "distanceSurface";
     private static final String DISTANCE_ARM_KEY = "distanceArm";
+
+//    private List<Screening> screeningList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,8 @@ public class ScreeningActivity extends AppCompatActivity {
         takePhotoCheckBox = findViewById(R.id.takePhotoCheckBox);
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
+
+//        screeningList = new ArrayList<>();
 
 
         // Set up button listeners
@@ -184,6 +189,17 @@ public class ScreeningActivity extends AppCompatActivity {
         // Get the image upload task
         Task<Void> uploadTask = renameLocalImageAndUpload(uid, formattedDate);
 
+//        Screening screening = new Screening(formattedDate, roundedTempDifferenceStr, roundedDistanceSurfaceStr, roundedDistanceArmStr);
+////        screeningList.add(screening);
+//
+//        // Store the screening object in SharedPreferences
+//        SharedPreferences sharedPreferencesScreening = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPreferencesScreening.edit();
+//        Gson gson = new Gson();
+//        String screeningJson = gson.toJson(screening);
+//        editor.putString("lastScreening", screeningJson);
+//        editor.apply();
+
         // Combine all tasks
         List<Task<?>> allTasks = new ArrayList<>();
         allTasks.addAll(databaseTasks);
@@ -238,7 +254,18 @@ public class ScreeningActivity extends AppCompatActivity {
                         taskCompletionSource.setResult(null);
                     })
                     .addOnFailureListener(e -> {
-                        // At least one upload failed
+                        // Failed to upload image
+                        e.printStackTrace();
+                        taskCompletionSource.setException(e);
+                    });
+
+            newImageRefGraph.putBytes(imageBytesGraph)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Image uploaded successfully
+                        taskCompletionSource.setResult(null);
+                    })
+                    .addOnFailureListener(e -> {
+                        // Failed to upload image
                         e.printStackTrace();
                         taskCompletionSource.setException(e);
                     });
