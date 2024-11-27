@@ -50,7 +50,7 @@ public class TakePhotoActivity extends AppCompatActivity {
         // Initialize tutorial GIF
         ImageView tutorialGif = findViewById(R.id.tutorialGif);
         Glide.with(this)
-                .load(R.drawable.take_photo) // Replace with the name of your GIF file in `res/drawable`
+                .load(R.drawable.takephoto) // Replace with the name of your GIF file in `res/drawable`
                 .into(tutorialGif);
 
         // Get the current user's UID
