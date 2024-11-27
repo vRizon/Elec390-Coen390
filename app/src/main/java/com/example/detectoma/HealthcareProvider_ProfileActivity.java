@@ -41,6 +41,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
     private TextView viewCodeTextView;
     private String generatedCode;
     private LinearLayout patientsContainer;
+    private ValueEventListener patientsListener;
 
 //Recycler View
     private RecyclerView patientsRecyclerView;
@@ -86,6 +87,20 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadPatientData();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (patientsListener != null) {
+            mDatabase.child("patients").removeEventListener(patientsListener);
+        }
+    }
+
     private void initializeViews() {
 
 
@@ -129,66 +144,120 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 
         String doctorId = currentUser.getUid();
 
-        mDatabase.child("patients").addValueEventListener(new ValueEventListener() {
+        patientsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                patientsContainer.removeAllViews();
+                patientsList.clear(); // Clear the list before adding new data
+
+                List<String> patientIds = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     String patientId = snapshot.getKey();
-                    loadPatientDetails(patientId);
+                    patientIds.add(patientId);
                 }
+
+                if (patientIds.isEmpty()) {
+                    adapter.notifyDataSetChanged();
+                    return;
+                }
+
+                loadPatientDetails(patientIds);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patients.", Toast.LENGTH_SHORT).show();
             }
-        });
+        };
+
+        mDatabase.child("patients").addValueEventListener(patientsListener);
+
+//        mDatabase.child("patients").addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+////                patientsContainer.removeAllViews();
+//                patientsList.clear();
+//                List<String> patientIds = new ArrayList<>();
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                    String patientId = snapshot.getKey();
+//                    patientIds.add(patientId);
+//                }
+//                if (patientIds.isEmpty()) {
+//                    adapter.notifyDataSetChanged();
+//                    return;
+//                }
+//
+//                loadPatientDetails(patientIds);
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patients.", Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
-    private void loadPatientDetails(String patientId) {
-        mDatabase.getParent().child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void loadPatientDetails(List<String> patientIds) {
+
+        // Fetch all patients' details at once
+        DatabaseReference profilesRef = FirebaseDatabase.getInstance().getReference("profiles");
+        profilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
-                String firstName = patientSnapshot.child("firstName").getValue(String.class);
-                String lastName = patientSnapshot.child("lastName").getValue(String.class);
+            public void onDataChange(@NonNull DataSnapshot profilesSnapshot) {
+                // Clear the list again to ensure no duplicates in case of rapid data changes
+                patientsList.clear();
+                for (String patientId : patientIds) {
+                    DataSnapshot patientSnapshot = profilesSnapshot.child(patientId);
+                    String firstName = patientSnapshot.child("firstName").getValue(String.class);
+                    String lastName = patientSnapshot.child("lastName").getValue(String.class);
 
-                // Check for null values
-                if (firstName == null) {
-                    firstName = "Unknown";
+                    // Check for null values
+                    if (firstName == null) {
+                        firstName = "Unknown";
+                    }
+                    if (lastName == null) {
+                        lastName = "Patient";
+                    }
+
+                    String fullName = firstName + " " + lastName;
+                    patientsList.add(new Patient(patientId, fullName));
                 }
-                if (lastName == null) {
-                    lastName = "Patient";
-                }
-
-                Log.d("NAME",firstName);
-                Log.d("NAME",lastName);
-
-                String fullName = firstName + " " + lastName;
-
-                Log.d("PatientData", "Loaded: " + fullName); // Now, fullName won't be null
-
-                patientsList.add(new Patient(patientId, fullName));
                 adapter.notifyDataSetChanged();
-
-//                if (firstName != null && lastName != null) {
-//                    String fullName = firstName + " " + lastName;
-//
-//                    Toast.makeText(HealthcareProvider_ProfileActivity.this, "PatientData , Loaded: " + fullName, Toast.LENGTH_SHORT).show();
-//                    patientsList.add(new Patient(patientId, fullName));
-//                    adapter.notifyDataSetChanged();
-//                } else {
-//                    Log.d("PatientData", "Missing patient details for: " + patientId);
-//                    Toast.makeText(HealthcareProvider_ProfileActivity.this, "PatientData , Missing patient details for: " + patientId, Toast.LENGTH_SHORT).show();
-//                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("PatientData", "Error loading patient details: " + error.getMessage());
+                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patient details.", Toast.LENGTH_SHORT).show();
             }
         });
-    }
+
+//        mDatabase.getParent().child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
+//                String firstName = patientSnapshot.child("firstName").getValue(String.class);
+//                String lastName = patientSnapshot.child("lastName").getValue(String.class);
+//
+//                // Check for null values
+//                if (firstName == null) {
+//                    firstName = "Unknown";
+//                }
+//                if (lastName == null) {
+//                    lastName = "Patient";
+//                }
+//
+//                Log.d("NAME",firstName);
+//                Log.d("NAME",lastName);
+//
+//                String fullName = firstName + " " + lastName;
+//
+//                Log.d("PatientData", "Loaded: " + fullName); // Now, fullName won't be null
+//
+//                patientsList.add(new Patient(patientId, fullName));
+//                adapter.notifyDataSetChanged();
+
+
+            }
+
 
 //    private void loadPatientDetails(String patientId) {
 //        mDatabase.getParent().child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -322,7 +391,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
                     doctorRef.removeValue().addOnSuccessListener(aVoid -> {
                         patientRef.removeValue().addOnSuccessListener(aVoid1 -> {
                             Toast.makeText(HealthcareProvider_ProfileActivity.this, "Patient unlinked successfully!", Toast.LENGTH_SHORT).show();
-                            loadPatientData();
+//                            loadPatientData();
                         }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from patient's profile.", Toast.LENGTH_SHORT).show());
                     }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from doctor's profile.", Toast.LENGTH_SHORT).show());
                 })
@@ -333,6 +402,8 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.darkGreen));
             dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.darkGreen));
         });
+
+//        adapter.notifyDataSetChanged();
 
         dialog.show();
     }
