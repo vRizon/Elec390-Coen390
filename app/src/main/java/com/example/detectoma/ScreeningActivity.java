@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.storage.UploadTask;
 //import com.google.gson.Gson;
 
 import java.io.FileInputStream;
@@ -149,7 +150,7 @@ public class ScreeningActivity extends AppCompatActivity {
         }
 
         if (distanceArm != -1.0f) {
-            // Use BigDecimal for precsise rounding
+            // Use BigDecimal for precise rounding
             BigDecimal bd = new BigDecimal(Float.toString(distanceArm));
             bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
             roundedDistanceArmStr = bd.toPlainString();
@@ -176,6 +177,7 @@ public class ScreeningActivity extends AppCompatActivity {
 
         // Collect all database write tasks
         List<Task<Void>> databaseTasks = new ArrayList<>();
+        databaseTasks.add(timestampRef.child("asymmetry").setValue(asymmetry));
         databaseTasks.add(timestampRef.child("border").setValue(border));
         databaseTasks.add(timestampRef.child("color").setValue(color));
         databaseTasks.add(timestampRef.child("diameter").setValue(diameter));
@@ -207,7 +209,7 @@ public class ScreeningActivity extends AppCompatActivity {
         Tasks.whenAll(allTasks)
                 .addOnSuccessListener(aVoid -> {
                     // All tasks completed successfully
-                    Toast.makeText(this, "Data saved and image uploaded successfully!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Data saved and images uploaded successfully!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, resultsActivity.class);
                     intent.putExtra("FORMATTED_DATE", formattedDate);
                     intent.putExtra("UID", uid);
@@ -241,9 +243,14 @@ public class ScreeningActivity extends AppCompatActivity {
             StorageReference newImageRef = storage.getReference("/Patients/" + uid + "/i_" + formattedDate + ".jpg");
             StorageReference newImageRefGraph = storage.getReference("/Patients/" + uid + "/g_" + formattedDate + ".jpg");
 
-            newImageRef.putBytes(imageBytes)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        // Image uploaded successfully
+            // Start the upload tasks
+            UploadTask uploadTask1 = newImageRef.putBytes(imageBytes);
+            UploadTask uploadTask2 = newImageRefGraph.putBytes(imageBytesGraph);
+
+            // Wait for both uploads to complete
+            Tasks.whenAll(uploadTask1, uploadTask2)
+                    .addOnSuccessListener(aVoid -> {
+                        // Both uploads succeeded
                         taskCompletionSource.setResult(null);
                     })
                     .addOnFailureListener(e -> {
@@ -267,6 +274,7 @@ public class ScreeningActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "Failed to access the local image.", Toast.LENGTH_SHORT).show();
             taskCompletionSource.setException(e);
+            return taskCompletionSource.getTask(); // Return early to prevent further execution
         }
 
         return taskCompletionSource.getTask();

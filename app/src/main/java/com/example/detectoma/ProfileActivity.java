@@ -26,7 +26,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +40,8 @@ public class ProfileActivity extends AppCompatActivity {
     private ScreeningAdapter adapter;
 //    private List<Screening> screeningList = new ArrayList<>();
     private List<Map<String, Object>> screeningList = new ArrayList<>();
+    private DatabaseReference linkedDoctorIdRef;
+    private ValueEventListener linkedDoctorIdListener;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -86,22 +87,27 @@ public class ProfileActivity extends AppCompatActivity {
                     Toast.makeText(ProfileActivity.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
                 }
             });
-            // Check if the user is already linked to a doctor
-            userRef.child("linkedDoctorId").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        // If linked, disable the button and edit text
-                        setComponentsDisabled();
-                        Toast.makeText(ProfileActivity.this, "Already linked to a healthcare provider.", Toast.LENGTH_SHORT).show();
-                    }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(ProfileActivity.this, "Failed to check link status.", Toast.LENGTH_SHORT).show();
-                }
-            });
+
+            // Check if the user is already linked to a doctor
+//            userRef.child("linkedDoctorId").addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    if (snapshot.exists()) {
+//                        // If linked, disable the button and edit text
+//                        setComponentsDisabled();
+//                        Toast.makeText(ProfileActivity.this, "Already linked to a healthcare provider.", Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        // If not linked, enable the components
+//                        setComponentsEnabled();
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//                    Toast.makeText(ProfileActivity.this, "Failed to check link status.", Toast.LENGTH_SHORT).show();
+//                }
+//            });
         } else {
             greetingText.setText("Hello");
         }
@@ -159,6 +165,49 @@ public class ProfileActivity extends AppCompatActivity {
         loadScreeningsFromFirebase();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            DatabaseReference userRef = databaseReference.child("profiles").child(userId);
+            linkedDoctorIdRef = userRef.child("linkedDoctorId");
+
+            linkedDoctorIdListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        // If linked, disable the button and edit text
+                        setComponentsDisabled();
+                        Toast.makeText(ProfileActivity.this, "Already linked to a healthcare provider.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // If not linked, enable the components
+                        setComponentsEnabled();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(ProfileActivity.this, "Failed to check link status.", Toast.LENGTH_SHORT).show();
+                }
+            };
+
+            linkedDoctorIdRef.addValueEventListener(linkedDoctorIdListener);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (linkedDoctorIdRef != null && linkedDoctorIdListener != null) {
+            linkedDoctorIdRef.removeEventListener(linkedDoctorIdListener);
+        }
+    }
+
+
+
     private void linkToHealthcareProvider() {
         String linkCode = linkCodeEditText.getText().toString().trim();
 
@@ -204,6 +253,15 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    private void setComponentsEnabled() {
+        // Enable the button and EditText
+        linkToDoctorButton.setEnabled(true);
+        linkToDoctorButton.setAlpha(1.0f);
+        linkCodeEditText.setEnabled(true);
+        linkCodeEditText.setAlpha(1.0f);
+    }
+
     private void setComponentsDisabled() {
         // Disable the button and EditText
         linkToDoctorButton.setEnabled(false);
