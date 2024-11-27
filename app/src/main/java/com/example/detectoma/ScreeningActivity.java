@@ -254,21 +254,33 @@ public class ScreeningActivity extends AppCompatActivity {
                         taskCompletionSource.setResult(null);
                     })
                     .addOnFailureListener(e -> {
-                        // Failed to upload image
+                        // At least one of the uploads failed
                         e.printStackTrace();
                         taskCompletionSource.setException(e);
                     });
 
-            newImageRefGraph.putBytes(imageBytesGraph)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        // Image uploaded successfully
-                        taskCompletionSource.setResult(null);
-                    })
-                    .addOnFailureListener(e -> {
-                        // Failed to upload image
-                        e.printStackTrace();
-                        taskCompletionSource.setException(e);
-                    });
+//            // Wait for both uploads to complete
+//            Tasks.whenAll(uploadTask1, uploadTask2)
+//                    .addOnSuccessListener(aVoid -> {
+//                        // Both uploads succeeded
+//                        taskCompletionSource.setResult(null);
+//                    })
+//                    .addOnFailureListener(e -> {
+//                        // Failed to upload image
+//                        e.printStackTrace();
+//                        taskCompletionSource.setException(e);
+//                    });
+//
+//            newImageRefGraph.putBytes(imageBytesGraph)
+//                    .addOnSuccessListener(taskSnapshot -> {
+//                        // Image uploaded successfully
+//                        taskCompletionSource.setResult(null);
+//                    })
+//                    .addOnFailureListener(e -> {
+//                        // Failed to upload image
+//                        e.printStackTrace();
+//                        taskCompletionSource.setException(e);
+//                    });
 
         } catch (Exception e) {
             e.printStackTrace();
