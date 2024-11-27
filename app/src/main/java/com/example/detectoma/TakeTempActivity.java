@@ -73,7 +73,7 @@ public class TakeTempActivity extends AppCompatActivity {
         gifImageView = findViewById(R.id.tutorialGif); // Initialize the GIF ImageView
 
         // Load the GIF into the ImageView using Glide
-        Glide.with(this).asGif().load(R.drawable.take_temp).into(gifImageView);
+        Glide.with(this).asGif().load(R.drawable.taketemp).into(gifImageView);
         // Configure the chart
         configureChart();
 

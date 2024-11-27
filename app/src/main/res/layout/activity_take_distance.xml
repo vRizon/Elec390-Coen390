@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".takeDistanceActivity">
@@ -11,16 +10,16 @@
     <!-- Toolbar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
-        android:layout_width="420dp"
+        android:layout_width="0dp"
         android:layout_height="75dp"
         android:background="@drawable/backgroundnavbar"
-
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
         <FrameLayout
             android:id="@+id/backIconContainer"
             android:layout_width="48dp"
@@ -38,6 +37,7 @@
                 android:contentDescription="Back"
                 android:layout_gravity="center" />
         </FrameLayout>
+
         <TextView
             android:id="@+id/toolbarTitle"
             android:layout_width="wrap_content"
@@ -45,68 +45,122 @@
             android:text="Take Distance"
             android:textColor="#FFFFFF"
             android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_gravity="center_vertical" />
     </LinearLayout>
 
-    <!-- Instructions TextView -->
-    <TextView
-        android:id="@+id/instructionsTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:paddingBottom="20dp"
-        android:text="Follow the instructions below to take an accurate distance measurement."
-        android:textAlignment="center"
-        android:textSize="16sp"
+    <!-- Scrollable Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/topMenuBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Image Placeholder -->
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="292dp"
-        android:layout_height="307dp"
-        android:layout_marginTop="28dp"
-        app:layout_constraintTop_toBottomOf="@id/instructionsTextView"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:padding="16dp">
 
-    <!-- TextView for displaying distance to surface -->
-    <TextView
-        android:id="@+id/distanceSurface"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Distance to surface: Unknown"
-        app:layout_constraintTop_toBottomOf="@id/imageView2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <!-- TextView for displaying distance to arm -->
-    <TextView
-        android:id="@+id/distanceArm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Distance to arm: Unknown"
-        app:layout_constraintTop_toBottomOf="@id/distanceSurface"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <!-- Instructions TextView -->
+            <TextView
+                android:id="@+id/instructionsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Follow the instructions below to take an accurate distance measurement."
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:paddingBottom="16dp" />
 
-    <!-- Button to receive distance measurement -->
-    <Button
-        android:id="@+id/retreiveDistanceMeasurement"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="@color/darkGreen"
-        android:padding="16dp"
-        android:text="Receive Distance Measurement"
-        android:textColor="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/distanceArm"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <!-- GIF Tutorial -->
+            <ImageView
+                android:id="@+id/tutorialGif"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="GIF Tutorial" />
 
+            <!-- Card for Step 1 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Measurement to Surface"
+                        android:textSize="16sp"
+                        android:paddingBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/distanceSurface"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Distance to surface: Unknown"
+                        android:textSize="14sp"
+                        android:paddingBottom="8dp" />
+
+                    <Button
+                        android:id="@+id/measureSurfaceButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Measure Surface"
+                        android:backgroundTint="@color/darkGreen"
+                        android:textColor="@android:color/white" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card for Step 2 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Measurement to Hand"
+                        android:textSize="16sp"
+                        android:paddingBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/distanceArm"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Distance to hand: Unknown"
+                        android:textSize="14sp"
+                        android:paddingBottom="8dp" />
+
+                    <Button
+                        android:id="@+id/measureArmButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Measure Hand"
+                        android:backgroundTint="@color/darkGreen"
+                        android:textColor="@android:color/white" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
