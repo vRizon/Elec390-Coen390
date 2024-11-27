@@ -2,6 +2,8 @@ package com.example.detectoma;
 
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,13 +30,50 @@ public class PatientAdapter extends RecyclerView.Adapter<PatientAdapter.PatientV
         return new PatientViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull PatientViewHolder holder, int position) {
         Patient patient = patients.get(position);
+
+        // Set the patient name
         holder.patientNameTextView.setText(patient.getName());
 
+        // Navigate to ProfileActivity when the name is clicked
+        holder.patientNameTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(holder.itemView.getContext(), ProfileActivity.class);
+            intent.putExtra("patientId", patient.getId()); // Pass the patient ID
+            holder.itemView.getContext().startActivity(intent); // Start the ProfileActivity
+
+            Log.d("PATIENT ID", patient.getId());
+
+
+        });
+
+        // Handle unlink button click
         holder.unlinkButton.setOnClickListener(v -> actionListener.onUnlinkPatient(patient));
     }
+
+
+
+//    @Override
+//    public void onBindViewHolder(@NonNull PatientViewHolder holder, int position) {
+//        Patient patient = patients.get(position);
+//
+//        // Set the patient name
+//        holder.patientNameTextView.setText(patient.getName());
+//
+//        // Make only the name clickable
+//        holder.patientNameTextView.setOnClickListener(v -> {
+//            Log.d("PatientAdapter", "Name clicked: " + patient.getName());
+//
+//            // Perform action on name click
+//            // For example: Show patient details
+//        });
+//
+//        // Handle unlink button click
+//        holder.unlinkButton.setOnClickListener(v -> actionListener.onUnlinkPatient(patient));
+//    }
+//
 
     @Override
     public int getItemCount() {

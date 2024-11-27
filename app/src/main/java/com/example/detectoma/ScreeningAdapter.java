@@ -23,9 +23,10 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
     private Context context;
     private String patientId; // Add this member variable
 
-    public ScreeningAdapter(List<Map<String, Object>> screeningList, Context context) {
+    public ScreeningAdapter(List<Map<String, Object>> screeningList, Context context, String patientId) {
         this.screeningList = screeningList;
         this.context = context;
+        this.patientId = patientId;
 
         // Retrieve the current user's UID (patientId)
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
