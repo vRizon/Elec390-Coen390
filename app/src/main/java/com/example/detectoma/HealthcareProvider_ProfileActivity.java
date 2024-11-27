@@ -38,9 +38,9 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private Button generateCodeButton, addPatientButton;
-    private TextView viewCodeTextView;
+    private TextView viewCodeTextView,patientName;
     private String generatedCode;
-    private LinearLayout patientsContainer;
+//    private LinearLayout patientsContainer;
     private ValueEventListener patientsListener;
 
 //Recycler View
@@ -85,7 +85,14 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Code has already been generated: " + generatedCode, Toast.LENGTH_SHORT).show();
             }
         });
+
+
+
+
+
+
     }
+
 
     @Override
     protected void onStart() {
@@ -104,7 +111,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
     private void initializeViews() {
 
 
-
+        patientName = findViewById(R.id.patientName);
 
         generateCodeButton = findViewById(R.id.generateCodeButton);
         viewCodeTextView = findViewById(R.id.viewCodeTextView);
@@ -288,23 +295,23 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 //        });
 //    }
 
-    private void addPatientView(String fullName, String patientId) {
-        // Inflate the custom layout
-        View patientView = getLayoutInflater().inflate(R.layout.patient_item, patientsContainer, false);
-
-        // Get references to the UI elements in the custom layout
-        TextView patientNameTextView = ((View) patientView).findViewById(R.id.patientName);
-        Button unlinkButton = patientView.findViewById(R.id.unlinkButton);
-
-        // Set patient details
-        patientNameTextView.setText(fullName);
-
-        // Handle unlink button click
-        unlinkButton.setOnClickListener(v -> unlinkPatient(patientId));
-
-        // Add the view to the container
-        patientsContainer.addView(patientView);
-    }
+//    private void addPatientView(String fullName, String patientId) {
+//        // Inflate the custom layout
+//        View patientView = getLayoutInflater().inflate(R.layout.patient_item, patientsContainer, false);
+//
+//        // Get references to the UI elements in the custom layout
+//        TextView patientNameTextView = ((View) patientView).findViewById(R.id.patientName);
+//        Button unlinkButton = patientView.findViewById(R.id.unlinkButton);
+//
+//        // Set patient details
+//        patientNameTextView.setText(fullName);
+//
+//        // Handle unlink button click
+//        unlinkButton.setOnClickListener(v -> unlinkPatient(patientId));
+//
+//        // Add the view to the container
+//        patientsContainer.addView(patientView);
+//    }
 
 
 
