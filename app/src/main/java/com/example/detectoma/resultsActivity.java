@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,10 @@ public class resultsActivity extends AppCompatActivity {
     private Bitmap heatmapBitmap;  // Store the heatmap overlay
 
     // Views for Temperature Graph
-    private ImageView temperatureGraphImageView; // New ImageView for temperature graph
+    private ImageView temperatureGraphImageView; // ImageView for temperature graph
+
+    // View for Distance Analysis
+    private TextView distanceAnalysisTextView; // New TextView for distance analysis
 
     // Views for Questionnaire Results
     private TextView resultsTextView;
@@ -83,7 +87,7 @@ public class resultsActivity extends AppCompatActivity {
 
     private float[] classWeights; // To store the classification layer weights
 
-    // Declare booleans for questionnaire results
+    // Declare variables for questionnaire results
     private boolean asymmetry = false;
     private boolean border = false;
     private boolean color = false;
@@ -100,13 +104,15 @@ public class resultsActivity extends AppCompatActivity {
     // Path templates
     private String questionnaireResultsPathTemplate = "/profiles/%s/screenings/%s/";
     private String imagePathTemplate = "/Patients/%s/i_%s.jpg"; // Existing image path
-    private String temperatureGraphPathTemplate = "/Patients/%s/g_%s.jpg"; // New temperature graph path
+    private String temperatureGraphPathTemplate = "/Patients/%s/g_%s.jpg"; // Temperature graph path
+
+    private static final float DISTANCE_THRESHOLD = 0.5f; // Threshold for negligible distance difference
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_results); // Ensure this layout includes all necessary views
+        setContentView(R.layout.activity_results);
 
         // Handle window insets for edge-to-edge display
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -120,7 +126,7 @@ public class resultsActivity extends AppCompatActivity {
 
         // Initialize Toggle Heatmap Button
         Button toggleHeatmapButton = findViewById(R.id.toggleHeatmapButton);
-        toggleHeatmapButton.setOnClickListener(v -> toggleHeatmap()); // Set click listener
+        toggleHeatmapButton.setOnClickListener(v -> toggleHeatmap());
 
         ImageView backIcon = findViewById(R.id.backIcon);
         backIcon.setOnClickListener(v -> {
@@ -132,6 +138,9 @@ public class resultsActivity extends AppCompatActivity {
 
         // Initialize Temperature Graph ImageView
         temperatureGraphImageView = findViewById(R.id.imageView_temperature_graph);
+
+        // Initialize Distance Analysis TextView
+        distanceAnalysisTextView = findViewById(R.id.distanceAnalysisTextView);
 
         // Initialize Questionnaire Results Views
         resultsTextView = findViewById(R.id.resultsTextView);
@@ -163,12 +172,14 @@ public class resultsActivity extends AppCompatActivity {
         Button backToHomeButton = findViewById(R.id.backToHomeButton);
         backToHomeButton.setOnClickListener(v -> navigateToHome());
     }
+
     private void navigateToHome() {
-        Intent intent = new Intent(this, ProfileActivity.class); // Replace HomeActivity.class with the actual class name of your home activity
+        Intent intent = new Intent(this, ProfileActivity.class); // Replace with your home activity
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clears the back stack
         startActivity(intent);
         finish(); // Closes the current activity
     }
+
     /**
      * Fetches the questionnaire results from Firebase Realtime Database.
      */
@@ -184,11 +195,13 @@ public class resultsActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 // Retrieve the booleans
-                asymmetry = dataSnapshot.child("asymmetry").getValue(Boolean.class) != null ? dataSnapshot.child("asymmetry").getValue(Boolean.class) : false;
-                border = dataSnapshot.child("border").getValue(Boolean.class) != null ? dataSnapshot.child("border").getValue(Boolean.class) : false;
-                color = dataSnapshot.child("color").getValue(Boolean.class) != null ? dataSnapshot.child("color").getValue(Boolean.class) : false;
-                diameter = dataSnapshot.child("diameter").getValue(Boolean.class) != null ? dataSnapshot.child("diameter").getValue(Boolean.class) : false;
-                evolving = dataSnapshot.child("evolving").getValue(Boolean.class) != null ? dataSnapshot.child("evolving").getValue(Boolean.class) : false;
+                asymmetry = getBooleanValue(dataSnapshot.child("asymmetry"));
+                border = getBooleanValue(dataSnapshot.child("border"));
+                color = getBooleanValue(dataSnapshot.child("color"));
+                diameter = getBooleanValue(dataSnapshot.child("diameter"));
+                evolving = getBooleanValue(dataSnapshot.child("evolving"));
+
+                // Retrieve temperatureDiff as String and parse to float
                 String tempdiffStr = dataSnapshot.child("temperatureDiff").getValue(String.class);
                 if (tempdiffStr != null) {
                     try {
@@ -198,6 +211,48 @@ public class resultsActivity extends AppCompatActivity {
                         tempdiff = 0.0f;
                     }
                 }
+
+                // Retrieve distanceArm and distanceSurface and parse to float
+                String distanceArmStr = dataSnapshot.child("distanceArm").getValue(String.class);
+                String distanceSurfaceStr = dataSnapshot.child("distanceSurface").getValue(String.class);
+
+                float distanceArmValue = 0.0f;
+                float distanceSurfaceValue = 0.0f;
+
+                if (distanceArmStr != null) {
+                    try {
+                        distanceArmValue = Float.parseFloat(distanceArmStr);
+                    } catch (NumberFormatException e) {
+                        distanceArmValue = 0.0f;
+                    }
+                }
+
+                if (distanceSurfaceStr != null) {
+                    try {
+                        distanceSurfaceValue = Float.parseFloat(distanceSurfaceStr);
+                    } catch (NumberFormatException e) {
+                        distanceSurfaceValue = 0.0f;
+                    }
+                }
+
+                // Compute the distance difference
+                float distanceDifference = distanceArmValue - distanceSurfaceValue;
+                float absDistanceDifference = Math.abs(distanceDifference);
+                String distanceAnalysisText;
+
+                if (absDistanceDifference < DISTANCE_THRESHOLD) {
+                    distanceAnalysisText = "Distance to Arm Analysis:\nThe difference between arm and surface distances is negligible (" + String.format("%.2f", absDistanceDifference) + " cm).";
+                } else {
+                    if (distanceDifference > 0) {
+                        distanceAnalysisText = "Distance to Arm Analysis:\nYour arm is closer than the surface by " + String.format("%.2f", absDistanceDifference) + " cm.";
+                    } else {
+                        distanceAnalysisText = "Distance to Arm Analysis:\nYour arm is further than the surface by " + String.format("%.2f", absDistanceDifference) + " cm.";
+                    }
+                }
+                distanceAnalysisText = "Distance to Arm Analysis: \n " + String.format("%.2f", absDistanceDifference) + " cm. \n\nThis value can be used to keep track of mole growth. ";
+
+                distanceAnalysisTextView.setText(distanceAnalysisText);
+
                 // Now analyze and display questionnaire results
                 analyzeResults(asymmetry, border, color, diameter, evolving, tempdiff, result);
             }
@@ -208,6 +263,18 @@ public class resultsActivity extends AppCompatActivity {
                 showErrorToUser("Failed to load questionnaire results.");
             }
         });
+    }
+
+    // Helper method to safely retrieve Boolean values
+    private boolean getBooleanValue(DataSnapshot dataSnapshot) {
+        Object value = dataSnapshot.getValue();
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        } else if (value instanceof String) {
+            return Boolean.parseBoolean((String) value);
+        } else {
+            return false; // Default value if not found or invalid
+        }
     }
 
     /**
@@ -288,13 +355,6 @@ public class resultsActivity extends AppCompatActivity {
      */
     private void processImageFromFirebase() {
         Log.d(TAG, "Starting image processing...");
-
-        // Use the UID and formattedDate from Intent extras
-        if (uid == null || formattedDate == null) {
-            Log.e(TAG, "UID or FORMATTED_DATE is null");
-            showErrorToUser("Required data not provided. Please try again.");
-            return;
-        }
 
         // Build the image path
         String imagePath = String.format(imagePathTemplate, uid, formattedDate);
@@ -416,7 +476,6 @@ public class resultsActivity extends AppCompatActivity {
                 // Display the original image by default
                 runOnUiThread(() -> {
                     isHeatmapVisible = false; // Start with the original image
-                    //predictionTextView.setText("Prediction: " + result + " (" + String.format("%.4f", prediction) + ")");
                     imageView.setImageBitmap(originalBitmap); // Set the original image
                 });
             } else {
@@ -634,32 +693,26 @@ public class resultsActivity extends AppCompatActivity {
         List<String> flaggedCriteria = new ArrayList<>();
 
         if (asymmetry) {
-            //flaggedCriteria.add("Asymmetry: The mole is asymmetrical, which can be a warning sign for melanoma.");
-            flaggedCriteria.add("You selected that the mole is assymetrical, meaning that one half of the mole is not like the other half, this should be mentioned to your health care provider.");
+            flaggedCriteria.add("You selected that the mole is asymmetrical, meaning that one half of the mole is not like the other half. This should be mentioned to your health care provider.");
         }
         if (border) {
-            //flaggedCriteria.add("Border Irregularity: Uneven or notched borders can indicate a potentially dangerous mole.");
-            flaggedCriteria.add("You selected that the border of the mole is irregular, uneven or bumpy borders on a mole should be mentioned to your health care provider.");
+            flaggedCriteria.add("You selected that the border of the mole is irregular. Uneven or bumpy borders on a mole should be mentioned to your health care provider.");
         }
         if (color) {
-            //flaggedCriteria.add("Color Variation: Multiple colors in a mole are concerning.");
-            flaggedCriteria.add("You selected that the mole has color variation, color variation on a mole can be a sign of multiple ailments, thus it should be mentioned to your health care provider.");
-
+            flaggedCriteria.add("You selected that the mole has color variation. Color variation on a mole can be a sign of multiple ailments and should be mentioned to your health care provider.");
         }
         if (diameter) {
-            //flaggedCriteria.add("Diameter: Moles larger than 6mm or unusually dark are flagged as concerning.");
-            flaggedCriteria.add("You selected that your mole is larger than 6mm in diameter, larger moles are considered higher risk, regularly measure the size of the mole, and mention it to your health care provider.");
+            flaggedCriteria.add("You selected that your mole is larger than 6mm in diameter. Larger moles are considered higher risk. Regularly measure the size of the mole and mention it to your health care provider.");
         }
         if (evolving) {
-            // flaggedCriteria.add("Evolution: Changes in size, color, or symptoms like itching or bleeding are significant.");
-            flaggedCriteria.add("You selected that your mole is evolving, as in growing and changing in size or shape. If your mole is evolving, you must see a health care provider as soon as possible, and mention the evolution.");
+            flaggedCriteria.add("You selected that your mole is evolving in size or shape. If your mole is evolving, you must see a health care provider as soon as possible.");
         }
         if (tempdiff > 2) {
-            flaggedCriteria.add("There seems to be a temperature differential greater than 2 degrees celcius around the affected mole. You can confirm if this is accurate by studying the temperature graph to see if the measurements make sense, and if it does, and there is a slight temperature difference accross the mole, this may be concerning, and should be mentioned to the healthcare provider.");
+            flaggedCriteria.add("There seems to be a temperature differential greater than 2 degrees Celsius around the affected mole. This may be concerning and should be mentioned to your health care provider.");
         }
 
-        if (Objects.equals(prediction, "Positive")){
-            flaggedCriteria.add("The machine learning model seems to indicate a positive result, you can toggle the button under the image to see the points the model considers important, do note that an AI model is highly prone to making mistakes, thus this is a suggestion, you may want to show your health care provider the image of your mole, and the highlited points should be examined.");
+        if (Objects.equals(prediction, "Positive")) {
+            flaggedCriteria.add("The machine learning model indicates a positive result. You can toggle the button under the image to see the points the model considers important. Consider showing your health care provider the image of your mole and the highlighted points for examination.");
         }
 
         // Build results explanation
