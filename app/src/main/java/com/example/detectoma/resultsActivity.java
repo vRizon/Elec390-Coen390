@@ -77,6 +77,7 @@ public class resultsActivity extends AppCompatActivity {
     // Views for Questionnaire Results
     private TextView resultsTextView;
     private TextView recommendationTextView;
+    private TextView timestamp_results;
 
     // Firebase Storage reference
     private FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -145,11 +146,13 @@ public class resultsActivity extends AppCompatActivity {
         // Initialize Questionnaire Results Views
         resultsTextView = findViewById(R.id.resultsTextView);
         recommendationTextView = findViewById(R.id.recommendationTextView);
+        timestamp_results = findViewById(R.id.timestamp_results);
 
         // Retrieve Intent extras
         Intent intent = getIntent();
         formattedDate = intent.getStringExtra("FORMATTED_DATE");
         uid = intent.getStringExtra("UID");
+        timestamp_results.setText(formattedDate);
 
         if (formattedDate == null || uid == null) {
             Log.e(TAG, "FORMATTED_DATE or UID not provided in Intent");
