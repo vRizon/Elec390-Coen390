@@ -42,13 +42,15 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
                 String.valueOf(screeningData.get("temperatureDiff")) : "N/A";
         String distanceSurface = screeningData.get("distanceSurface") != null ?
                 String.valueOf(screeningData.get("distanceSurface")) : "N/A";
+        String distanceArm = screeningData.get("distanceArm") != null ?
+                String.valueOf(screeningData.get("distanceArm")) : "N/A";
 //        Boolean asymmetry = screeningData.get("asymmetry") != null ?
 //                (Boolean) screeningData.get("asymmetry") : null;
 
         // Set data to your views
         holder.screeningDate.setText(timestamp);
-        holder.temperature.setText("Temperature Difference: " + temperatureDiff + "°C");
-        holder.distances.setText("Distance Surface: " + distanceSurface + " cm");
+//        holder.temperature.setText("Temperature Difference: " + temperatureDiff + "°C");
+//        holder.distances.setText("Distance Surface: " + distanceSurface + " cm" + "Distance Arm: " + distanceArm + " cm");
 
 //        holder.asymmetryTextView.setText(asymmetry != null ? asymmetry.toString() : "N/A");
 
@@ -56,12 +58,9 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
 //        holder.distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
 
         holder.itemView.setOnClickListener(v -> {
-//            Intent intent = new Intent(context, ScreeningDetailsActivity.class);
-//            intent.putExtra("timestamp", screening.getTimestamp());
-//            intent.putExtra("temperature", screening.getTempDifference());
-//            intent.putExtra("distance1", screening.getDistance1());
-//            intent.putExtra("distance2", screening.getDistance2());
-//            context.startActivity(intent);
+            Intent intent = new Intent(context, ShowPatientDetails.class);
+            intent.putExtra("timestamp", timestamp);
+            context.startActivity(intent);
         });
     }
 
@@ -72,14 +71,14 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView screeningDate;
-        TextView temperature;
-        TextView distances;
+//        TextView temperature;
+//        TextView distances;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             screeningDate = itemView.findViewById(R.id.screeningDate);
-            temperature = itemView.findViewById(R.id.temperature);
-            distances = itemView.findViewById(R.id.distances);
+//            temperature = itemView.findViewById(R.id.temperature);
+//            distances = itemView.findViewById(R.id.distances);
         }
     }
 }
