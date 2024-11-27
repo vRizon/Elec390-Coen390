@@ -338,6 +338,22 @@ public class ProfileActivity extends AppCompatActivity {
                         screeningList.add(screeningData);
                     }
                 }
+
+                /////
+
+                // Sort the list by timestamp in descending order
+                screeningList.sort((screening1, screening2) -> {
+                    String timestamp1 = (String) screening1.get("timestamp");
+                    String timestamp2 = (String) screening2.get("timestamp");
+
+                    // Compare timestamps
+                    return timestamp2.compareTo(timestamp1); // Descending order
+                });
+
+                ////
+
+
+
                 adapter.notifyDataSetChanged();
             }
 
