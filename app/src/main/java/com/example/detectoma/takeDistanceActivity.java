@@ -41,7 +41,8 @@ public class takeDistanceActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference("profiles/4t34RojIIuNPeJ79j1OKWZJ75EJ2/Distance");
 
         // Initialize UI elements
-        Button startDistanceMeasurementButton = findViewById(R.id.retreiveDistanceMeasurement);
+        Button measureSurfaceButton = findViewById(R.id.measureSurfaceButton);
+        Button measureArmButton = findViewById(R.id.measureArmButton);
         distanceSurfaceTextView = findViewById(R.id.distanceSurface);
         distanceArmTextView = findViewById(R.id.distanceArm);
         tutorialGif = findViewById(R.id.tutorialGif);
@@ -53,32 +54,34 @@ public class takeDistanceActivity extends AppCompatActivity {
         // Load the GIF into the ImageView using Glide
         Glide.with(this)
                 .asGif()
-                .load(R.drawable.take_distance) // Replace with the correct resource name for the GIF
+                .load(R.drawable.takedistance) // Replace with the correct resource name for the GIF
                 .into(tutorialGif);
 
-        // Set up click listener for the Start Distance Measurement button
-        startDistanceMeasurementButton.setOnClickListener(v -> retrieveDistanceData());
+        // Set up click listener for Measure Surface button
+        measureSurfaceButton.setOnClickListener(v -> retrieveDistanceDataForSurface());
+
+        // Set up click listener for Measure Arm button
+        measureArmButton.setOnClickListener(v -> retrieveDistanceDataForArm());
     }
 
-    private void retrieveDistanceData() {
-        Log.d(TAG, "Attempting to retrieve data from Firebase...");
+    private void retrieveDistanceDataForSurface() {
+        Log.d(TAG, "Retrieving distance to surface...");
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "DataSnapshot received: " + dataSnapshot.toString());
                 if (dataSnapshot.exists()) {
-                    // Attempt to retrieve the value as a Double
                     try {
                         Double distance = dataSnapshot.getValue(Double.class);
-                        Log.d(TAG, "Distance retrieved: " + distance);
                         if (distance != null) {
-                            processDistanceReading(distance);
+                            firstDistance = distance;
+                            distanceSurfaceTextView.setText("Distance to surface: " + distance + " cm");
+                            Toast.makeText(takeDistanceActivity.this, "Surface distance set to " + distance + " cm", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(takeDistanceActivity.this, "Distance data is null", Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) {
-                        Log.e(TAG, "Error retrieving distance as Double. Data format might be incorrect.", e);
-                        Toast.makeText(takeDistanceActivity.this, "Failed to parse distance data", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Error retrieving distance for surface", e);
+                        Toast.makeText(takeDistanceActivity.this, "Failed to retrieve surface distance", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(takeDistanceActivity.this, "No distance data available", Toast.LENGTH_SHORT).show();
@@ -87,58 +90,73 @@ public class takeDistanceActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "Database error: ", databaseError.toException());
-                Toast.makeText(takeDistanceActivity.this, "Failed to retrieve data", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Database error retrieving surface distance: ", databaseError.toException());
+                Toast.makeText(takeDistanceActivity.this, "Failed to retrieve surface distance", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void processDistanceReading(Double distance) {
-        if (firstDistance == null) {
-            firstDistance = distance;
-            distanceSurfaceTextView.setText("Distance to surface: " + distance + " cm");
-            Toast.makeText(this, "First reading (surface) set to " + distance + " cm", Toast.LENGTH_SHORT).show();
-        } else if (secondDistance == null) {
-            secondDistance = distance;
-
-            if (firstDistance < secondDistance) {
-                distanceArmTextView.setText("Distance to arm: " + firstDistance + " cm");
-                distanceSurfaceTextView.setText("Distance to surface: " + secondDistance + " cm");
-            } else {
-                distanceArmTextView.setText("Distance to arm: " + secondDistance + " cm");
-                distanceSurfaceTextView.setText("Distance to surface: " + firstDistance + " cm");
+    private void retrieveDistanceDataForArm() {
+        Log.d(TAG, "Retrieving distance to arm...");
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    try {
+                        Double distance = dataSnapshot.getValue(Double.class);
+                        if (distance != null) {
+                            secondDistance = distance;
+                            distanceArmTextView.setText("Distance to hand: " + distance + " cm");
+                            Toast.makeText(takeDistanceActivity.this, "Arm distance set to " + distance + " cm", Toast.LENGTH_SHORT).show();
+                            showConfirmationDialog();
+                        } else {
+                            Toast.makeText(takeDistanceActivity.this, "Distance data is null", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error retrieving distance for arm", e);
+                        Toast.makeText(takeDistanceActivity.this, "Failed to retrieve arm distance", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(takeDistanceActivity.this, "No distance data available", Toast.LENGTH_SHORT).show();
+                }
             }
 
-            AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setTitle("Confirmation")
-                    .setMessage("Are you sure you want to submit this data?")
-                    .setPositiveButton("Yes", (dialogInterface, which) -> {
-                        // Save distances to SharedPreferences
-                        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putFloat(DISTANCE_SURFACE_KEY, firstDistance.floatValue());
-                        editor.putFloat(DISTANCE_ARM_KEY, secondDistance.floatValue());
-                        editor.apply();
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "Database error retrieving arm distance: ", databaseError.toException());
+                Toast.makeText(takeDistanceActivity.this, "Failed to retrieve arm distance", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-                        setResult(RESULT_OK);
-                        Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
-                        finish();
-                    })
-                    .setNegativeButton("No", (dialogInterface, which) -> {
-                        dialogInterface.dismiss();
-                        firstDistance = null;
-                        secondDistance = null;
-                    })
-                    .create();
+    private void showConfirmationDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Confirmation")
+                .setMessage("Are you sure you want to submit this data?")
+                .setPositiveButton("Yes", (dialogInterface, which) -> {
+                    // Save distances to SharedPreferences
+                    SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    if (firstDistance != null) editor.putFloat(DISTANCE_SURFACE_KEY, firstDistance.floatValue());
+                    if (secondDistance != null) editor.putFloat(DISTANCE_ARM_KEY, secondDistance.floatValue());
+                    editor.apply();
 
-            dialog.setOnShowListener(dialogInterface -> {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.darkGreen));
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.darkGreen));
-            });
+                    setResult(RESULT_OK);
+                    Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .setNegativeButton("No", (dialogInterface, which) -> {
+                    dialogInterface.dismiss();
+                    firstDistance = null;
+                    secondDistance = null;
+                })
+                .create();
 
-            dialog.show();
-        } else {
-            Toast.makeText(this, "Both readings are already set", Toast.LENGTH_SHORT).show();
-        }
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.darkGreen));
+        });
+
+        dialog.show();
     }
 }

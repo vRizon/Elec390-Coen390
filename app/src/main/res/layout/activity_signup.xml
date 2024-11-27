@@ -106,7 +106,7 @@
             android:layout_gravity="start"
             android:layout_marginBottom="12dp"
             android:background="@drawable/customeditbox"
-            android:hint="Date of Birth"
+            android:hint="YYYYMMDD"
             android:textColor="@color/black"
             android:textColorHint="@color/grey"
             android:inputType="date"

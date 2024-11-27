@@ -119,7 +119,7 @@ public class ScreeningActivity extends AppCompatActivity {
 
     private void analyzeAndSaveResults() {
         long timestamp = System.currentTimeMillis();
-        String formattedDate = new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.getDefault()).format(new Date(timestamp));
+        String formattedDate = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.getDefault()).format(new Date(timestamp));
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance()
