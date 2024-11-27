@@ -9,7 +9,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,8 +52,8 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class resultsActivity extends AppCompatActivity {
 
@@ -90,6 +89,9 @@ public class resultsActivity extends AppCompatActivity {
     private boolean color = false;
     private boolean diameter = false;
     private boolean evolving = false;
+    private float tempdiff = 0;
+
+    String result = "Negative";
 
     // Variables to hold Intent extras
     private String formattedDate;
@@ -158,8 +160,16 @@ public class resultsActivity extends AppCompatActivity {
 
         // Fetch and display the temperature graph image
         fetchTemperatureGraphImage();
-    }
 
+        Button backToHomeButton = findViewById(R.id.backToHomeButton);
+        backToHomeButton.setOnClickListener(v -> navigateToHome());
+    }
+    private void navigateToHome() {
+        Intent intent = new Intent(this, ProfileActivity.class); // Replace HomeActivity.class with the actual class name of your home activity
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clears the back stack
+        startActivity(intent);
+        finish(); // Closes the current activity
+    }
     /**
      * Fetches the questionnaire results from Firebase Realtime Database.
      */
@@ -180,9 +190,17 @@ public class resultsActivity extends AppCompatActivity {
                 color = dataSnapshot.child("color").getValue(Boolean.class) != null ? dataSnapshot.child("color").getValue(Boolean.class) : false;
                 diameter = dataSnapshot.child("diameter").getValue(Boolean.class) != null ? dataSnapshot.child("diameter").getValue(Boolean.class) : false;
                 evolving = dataSnapshot.child("evolving").getValue(Boolean.class) != null ? dataSnapshot.child("evolving").getValue(Boolean.class) : false;
-
+                String tempdiffStr = dataSnapshot.child("temperatureDiff").getValue(String.class);
+                if (tempdiffStr != null) {
+                    try {
+                        tempdiff = Float.parseFloat(tempdiffStr);
+                    } catch (NumberFormatException e) {
+                        // Handle parsing error, set tempdiff to default value
+                        tempdiff = 0.0f;
+                    }
+                }
                 // Now analyze and display questionnaire results
-                analyzeResults(asymmetry, border, color, diameter, evolving);
+                analyzeResults(asymmetry, border, color, diameter, evolving, tempdiff, result);
             }
 
             @Override
@@ -382,7 +400,7 @@ public class resultsActivity extends AppCompatActivity {
 
             // Get the prediction from output[1]
             float prediction = predictionBuffer.getFloatArray()[0];
-            String result = prediction > 0.5 ? "Positive" : "Negative";
+            result = prediction > 0.5 ? "Positive" : "Negative";
 
             Log.d(TAG, "Prediction: " + prediction + ", Result: " + result);
 
@@ -399,7 +417,7 @@ public class resultsActivity extends AppCompatActivity {
                 // Display the original image by default
                 runOnUiThread(() -> {
                     isHeatmapVisible = false; // Start with the original image
-                    predictionTextView.setText("Prediction: " + result + " (" + String.format("%.4f", prediction) + ")");
+                    //predictionTextView.setText("Prediction: " + result + " (" + String.format("%.4f", prediction) + ")");
                     imageView.setImageBitmap(originalBitmap); // Set the original image
                 });
             } else {
@@ -613,23 +631,36 @@ public class resultsActivity extends AppCompatActivity {
      * @param diameter  Indicates if diameter was flagged.
      * @param evolving  Indicates if evolution was flagged.
      */
-    private void analyzeResults(boolean asymmetry, boolean border, boolean color, boolean diameter, boolean evolving) {
+    private void analyzeResults(boolean asymmetry, boolean border, boolean color, boolean diameter, boolean evolving, float tempdiff, String prediction) {
         List<String> flaggedCriteria = new ArrayList<>();
 
         if (asymmetry) {
-            flaggedCriteria.add("Asymmetry: The mole is asymmetrical, which can be a warning sign for melanoma.");
+            //flaggedCriteria.add("Asymmetry: The mole is asymmetrical, which can be a warning sign for melanoma.");
+            flaggedCriteria.add("You selected that the mole is assymetrical, meaning that one half of the mole is not like the other half, this should be mentioned to your health care provider.");
         }
         if (border) {
-            flaggedCriteria.add("Border Irregularity: Uneven or notched borders can indicate a potentially dangerous mole.");
+            //flaggedCriteria.add("Border Irregularity: Uneven or notched borders can indicate a potentially dangerous mole.");
+            flaggedCriteria.add("You selected that the border of the mole is irregular, uneven or bumpy borders on a mole should be mentioned to your health care provider.");
         }
         if (color) {
-            flaggedCriteria.add("Color Variation: Multiple colors in a mole are concerning.");
+            //flaggedCriteria.add("Color Variation: Multiple colors in a mole are concerning.");
+            flaggedCriteria.add("You selected that the mole has color variation, color variation on a mole can be a sign of multiple ailments, thus it should be mentioned to your health care provider.");
+
         }
         if (diameter) {
-            flaggedCriteria.add("Diameter: Moles larger than 6mm or unusually dark are flagged as concerning.");
+            //flaggedCriteria.add("Diameter: Moles larger than 6mm or unusually dark are flagged as concerning.");
+            flaggedCriteria.add("You selected that your mole is larger than 6mm in diameter, larger moles are considered higher risk, regularly measure the size of the mole, and mention it to your health care provider.");
         }
         if (evolving) {
-            flaggedCriteria.add("Evolution: Changes in size, color, or symptoms like itching or bleeding are significant.");
+            // flaggedCriteria.add("Evolution: Changes in size, color, or symptoms like itching or bleeding are significant.");
+            flaggedCriteria.add("You selected that your mole is evolving, as in growing and changing in size or shape. If your mole is evolving, you must see a health care provider as soon as possible, and mention the evolution.");
+        }
+        if (tempdiff > 2) {
+            flaggedCriteria.add("There seems to be a temperature differential greater than 2 degrees celcius around the affected mole. You can confirm if this is accurate by studying the temperature graph to see if the measurements make sense, and if it does, and there is a slight temperature difference accross the mole, this may be concerning, and should be mentioned to the healthcare provider.");
+        }
+
+        if (Objects.equals(prediction, "Positive")){
+            flaggedCriteria.add("The machine learning model seems to indicate a positive result, you can toggle the button under the image to see the points the model considers important, do note that an AI model is highly prone to making mistakes, thus this is a suggestion, you may want to show your health care provider the image of your mole, and the highlited points should be examined.");
         }
 
         // Build results explanation
@@ -642,7 +673,7 @@ public class resultsActivity extends AppCompatActivity {
                 resultsBuilder.append(criteria).append("\n\n");
             }
             resultsTextView.setText(resultsBuilder.toString());
-            recommendationTextView.setText("Recommendation: We suggest consulting a dermatologist for further evaluation.");
+            recommendationTextView.setText("Recommendation: We suggest consulting a health care provider for further evaluation.");
         }
     }
 
