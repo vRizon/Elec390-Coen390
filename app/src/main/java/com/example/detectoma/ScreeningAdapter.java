@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.ViewHolder> {
-//    private List<Screening> screeningList;
     private List<Map<String, Object>> screeningList;
     private Context context;
     private String patientId; // Add this member variable
@@ -66,19 +65,6 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
 
         // Set data to your views
         holder.screeningDate.setText(timestamp);
-//        holder.temperature.setText("Temperature Difference: " + temperatureDiff + "°C");
-//        holder.distances.setText("Distance Surface: " + distanceSurface + " cm" + "Distance Arm: " + distanceArm + " cm");
-
-//        holder.asymmetryTextView.setText(asymmetry != null ? asymmetry.toString() : "N/A");
-
-//        holder.temperature.setText("Temperature: " + screening.getTempDifference());
-//        holder.distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
-//
-//        holder.itemView.setOnClickListener(v -> {
-//            Intent intent = new Intent(context, resultsActivity.class);
-//            intent.putExtra("FORMATTED_DATE", timestamp);
-//            context.startActivity(intent);
-//        });
 
         // Ensure patientId is not null before setting the click listener
         if (patientId != null) {
@@ -104,14 +90,10 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView screeningDate;
-//        TextView temperature;
-//        TextView distances;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             screeningDate = itemView.findViewById(R.id.screeningDate);
-//            temperature = itemView.findViewById(R.id.temperature);
-//            distances = itemView.findViewById(R.id.distances);
         }
     }
 }

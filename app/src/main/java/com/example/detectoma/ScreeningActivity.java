@@ -52,7 +52,6 @@ public class ScreeningActivity extends AppCompatActivity {
     private static final String DISTANCE_SURFACE_KEY = "distanceSurface";
     private static final String DISTANCE_ARM_KEY = "distanceArm";
 
-//    private List<Screening> screeningList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +69,6 @@ public class ScreeningActivity extends AppCompatActivity {
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
 
-//        screeningList = new ArrayList<>();
 
 
         // Set up button listeners
@@ -189,17 +187,6 @@ public class ScreeningActivity extends AppCompatActivity {
         // Get the image upload task
         Task<Void> uploadTask = renameLocalImageAndUpload(uid, formattedDate);
 
-//        Screening screening = new Screening(formattedDate, roundedTempDifferenceStr, roundedDistanceSurfaceStr, roundedDistanceArmStr);
-////        screeningList.add(screening);
-//
-//        // Store the screening object in SharedPreferences
-//        SharedPreferences sharedPreferencesScreening = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPreferencesScreening.edit();
-//        Gson gson = new Gson();
-//        String screeningJson = gson.toJson(screening);
-//        editor.putString("lastScreening", screeningJson);
-//        editor.apply();
-
         // Combine all tasks
         List<Task<?>> allTasks = new ArrayList<>();
         allTasks.addAll(databaseTasks);
@@ -259,28 +246,6 @@ public class ScreeningActivity extends AppCompatActivity {
                         taskCompletionSource.setException(e);
                     });
 
-//            // Wait for both uploads to complete
-//            Tasks.whenAll(uploadTask1, uploadTask2)
-//                    .addOnSuccessListener(aVoid -> {
-//                        // Both uploads succeeded
-//                        taskCompletionSource.setResult(null);
-//                    })
-//                    .addOnFailureListener(e -> {
-//                        // Failed to upload image
-//                        e.printStackTrace();
-//                        taskCompletionSource.setException(e);
-//                    });
-//
-//            newImageRefGraph.putBytes(imageBytesGraph)
-//                    .addOnSuccessListener(taskSnapshot -> {
-//                        // Image uploaded successfully
-//                        taskCompletionSource.setResult(null);
-//                    })
-//                    .addOnFailureListener(e -> {
-//                        // Failed to upload image
-//                        e.printStackTrace();
-//                        taskCompletionSource.setException(e);
-//                    });
 
         } catch (Exception e) {
             e.printStackTrace();

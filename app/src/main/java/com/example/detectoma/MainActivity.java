@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         signUpButton = findViewById(R.id.signUpButton);
         forgotPassword = findViewById(R.id.forgotPassword);
-
         loginButton.setOnClickListener(v -> loginUser());
         signUpButton.setOnClickListener(v -> navigateToSignUp());
         forgotPassword.setOnClickListener(v -> resetPassword());
@@ -56,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     private void loginUser() {
         String username = usernameEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
-
 
         if (username.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please enter your username and password", Toast.LENGTH_SHORT).show();
