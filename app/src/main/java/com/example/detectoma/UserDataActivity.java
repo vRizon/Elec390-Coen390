@@ -82,12 +82,7 @@ public class UserDataActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * Shows the explanation dialog for the given title and message.
-     *
-     * @param title   The title of the dialog.
-     * @param message The explanatory message to display.
-     */
+
     private void showExplanationDialog(String title, String message) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         ExplanationDialogFragment dialogFragment = ExplanationDialogFragment.newInstance(title, message);

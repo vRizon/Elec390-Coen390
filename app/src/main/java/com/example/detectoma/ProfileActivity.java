@@ -280,7 +280,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 }
 
-                // Sort the list by timestamp in descending order
+                //Sort the list by timestamp in descending order
                 screeningList.sort((screening1, screening2) -> {
                     String timestamp1 = (String) screening1.get("timestamp");
                     String timestamp2 = (String) screening2.get("timestamp");

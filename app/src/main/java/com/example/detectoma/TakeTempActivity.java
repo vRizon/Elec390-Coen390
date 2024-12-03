@@ -333,10 +333,6 @@ public class TakeTempActivity extends AppCompatActivity {
             Log.d(TAG, message);
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
-            // Optionally, you can stop measurement automatically
-            // isMeasuring = false;
-            // startMeasurementButton.setText("Start Measurement");
-            // stopTemperatureMeasurement();
         }
     }
 

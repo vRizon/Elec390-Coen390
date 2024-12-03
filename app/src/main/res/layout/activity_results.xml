@@ -20,7 +20,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Back Button with Larger Touch Area -->
         <FrameLayout
             android:id="@+id/backIconContainer"
             android:layout_width="48dp"
@@ -39,7 +38,6 @@
                 android:layout_gravity="center" />
         </FrameLayout>
 
-        <!-- Title -->
         <TextView
             android:id="@+id/toolbarTitle"
             android:layout_width="wrap_content"
@@ -64,7 +62,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- ScrollView containing content -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -79,7 +76,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- ImageView to Display the Original and CAM Overlay Image -->
             <TextView
                 android:id="@+id/textView8"
                 android:layout_width="match_parent"
@@ -95,7 +91,6 @@
                 android:contentDescription="Screening Image"
                 android:paddingBottom="12dp" />
 
-            <!-- Button to Toggle Heatmap -->
             <Button
                 android:id="@+id/toggleHeatmapButton"
                 android:text="See relevant points on the image"
@@ -123,7 +118,6 @@
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp" />
 
-            <!-- New TextView to Display the Distance Analysis -->
 
             <TextView
                 android:id="@+id/textView11"
@@ -132,7 +126,6 @@
                 android:text="Results summary"
                 android:textSize="24sp" />
 
-            <!-- TextView to Display Questionnaire-Based Analysis -->
             <TextView
                 android:id="@+id/distanceAnalysisTextView"
                 android:layout_width="match_parent"
@@ -150,7 +143,6 @@
                 android:textSize="16sp"
                 android:paddingTop="12dp" />
 
-            <!-- TextView to Display Recommendations -->
             <TextView
                 android:id="@+id/recommendationTextView"
                 android:layout_width="match_parent"
