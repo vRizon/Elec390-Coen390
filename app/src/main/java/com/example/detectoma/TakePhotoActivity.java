@@ -36,7 +36,6 @@ public class TakePhotoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_take_photo);
 
-        // Initialize ImageView for Firebase photo display
         imageView = findViewById(R.id.imageView_takePhoto);
         imageView.setVisibility(View.GONE);
 

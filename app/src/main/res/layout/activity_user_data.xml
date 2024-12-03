@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Toolbar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
         android:layout_width="match_parent"
@@ -35,7 +34,6 @@
             android:layout_marginStart="16dp" />
     </LinearLayout>
 
-    <!-- Scrollable Content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -50,7 +48,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- A for Asymmetry -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -97,7 +94,7 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- B for Border -->
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -144,7 +141,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- C for Color -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -191,7 +187,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- D for Diameter -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -238,7 +233,7 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- E for Evolving -->
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -286,7 +281,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Submit Button -->
+
     <Button
         android:id="@+id/submitButton"
         android:text="Submit"

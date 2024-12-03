@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.ViewHolder> {
-//    private List<Screening> screeningList;
+
     private List<Map<String, Object>> screeningList;
     private Context context;
-    private String patientId; // Add this member variable
+    private String patientId;
 
     public ScreeningAdapter(List<Map<String, Object>> screeningList, Context context, String patientId) {
         this.screeningList = screeningList;
@@ -61,24 +61,10 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
                 String.valueOf(screeningData.get("distanceSurface")) : "N/A";
         String distanceArm = screeningData.get("distanceArm") != null ?
                 String.valueOf(screeningData.get("distanceArm")) : "N/A";
-//        Boolean asymmetry = screeningData.get("asymmetry") != null ?
-//                (Boolean) screeningData.get("asymmetry") : null;
+
 
         // Set data to your views
         holder.screeningDate.setText(timestamp);
-//        holder.temperature.setText("Temperature Difference: " + temperatureDiff + "°C");
-//        holder.distances.setText("Distance Surface: " + distanceSurface + " cm" + "Distance Arm: " + distanceArm + " cm");
-
-//        holder.asymmetryTextView.setText(asymmetry != null ? asymmetry.toString() : "N/A");
-
-//        holder.temperature.setText("Temperature: " + screening.getTempDifference());
-//        holder.distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
-//
-//        holder.itemView.setOnClickListener(v -> {
-//            Intent intent = new Intent(context, resultsActivity.class);
-//            intent.putExtra("FORMATTED_DATE", timestamp);
-//            context.startActivity(intent);
-//        });
 
         // Ensure patientId is not null before setting the click listener
         if (patientId != null) {
@@ -91,7 +77,6 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
         } else {
             // Handle the case where patientId is null
             holder.itemView.setOnClickListener(v -> {
-                // Show an error message or redirect to login
                 Toast.makeText(context, "User not logged in.", Toast.LENGTH_SHORT).show();
             });
         }
@@ -104,14 +89,12 @@ public class ScreeningAdapter extends RecyclerView.Adapter<ScreeningAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView screeningDate;
-//        TextView temperature;
-//        TextView distances;
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             screeningDate = itemView.findViewById(R.id.screeningDate);
-//            temperature = itemView.findViewById(R.id.temperature);
-//            distances = itemView.findViewById(R.id.distances);
+
         }
     }
 }

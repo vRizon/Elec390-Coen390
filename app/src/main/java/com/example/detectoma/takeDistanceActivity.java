@@ -40,7 +40,7 @@ public class takeDistanceActivity extends AppCompatActivity {
         // Initialize Firebase Database
         databaseReference = FirebaseDatabase.getInstance().getReference("profiles/4t34RojIIuNPeJ79j1OKWZJ75EJ2/Distance");
 
-        // Initialize UI elements
+
         Button measureSurfaceButton = findViewById(R.id.measureSurfaceButton);
         Button measureArmButton = findViewById(R.id.measureArmButton);
         distanceSurfaceTextView = findViewById(R.id.distanceSurface);
@@ -48,19 +48,15 @@ public class takeDistanceActivity extends AppCompatActivity {
         tutorialGif = findViewById(R.id.tutorialGif);
         ImageView backIcon = findViewById(R.id.backIcon);
 
-        // Set up back button
         backIcon.setOnClickListener(v -> finish());
 
         // Load the GIF into the ImageView using Glide
         Glide.with(this)
                 .asGif()
-                .load(R.drawable.takedistance) // Replace with the correct resource name for the GIF
+                .load(R.drawable.takedistance)
                 .into(tutorialGif);
 
-        // Set up click listener for Measure Surface button
         measureSurfaceButton.setOnClickListener(v -> retrieveDistanceDataForSurface());
-
-        // Set up click listener for Measure Arm button
         measureArmButton.setOnClickListener(v -> retrieveDistanceDataForArm());
     }
 

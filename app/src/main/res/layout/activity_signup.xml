@@ -36,7 +36,6 @@
         app:layout_constraintVertical_bias="0.986"
         >
 
-        <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,7 +44,6 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <!-- Subtitle -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,7 +53,6 @@
             android:textSize="16sp"
             />
 
-        <!-- First and Last Name -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -96,8 +93,6 @@
                 android:padding="12dp" />
         </LinearLayout>
 
-        <!-- Date of Birth -->
-
 
         <EditText
             android:id="@+id/dobEditText"
@@ -112,8 +107,6 @@
             android:inputType="date"
             android:padding="12dp" />
 
-        <!-- Email -->
-
 
         <EditText
             android:id="@+id/emailEditText"
@@ -127,7 +120,6 @@
             android:inputType="textEmailAddress"
             android:padding="12dp" />
 
-        <!-- Password -->
         <EditText
             android:id="@+id/passwordEditText"
             android:layout_width="match_parent"
@@ -140,7 +132,7 @@
             android:inputType="textPassword"
             android:padding="12dp" />
 
-        <!-- Sign Up Button -->
+
         <Button
             android:id="@+id/btnSignUp"
             android:layout_width="match_parent"

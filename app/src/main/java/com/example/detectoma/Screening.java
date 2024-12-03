@@ -1,7 +1,7 @@
 package com.example.detectoma;
 
 public class Screening {
-    private String timestamp;         // Add this if you store timestamp within each screening
+    private String timestamp;
     private boolean asymmetry;
     private boolean border;
     private boolean color;
@@ -12,7 +12,6 @@ public class Screening {
     private String distanceArm;
 
     public Screening() {
-        // Default constructor for Firebase
     }
 
     public String getTimestamp() {

@@ -79,31 +79,6 @@ public class TakeTempActivity extends AppCompatActivity {
         // Configure the chart
         configureChart();
 
-
-
-//        // Set up click listener for the Start Measurement button
-//        startMeasurementButton.setOnClickListener(v -> {
-//            FirebaseUser currentUser = mAuth.getCurrentUser();
-//            if (currentUser != null) {
-//                String userId = currentUser.getUid(); // Get the current user's UID
-//                Log.d(TAG, "Fetching temperature for User ID: " + userId);
-//                fetchTemperature(userId);
-//                new AlertDialog.Builder(this)
-//                        .setTitle("Confirmation")
-//                        .setMessage("Are you sure you want to submit this data?")
-//                        .setPositiveButton("Yes", (dialog, which) -> {
-//                            setResult(RESULT_OK);
-//                            Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show();
-//                            finish();
-//                        })
-//                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-//                        .show();
-//            } else {
-//                Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-//                Log.e(TAG, "User not logged in");
-//            }
-//        });
-
         // Get the current user's UID
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -145,20 +120,6 @@ public class TakeTempActivity extends AppCompatActivity {
             Log.e(TAG, "User not logged in");
         }
 
-        // Set up click listener for the Start/Stop Measurement button
-//        startMeasurementButton.setOnClickListener(v -> {
-//            if (!isMeasuring) {
-//                // Start measurement
-//                isMeasuring = true;
-//                startMeasurementButton.setText("Stop Measurement");
-//                startTemperatureMeasurement();
-//            } else {
-//                // Stop measurement
-//                isMeasuring = false;
-//                startMeasurementButton.setText("Start Measurement");
-//                stopTemperatureMeasurement();
-//            }
-//        });
     }
 
     private void configureChart() {

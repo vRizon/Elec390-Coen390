@@ -40,10 +40,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
     private Button generateCodeButton, addPatientButton;
     private TextView viewCodeTextView,patientName;
     private String generatedCode;
-//    private LinearLayout patientsContainer;
     private ValueEventListener patientsListener;
-
-//Recycler View
     private RecyclerView patientsRecyclerView;
     private PatientAdapter adapter;
     private List<Patient> patientsList;
@@ -56,7 +53,6 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_healthcare_provider_profile);
 
-        // Adjust window insets for edge-to-edge UI
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             v.setPadding(
                     insets.getInsets(WindowInsetsCompat.Type.systemBars()).left,
@@ -86,11 +82,6 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
             }
         });
 
-
-
-
-
-
     }
 
 
@@ -115,7 +106,6 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 
         generateCodeButton = findViewById(R.id.generateCodeButton);
         viewCodeTextView = findViewById(R.id.viewCodeTextView);
-//        patientsContainer = findViewById(R.id.patientsContainer);
         ImageView logoutIcon = findViewById(R.id.logoutIcon);
         logoutIcon.setOnClickListener(v -> logOutUser());
 
@@ -130,10 +120,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 
 
     private void logOutUser() {
-        // Log out from Firebase Auth
         FirebaseAuth.getInstance().signOut();
-
-        // Redirect to LoginActivity or the main entry point
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(HealthcareProvider_ProfileActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -154,7 +141,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
         patientsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                patientsList.clear(); // Clear the list before adding new data
+                patientsList.clear();
 
                 List<String> patientIds = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -178,47 +165,20 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 
         mDatabase.child("patients").addValueEventListener(patientsListener);
 
-//        mDatabase.child("patients").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-////                patientsContainer.removeAllViews();
-//                patientsList.clear();
-//                List<String> patientIds = new ArrayList<>();
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    String patientId = snapshot.getKey();
-//                    patientIds.add(patientId);
-//                }
-//                if (patientIds.isEmpty()) {
-//                    adapter.notifyDataSetChanged();
-//                    return;
-//                }
-//
-//                loadPatientDetails(patientIds);
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patients.", Toast.LENGTH_SHORT).show();
-//            }
-//        });
     }
 
     private void loadPatientDetails(List<String> patientIds) {
 
-        // Fetch all patients' details at once
         DatabaseReference profilesRef = FirebaseDatabase.getInstance().getReference("profiles");
         profilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot profilesSnapshot) {
-                // Clear the list again to ensure no duplicates in case of rapid data changes
                 patientsList.clear();
                 for (String patientId : patientIds) {
                     DataSnapshot patientSnapshot = profilesSnapshot.child(patientId);
                     String firstName = patientSnapshot.child("firstName").getValue(String.class);
                     String lastName = patientSnapshot.child("lastName").getValue(String.class);
 
-                    // Check for null values
                     if (firstName == null) {
                         firstName = "Unknown";
                     }
@@ -238,83 +198,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
             }
         });
 
-//        mDatabase.getParent().child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
-//                String firstName = patientSnapshot.child("firstName").getValue(String.class);
-//                String lastName = patientSnapshot.child("lastName").getValue(String.class);
-//
-//                // Check for null values
-//                if (firstName == null) {
-//                    firstName = "Unknown";
-//                }
-//                if (lastName == null) {
-//                    lastName = "Patient";
-//                }
-//
-//                Log.d("NAME",firstName);
-//                Log.d("NAME",lastName);
-//
-//                String fullName = firstName + " " + lastName;
-//
-//                Log.d("PatientData", "Loaded: " + fullName); // Now, fullName won't be null
-//
-//                patientsList.add(new Patient(patientId, fullName));
-//                adapter.notifyDataSetChanged();
-
-
             }
-
-
-//    private void loadPatientDetails(String patientId) {
-//        mDatabase.getParent().child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-////            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
-////                String firstName = patientSnapshot.child("firstName").getValue(String.class);
-////                String lastName = patientSnapshot.child("lastName").getValue(String.class);
-////                if (firstName != null && lastName != null) {
-////                    String fullName = firstName + " " + lastName;
-////                    addPatientView(fullName, patientId);
-////                }
-////            }
-//
-//            public void onDataChange(@NonNull DataSnapshot patientSnapshot) {
-//                String firstName = patientSnapshot.child("firstName").getValue(String.class);
-//                String lastName = patientSnapshot.child("lastName").getValue(String.class);
-//                if (firstName != null && lastName != null) {
-//                    String fullName = firstName + " " + lastName;
-//                    patientsList.add(new Patient(patientId, fullName));
-//                    adapter.notifyDataSetChanged();
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to load patient details.", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
-
-//    private void addPatientView(String fullName, String patientId) {
-//        // Inflate the custom layout
-//        View patientView = getLayoutInflater().inflate(R.layout.patient_item, patientsContainer, false);
-//
-//        // Get references to the UI elements in the custom layout
-//        TextView patientNameTextView = ((View) patientView).findViewById(R.id.patientName);
-//        Button unlinkButton = patientView.findViewById(R.id.unlinkButton);
-//
-//        // Set patient details
-//        patientNameTextView.setText(fullName);
-//
-//        // Handle unlink button click
-//        unlinkButton.setOnClickListener(v -> unlinkPatient(patientId));
-//
-//        // Add the view to the container
-//        patientsContainer.addView(patientView);
-//    }
-
-
-
 
 
     private void generateAndSaveCode() {
@@ -344,10 +228,7 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     generatedCode = snapshot.getValue(String.class);
                     viewCodeTextView.setText("Your code: " + generatedCode);
-
-                    // Disable the button if a code already exists
                     disableGenerateCodeButton();
-
                 }
             }
 
@@ -358,42 +239,12 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
         });
     }
 
-//    private void unlinkPatient(String patientId) {
-//        AlertDialog dialog = new AlertDialog.Builder(this)
-//                .setTitle("Unlink Patient")
-//                .setMessage("Are you sure you want to unlink this patient?")
-//                .setPositiveButton("Yes", (dialogInterface, which) -> {
-//                    String doctorId = mAuth.getCurrentUser().getUid();
-//                    DatabaseReference doctorRef = mDatabase.child("patients").child(patientId);
-//                    DatabaseReference patientRef = mDatabase.getParent().child(patientId).child("linkedDoctorId");
-//
-//                    doctorRef.removeValue().addOnSuccessListener(aVoid -> {
-//                        patientRef.removeValue().addOnSuccessListener(aVoid1 -> {
-//                            Toast.makeText(HealthcareProvider_ProfileActivity.this, "Patient unlinked successfully!", Toast.LENGTH_SHORT).show();
-//                            patientsContainer.removeAllViews();
-//                            loadPatientData();
-//                        }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from patient's profile.", Toast.LENGTH_SHORT).show());
-//                    }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from doctor's profile.", Toast.LENGTH_SHORT).show());
-//                })
-//                .setNegativeButton("No", (dialogInterface, which) -> dialogInterface.dismiss())
-//                .create();
-//
-//        dialog.setOnShowListener(dialogInterface -> {
-//            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.darkGreen));
-//            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.darkGreen));
-//        });
-//
-//        dialog.show();
-//    }
-
     private void unlinkPatient(String patientId) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Unlink Patient")
                 .setMessage("Are you sure you want to unlink this patient?")
                 .setPositiveButton("Yes", (dialogInterface, which) -> {
                     String doctorId = mAuth.getCurrentUser().getUid();
-//                    DatabaseReference doctorRef = mDatabase.child("patients").child(patientId);
-//                    DatabaseReference patientRef = mDatabase.getParent().child(patientId).child("linkedDoctorId");
 
                     DatabaseReference doctorRef = FirebaseDatabase.getInstance()
                             .getReference("profiles")
@@ -409,7 +260,6 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
                     doctorRef.removeValue().addOnSuccessListener(aVoid -> {
                         patientRef.removeValue().addOnSuccessListener(aVoid1 -> {
                             Toast.makeText(HealthcareProvider_ProfileActivity.this, "Patient unlinked successfully!", Toast.LENGTH_SHORT).show();
-//                            loadPatientData();
                         }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from patient's profile.", Toast.LENGTH_SHORT).show());
                     }).addOnFailureListener(e -> Toast.makeText(HealthcareProvider_ProfileActivity.this, "Failed to unlink patient from doctor's profile.", Toast.LENGTH_SHORT).show());
                 })
@@ -421,8 +271,6 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
             dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.darkGreen));
         });
 
-//        adapter.notifyDataSetChanged();
-
         dialog.show();
     }
 
@@ -433,35 +281,4 @@ public class HealthcareProvider_ProfileActivity extends AppCompatActivity {
 
 
 }
-//    private void addPatientView(String fullName, String patientId) {
-//        LinearLayout patientLayout = new LinearLayout(this);
-//        patientLayout.setOrientation(LinearLayout.HORIZONTAL);
-//        patientLayout.setLayoutParams(new LinearLayout.LayoutParams(
-//                ViewGroup.LayoutParams.MATCH_PARENT,
-//                ViewGroup.LayoutParams.WRAP_CONTENT
-//        ));
-//        patientLayout.setPadding(16, 16, 16, 16);
-//
-//        TextView patientNameTextView = new TextView(this);
-//        patientNameTextView.setText(fullName);
-//        patientNameTextView.setLayoutParams(new LinearLayout.LayoutParams(
-//                0,
-//                ViewGroup.LayoutParams.WRAP_CONTENT,
-//                1.0f
-//        ));
-//
-//        TextView unlinkTextView = new TextView(this);
-//        unlinkTextView.setText("Unlink");
-//        unlinkTextView.setTextColor(Color.RED);
-//        unlinkTextView.setPadding(16, 0, 16, 0);
-//        unlinkTextView.setLayoutParams(new LinearLayout.LayoutParams(
-//                ViewGroup.LayoutParams.WRAP_CONTENT,
-//                ViewGroup.LayoutParams.WRAP_CONTENT
-//        ));
-//        unlinkTextView.setOnClickListener(v -> unlinkPatient(patientId));
-//
-//        patientLayout.addView(patientNameTextView);
-//        patientLayout.addView(unlinkTextView);
-//
-//        patientsContainer.addView(patientLayout);
-//    }
+
