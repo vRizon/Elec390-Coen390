@@ -56,6 +56,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+
+//This acitvity does all the analysis
 public class resultsActivity extends AppCompatActivity {
 
     private static final String TAG = "ScreeningResultsActivity";
@@ -64,31 +66,36 @@ public class resultsActivity extends AppCompatActivity {
     private TextView predictionTextView;
     private ImageView imageView;
 
-    private boolean isHeatmapVisible = false; // Track heatmap state
-    private Bitmap originalBitmap; // Store the original image
-    private Bitmap heatmapBitmap;  // Store the heatmap overlay
+    //Just to track the heatmap state
+    //Did the same thing in the previous assignents
+    private boolean isHeatmapVisible = false;
 
-    // Views for Temperature Graph
-    private ImageView temperatureGraphImageView; // ImageView for temperature graph
+    //Here we are storing the images
+    private Bitmap originalBitmap;
+    private Bitmap heatmapBitmap;
 
-    // View for Distance Analysis
-    private TextView distanceAnalysisTextView; // New TextView for distance analysis
+    // Temp hraph
+    private ImageView temperatureGraphImageView;
 
-    // Views for Questionnaire Results
+    // Distance analysis text
+    private TextView distanceAnalysisTextView;
+
+    //Questionnaire Results
     private TextView resultsTextView;
     private TextView recommendationTextView;
     private TextView timestamp_results;
 
-    // Firebase Storage reference
+    // Initializing firebase stuff
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storageRef;
 
     private Interpreter tflite;
-    private final long ONE_MEGABYTE = 5 * 1024 * 1024; // 5 MB
+    private final long ONE_MEGABYTE = 5 * 1024 * 1024;
 
-    private float[] classWeights; // To store the classification layer weights
+    //Here I had to take initial classweights that can be used for the heatmap
+    private float[] classWeights;
 
-    // Declare variables for questionnaire results
+    //Here we declare the initialized boolean values
     private boolean asymmetry = false;
     private boolean border = false;
     private boolean color = false;
@@ -96,18 +103,25 @@ public class resultsActivity extends AppCompatActivity {
     private boolean evolving = false;
     private float tempdiff = 0;
 
+    //We assume the result as negative
     String result = "Negative";
 
     // Variables to hold Intent extras
+    // These are very important, it is basically how we know what data to pull from firebase
+    // I wrote my code this way such that no matter where you access the results activity from
+    // As long as you have the formatted date and UID, you can pull the correct data
     private String formattedDate;
     private String uid;
 
     // Path templates
+    // The i_ just indicates that it is an image, and g_ indicates that it is a temp graph
     private String questionnaireResultsPathTemplate = "/profiles/%s/screenings/%s/";
-    private String imagePathTemplate = "/Patients/%s/i_%s.jpg"; // Existing image path
-    private String temperatureGraphPathTemplate = "/Patients/%s/g_%s.jpg"; // Temperature graph path
+    private String imagePathTemplate = "/Patients/%s/i_%s.jpg";
+    private String temperatureGraphPathTemplate = "/Patients/%s/g_%s.jpg";
 
-    private static final float DISTANCE_THRESHOLD = 0.5f; // Threshold for negligible distance difference
+    // Honestly dont even remember this and why it's here
+    private static final float DISTANCE_THRESHOLD = 0.5f;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,17 +129,14 @@ public class resultsActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_results);
 
-        // Handle window insets for edge-to-edge display
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Initialize Firebase
         FirebaseApp.initializeApp(this);
 
-        // Initialize Toggle Heatmap Button
         Button toggleHeatmapButton = findViewById(R.id.toggleHeatmapButton);
         toggleHeatmapButton.setOnClickListener(v -> toggleHeatmap());
 
@@ -134,42 +145,37 @@ public class resultsActivity extends AppCompatActivity {
             finish(); // Close the current activity and navigate back
         });
 
-        // Initialize AI Prediction Views
+        // Initializing the sensor stuff excluding the questionnare
         imageView = findViewById(R.id.imageView_image);
-
-        // Initialize Temperature Graph ImageView
         temperatureGraphImageView = findViewById(R.id.imageView_temperature_graph);
-
-        // Initialize Distance Analysis TextView
         distanceAnalysisTextView = findViewById(R.id.distanceAnalysisTextView);
 
-        // Initialize Questionnaire Results Views
+        // Now same just for questionnare
         resultsTextView = findViewById(R.id.resultsTextView);
         recommendationTextView = findViewById(R.id.recommendationTextView);
         timestamp_results = findViewById(R.id.timestamp_results);
 
-        // Retrieve Intent extras
+        // Basically what I was mentioning earlier, we need the formatted date and UID
         Intent intent = getIntent();
         formattedDate = intent.getStringExtra("FORMATTED_DATE");
         uid = intent.getStringExtra("UID");
         timestamp_results.setText(formattedDate);
 
+        //Just some error checcking
         if (formattedDate == null || uid == null) {
             Log.e(TAG, "FORMATTED_DATE or UID not provided in Intent");
             showErrorToUser("Required data not provided. Please try again.");
             return;
         }
 
-        // Load the classification layer weights
+        // Preparing all the AI stuff
         loadClassWeights();
-
-        // Download and load the model
         downloadAndLoadModel();
 
-        // Fetch questionnaire results from Firebase
+        // Getting the questionnare results
         fetchQuestionnaireResults();
 
-        // Fetch and display the temperature graph image
+        // Getting the temp graph
         fetchTemperatureGraphImage();
 
         Button backToHomeButton = findViewById(R.id.backToHomeButton);
@@ -183,34 +189,29 @@ public class resultsActivity extends AppCompatActivity {
         finish(); // Closes the current activity
     }
 
-    /**
-     * Fetches the questionnaire results from Firebase Realtime Database.
-     */
+   //While it is called feth questionnare results, this ended up doing a lottttt more LOL
     private void fetchQuestionnaireResults() {
-        // Build the path using UID and formattedDate
-        String questionnaireResultsPath = String.format(questionnaireResultsPathTemplate, uid, formattedDate);
 
+        //Setting up the references
+        String questionnaireResultsPath = String.format(questionnaireResultsPathTemplate, uid, formattedDate);
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(questionnaireResultsPath);
 
-        // Add a listener to retrieve the data
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                // Retrieve the booleans
                 asymmetry = getBooleanValue(dataSnapshot.child("asymmetry"));
                 border = getBooleanValue(dataSnapshot.child("border"));
                 color = getBooleanValue(dataSnapshot.child("color"));
                 diameter = getBooleanValue(dataSnapshot.child("diameter"));
                 evolving = getBooleanValue(dataSnapshot.child("evolving"));
 
-                // Retrieve temperatureDiff as String and parse to float
+                // Getting the temp diff, also fixing whatever issues with it.
                 String tempdiffStr = dataSnapshot.child("temperatureDiff").getValue(String.class);
                 if (tempdiffStr != null) {
                     try {
                         tempdiff = Float.parseFloat(tempdiffStr);
                     } catch (NumberFormatException e) {
-                        // Handle parsing error, set tempdiff to default value
                         tempdiff = 0.0f;
                     }
                 }
@@ -222,6 +223,7 @@ public class resultsActivity extends AppCompatActivity {
                 float distanceArmValue = 0.0f;
                 float distanceSurfaceValue = 0.0f;
 
+                //Same old checks to make sure stuff doesnt break.
                 if (distanceArmStr != null) {
                     try {
                         distanceArmValue = Float.parseFloat(distanceArmStr);
@@ -238,20 +240,16 @@ public class resultsActivity extends AppCompatActivity {
                     }
                 }
 
-                // Compute the distance difference
+                // Computing the ditsance difference
                 float distanceDifference = distanceArmValue - distanceSurfaceValue;
+                //Just want to clarify here why it's the abs, basically if somehow there is an error and the
+                //uset took the wrong measurements at the wrong time, and the app didnt catch it somehow,
+                // it still works
                 float absDistanceDifference = Math.abs(distanceDifference);
                 String distanceAnalysisText;
 
-                if (absDistanceDifference < DISTANCE_THRESHOLD) {
-                    distanceAnalysisText = "Distance to Arm Analysis:\nThe difference between arm and surface distances is negligible (" + String.format("%.2f", absDistanceDifference) + " cm).";
-                } else {
-                    if (distanceDifference > 0) {
-                        distanceAnalysisText = "Distance to Arm Analysis:\nYour arm is closer than the surface by " + String.format("%.2f", absDistanceDifference) + " cm.";
-                    } else {
-                        distanceAnalysisText = "Distance to Arm Analysis:\nYour arm is further than the surface by " + String.format("%.2f", absDistanceDifference) + " cm.";
-                    }
-                }
+                //Adding this distance measurement, it's not with the rest of the values since it shouldnt trigger the
+                //"you need to visit a doctor" prompt
                 distanceAnalysisText = "Distance to Arm Analysis: \n " + String.format("%.2f", absDistanceDifference) + " cm. \n\nThis value can be used to keep track of mole growth. ";
 
                 distanceAnalysisTextView.setText(distanceAnalysisText);
@@ -280,9 +278,20 @@ public class resultsActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Downloads the custom TensorFlow Lite model from Firebase and initializes the interpreter.
-     */
+    //-------------------------------------------------------------------
+
+    // AI STUFF Starting Here
+
+    //-------------------------------------------------------------------
+
+    //This is the download and load model, the code for this is derived from firebase.
+    //to see how this works, you can try creating a custom model on firebase.
+    // Also a lot of the information was gathered from
+    // https://firebase.google.com/docs/ml/android/use-custom-models#java
+    // https://blog.tensorflow.org/2020/06/enhance-your-tensorflow-lite-deployment-with-firebase.html
+    // These two are official sources for implementing TF lite models in android studio
+
+    //Generic function to download and load the model.
     private void downloadAndLoadModel() {
         Log.d(TAG, "Starting model download...");
         CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
@@ -313,20 +322,13 @@ public class resultsActivity extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Processes the downloaded model by initializing the TensorFlow Lite interpreter.
-     *
-     * @param model The downloaded CustomModel from Firebase.
-     */
+    //Processing the AI model for inference.
     private void processModel(CustomModel model) {
         File modelFile = model.getFile();
         if (modelFile != null) {
             try {
-                // Initialize the interpreter with the downloaded model
                 tflite = new Interpreter(modelFile);
                 Log.d(TAG, "Interpreter initialized.");
-
-                // Proceed to process the image
                 processImageFromFirebase();
             } catch (Exception e) {
                 Log.e(TAG, "Error initializing interpreter", e);
@@ -338,11 +340,8 @@ public class resultsActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Deletes the locally downloaded model from Firebase.
-     *
-     * @param modelName The name of the model to delete.
-     */
+    //Deleting the local model if and when needed
+    //Shouldnt be needed, considered basic implementation though
     private void deleteLocalModel(String modelName) {
         FirebaseModelDownloader.getInstance().deleteDownloadedModel(modelName)
                 .addOnSuccessListener(aVoid -> {
@@ -353,9 +352,7 @@ public class resultsActivity extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Downloads the image from Firebase Storage and initiates processing.
-     */
+    //Not specifically AI, but deals with getting the image
     private void processImageFromFirebase() {
         Log.d(TAG, "Starting image processing...");
 
@@ -386,36 +383,9 @@ public class resultsActivity extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Fetches the temperature graph image from Firebase Storage and displays it.
-     */
-    private void fetchTemperatureGraphImage() {
-        String temperatureGraphPath = String.format(temperatureGraphPathTemplate, uid, formattedDate);
-        StorageReference temperatureGraphRef = storage.getReference(temperatureGraphPath);
-
-        Log.d(TAG, "Fetching temperature graph from path: " + temperatureGraphPath);
-
-        temperatureGraphRef.getBytes(ONE_MEGABYTE)
-                .addOnSuccessListener(bytes -> {
-                    Log.d(TAG, "Temperature graph image successfully fetched from Firebase.");
-
-                    // Decode the image bytes into a Bitmap
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                    // Display the image in the ImageView
-                    temperatureGraphImageView.setImageBitmap(bitmap);
-                })
-                .addOnFailureListener(exception -> {
-                    Log.e(TAG, "Error fetching temperature graph image from Firebase", exception);
-                    showErrorToUser("Failed to fetch temperature graph image from Firebase. Please try again later.");
-                });
-    }
-
-    /**
-     * Runs the TensorFlow Lite model on the provided bitmap.
-     *
-     * @param bitmap The image to process.
-     */
+    //Basically just running the model
+    //Both the run model function and computeCam function extensively use generative AI as they were
+    //too complicated for me complete on my own, especially the computeCAM function.
     private void runModel(Bitmap bitmap) {
         Log.d(TAG, "Running model...");
         if (tflite == null) {
@@ -490,103 +460,6 @@ public class resultsActivity extends AppCompatActivity {
             showErrorToUser("Error during model inference.");
         }
     }
-
-    public void toggleHeatmap() {
-        if (heatmapBitmap == null || originalBitmap == null) {
-            Toast.makeText(this, "Heatmap or original image not ready.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (isHeatmapVisible) {
-            // Switch to original image
-            imageView.setImageBitmap(originalBitmap);
-            isHeatmapVisible = false;
-        } else {
-            // Switch to heatmap overlay
-            imageView.setImageBitmap(heatmapBitmap);
-            isHeatmapVisible = true;
-        }
-    }
-
-    /**
-     * Preprocesses the input bitmap to match the model's expected input format.
-     *
-     * @param bitmap The image to preprocess.
-     * @return The preprocessed TensorImage.
-     */
-    private TensorImage preprocessImage(Bitmap bitmap) {
-        // Create a TensorImage object
-        TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
-        tensorImage.load(bitmap);
-
-        // Define image preprocessing steps
-        ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                .add(new ResizeOp(256, 256, ResizeOp.ResizeMethod.BILINEAR))
-                .add(new NormalizeOp(127.5f, 127.5f)) // Normalize to [-1, 1]
-                .build();
-
-        // Preprocess the image
-        tensorImage = imageProcessor.process(tensorImage);
-
-        return tensorImage;
-    }
-
-    /**
-     * Loads the classification layer weights from a text file in assets.
-     */
-    private void loadClassWeights() {
-        try {
-            InputStream is = getAssets().open("class_weights.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String line;
-            List<Float> weightList = new ArrayList<>();
-
-            int lineNumber = 0; // To track line numbers for debugging
-
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                lineNumber++;
-                if (!line.isEmpty()) {
-                    try {
-                        float value = Float.parseFloat(line);
-                        weightList.add(value);
-
-                        // Log the first 5 weights for verification
-                        if (weightList.size() <= 5) {
-                            Log.d(TAG, "Weight " + (weightList.size() - 1) + " (Line " + lineNumber + "): " + value);
-                        }
-                    } catch (NumberFormatException e) {
-                        Log.e(TAG, "Invalid weight value at line " + lineNumber + ": " + line);
-                    }
-                }
-            }
-            reader.close();
-            is.close();
-
-            // Convert List<Float> to float[]
-            classWeights = new float[weightList.size()];
-            for (int i = 0; i < weightList.size(); i++) {
-                classWeights[i] = weightList.get(i);
-            }
-
-            Log.d(TAG, "Loaded " + classWeights.length + " class weights.");
-
-        } catch (IOException e) {
-            Log.e(TAG, "Error loading class weights", e);
-            showErrorToUser("Failed to load class weights.");
-        }
-    }
-
-    /**
-     * Computes the Class Activation Map (CAM) based on feature maps and class weights.
-     *
-     * @param featureMaps     The output feature maps from the model.
-     * @param classWeights    The weights of the classification layer.
-     * @param featureMapShape The shape of the feature maps tensor.
-     * @param outputWidth     The desired width of the CAM bitmap.
-     * @param outputHeight    The desired height of the CAM bitmap.
-     * @return A Bitmap representing the CAM heatmap.
-     */
     private Bitmap computeCAM(float[] featureMaps, float[] classWeights, int[] featureMapShape, int outputWidth, int outputHeight) {
         int batchSize = featureMapShape[0]; // Should be 1
         int h = featureMapShape[1];
@@ -657,13 +530,89 @@ public class resultsActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(camBitmap, outputWidth, outputHeight, true);
     }
 
-    /**
-     * Overlays the CAM heatmap onto the original image.
-     *
-     * @param heatmap       The CAM heatmap bitmap.
-     * @param originalImage The original image bitmap.
-     * @return A new bitmap with the heatmap overlay.
-     */
+    //This is the toggler, same logic as stuff ive done in assignment 1 and 2.
+    public void toggleHeatmap() {
+        if (heatmapBitmap == null || originalBitmap == null) {
+            Toast.makeText(this, "Heatmap or original image not ready.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        //Original Image
+        if (isHeatmapVisible) {
+            imageView.setImageBitmap(originalBitmap);
+            isHeatmapVisible = false;
+            // Image with heat map on top
+        } else {
+            imageView.setImageBitmap(heatmapBitmap);
+            isHeatmapVisible = true;
+        }
+    }
+
+    //Ok this is preprocessing the image
+    //Basically as you can see in the link below (My kaggle training)
+    // Note that the kaggle page itself is a fork of open source code
+    // https://www.kaggle.com/code/erebusue/melanoma-basic-training
+    // We train the model to be able to use images of size 256 x 256 pixels, normalized to [-1,1]
+    // so basically I just had to ensure that the inference on the app uses the same values
+    private TensorImage preprocessImage(Bitmap bitmap) {
+        TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
+        tensorImage.load(bitmap);
+        ImageProcessor imageProcessor = new ImageProcessor.Builder()
+                .add(new ResizeOp(256, 256, ResizeOp.ResizeMethod.BILINEAR))
+                .add(new NormalizeOp(127.5f, 127.5f)) // Normalize to [-1, 1]
+                .build();
+        tensorImage = imageProcessor.process(tensorImage);
+        return tensorImage;
+    }
+
+    //So I was having a tonnnnn of issues with this originally, I had to train a fresh model on the kaggle
+    // https://www.kaggle.com/code/erebusue/melanoma-basic-training
+    // to get the class weights.
+    private void loadClassWeights() {
+        try {
+            InputStream is = getAssets().open("class_weights.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+            List<Float> weightList = new ArrayList<>();
+
+            int lineNumber = 0; // To track line numbers for debugging
+
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                lineNumber++;
+                if (!line.isEmpty()) {
+                    try {
+                        float value = Float.parseFloat(line);
+                        weightList.add(value);
+
+                        // Log the first 5 weights for verification
+                        if (weightList.size() <= 5) {
+                            Log.d(TAG, "Weight " + (weightList.size() - 1) + " (Line " + lineNumber + "): " + value);
+                        }
+                    } catch (NumberFormatException e) {
+                        Log.e(TAG, "Invalid weight value at line " + lineNumber + ": " + line);
+                    }
+                }
+            }
+            reader.close();
+            is.close();
+
+            // Convert List<Float> to float[]
+            classWeights = new float[weightList.size()];
+            for (int i = 0; i < weightList.size(); i++) {
+                classWeights[i] = weightList.get(i);
+            }
+
+            Log.d(TAG, "Loaded " + classWeights.length + " class weights.");
+
+        } catch (IOException e) {
+            Log.e(TAG, "Error loading class weights", e);
+            showErrorToUser("Failed to load class weights.");
+        }
+    }
+
+
+    //One of the good references for overlaying two images.
+    //https://codingtechroom.com/question/how-to-merge-two-bitmaps-in-android-a-step-by-step-guide
     private Bitmap overlayHeatmapOnImage(Bitmap heatmap, Bitmap originalImage) {
         if (heatmap == null) {
             return originalImage;
@@ -683,15 +632,36 @@ public class resultsActivity extends AppCompatActivity {
         return overlayedImage;
     }
 
-    /**
-     * Analyzes the questionnaire results and displays appropriate messages.
-     *
-     * @param asymmetry Indicates if asymmetry was flagged.
-     * @param border    Indicates if border irregularity was flagged.
-     * @param color     Indicates if color variation was flagged.
-     * @param diameter  Indicates if diameter was flagged.
-     * @param evolving  Indicates if evolution was flagged.
-     */
+
+//-------------------------------------------------------------------------------------------
+
+    //AI STUFF ENDS HERE
+
+    // --------------------------------------------------------------------------------------
+
+    // Ok here we make the temperature graph feture, really just following the same as the fetch image
+    private void fetchTemperatureGraphImage() {
+        String temperatureGraphPath = String.format(temperatureGraphPathTemplate, uid, formattedDate);
+        StorageReference temperatureGraphRef = storage.getReference(temperatureGraphPath);
+
+        Log.d(TAG, "Fetching temperature graph from path: " + temperatureGraphPath);
+
+        temperatureGraphRef.getBytes(ONE_MEGABYTE)
+                .addOnSuccessListener(bytes -> {
+                    Log.d(TAG, "Temperature graph image successfully fetched from Firebase.");
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    temperatureGraphImageView.setImageBitmap(bitmap);
+                })
+                .addOnFailureListener(exception -> {
+                    Log.e(TAG, "Error fetching temperature graph image from Firebase", exception);
+                    showErrorToUser("Failed to fetch temperature graph image from Firebase. Please try again later.");
+                });
+    }
+
+    //Now for the longest strings of text in my life.
+    //Basically this implements our "decision tree"
+    //its basically a huge or gate, if any one is true, then the patient needs to seek medical help
+    //I also added long texts for each criteria explaining them, this is then shown to the user.
     private void analyzeResults(boolean asymmetry, boolean border, boolean color, boolean diameter, boolean evolving, float tempdiff, String prediction) {
         List<String> flaggedCriteria = new ArrayList<>();
 
@@ -732,11 +702,6 @@ public class resultsActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Displays an error message to the user via a Toast.
-     *
-     * @param message The error message to display.
-     */
     private void showErrorToUser(String message) {
         runOnUiThread(() -> {
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
