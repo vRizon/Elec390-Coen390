@@ -8,7 +8,6 @@
     android:background="#FFF"
     tools:context=".ProfileActivity">
 
-    <!-- Toolbar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
         android:layout_width="420dp"
@@ -39,7 +38,6 @@
             android:src="@drawable/icon_logout" />
     </LinearLayout>
 
-    <!-- Link to Doctor Section -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linkDoctorSection"
         android:layout_width="312dp"
@@ -99,8 +97,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- RecyclerView for Past Screenings -->
 
     <TextView
         android:id="@+id/textView"

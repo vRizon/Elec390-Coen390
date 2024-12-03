@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".TakePhotoActivity">
 
-    <!-- Top Menu Bar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
         android:layout_width="match_parent"
@@ -37,7 +36,6 @@
             android:layout_marginStart="16dp" />
     </LinearLayout>
 
-    <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -52,7 +50,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Instructions TextView -->
             <TextView
                 android:id="@+id/instructionsTextView"
                 android:layout_width="match_parent"
@@ -62,7 +59,6 @@
                 android:paddingBottom="8dp"
                 android:textAlignment="center" />
 
-            <!-- GIF Tutorial -->
             <ImageView
                 android:id="@+id/tutorialGif"
                 android:layout_width="match_parent"
@@ -70,7 +66,6 @@
                 android:contentDescription="GIF Tutorial"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Live Image Display Section -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -105,7 +100,6 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Save Photo Button -->
     <Button
         android:id="@+id/savePhotoButton"
         android:text="Save Photo"

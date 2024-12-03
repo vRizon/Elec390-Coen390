@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".TakeTempActivity">
 
-    <!-- Toolbar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
         android:layout_width="match_parent"
@@ -37,7 +36,6 @@
             android:layout_marginStart="16dp" />
     </LinearLayout>
 
-    <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -53,7 +51,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Instructions TextView -->
             <TextView
                 android:id="@+id/instructionsTextView"
                 android:layout_width="match_parent"
@@ -63,7 +60,6 @@
                 android:paddingBottom="8dp"
                 android:textAlignment="center" />
 
-            <!-- GIF Tutorial -->
             <ImageView
                 android:id="@+id/tutorialGif"
                 android:layout_width="match_parent"
@@ -71,7 +67,6 @@
                 android:contentDescription="GIF Tutorial"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Measurement Section -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -108,7 +103,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Temperature Chart -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -139,7 +133,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Debug Button -->
             <Button
                 android:id="@+id/debugButton"
                 android:layout_width="match_parent"

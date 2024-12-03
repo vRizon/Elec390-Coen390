@@ -16,9 +16,7 @@ public class ExplanationDialogFragment extends DialogFragment {
     private static final String ARG_TITLE = "title";
     private static final String ARG_MESSAGE = "message";
 
-    /**
-     * Factory method to create a new instance of the dialog with given title and message.
-     */
+
     public static ExplanationDialogFragment newInstance(String title, String message) {
         ExplanationDialogFragment fragment = new ExplanationDialogFragment();
         Bundle args = new Bundle();
@@ -31,18 +29,16 @@ public class ExplanationDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        // Retrieve title and message from arguments
+
         String title = getArguments().getString(ARG_TITLE);
         String message = getArguments().getString(ARG_MESSAGE);
 
-        // Build the AlertDialog
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton("OK", (dialogInterface, which) -> dismiss())
                 .create();
 
-        // Customize button color after the dialog is created
         dialog.setOnShowListener(dialogInterface -> {
             Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             if (positiveButton != null) {

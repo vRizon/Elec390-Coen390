@@ -7,7 +7,6 @@
     android:layout_marginBottom="8dp"
     >
 
-    <!-- Patient Name -->
     <TextView
         android:id="@+id/patientName"
         android:layout_width="133dp"

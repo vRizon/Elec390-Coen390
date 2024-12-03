@@ -130,27 +130,12 @@ public class SignUpActivity extends AppCompatActivity {
                     }
                 });
 
-        // Create user with email and password in Firebase Authentication
-//        mAuth.createUserWithEmailAndPassword(email, password)
-//                .addOnCompleteListener(this, task -> {
-//                    if (task.isSuccessful()) {
-//                        FirebaseUser user = mAuth.getCurrentUser();
-//                        if (user != null) {
-//                            String userUID = user.getUid();
-//                            saveUserProfile(userUID, firstName, lastName, dob);
-//                            sendUserUIDToDatabase(user.getUid());
-//                            navigateToHome();
-//                        }
-//                    } else {
-//                        Toast.makeText(SignUpActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
     }
 
     private void navigateToLogin() {
         Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
         startActivity(intent);
-        finish();  // Close the sign-up activity
+        finish();
     }
 
     private void saveUserProfile(String userUID, String firstName, String lastName, String dob) {
@@ -183,6 +168,6 @@ public class SignUpActivity extends AppCompatActivity {
     private void navigateToHome() {
         Intent intent = new Intent(SignUpActivity.this, ProfileActivity.class);
         startActivity(intent);
-        finish();  // Close the sign-up activity
+        finish();
     }
 }

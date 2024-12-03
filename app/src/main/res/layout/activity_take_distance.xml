@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".takeDistanceActivity">
 
-    <!-- Toolbar -->
     <LinearLayout
         android:id="@+id/topMenuBar"
         android:layout_width="0dp"
@@ -49,7 +48,6 @@
             android:layout_gravity="center_vertical" />
     </LinearLayout>
 
-    <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -65,7 +63,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Instructions TextView -->
             <TextView
                 android:id="@+id/instructionsTextView"
                 android:layout_width="match_parent"
@@ -75,7 +72,6 @@
                 android:textSize="16sp"
                 android:paddingBottom="16dp" />
 
-            <!-- GIF Tutorial -->
             <ImageView
                 android:id="@+id/tutorialGif"
                 android:layout_width="match_parent"
@@ -83,7 +79,6 @@
                 android:layout_marginBottom="16dp"
                 android:contentDescription="GIF Tutorial" />
 
-            <!-- Card for Step 1 -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -125,7 +120,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Card for Step 2 -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

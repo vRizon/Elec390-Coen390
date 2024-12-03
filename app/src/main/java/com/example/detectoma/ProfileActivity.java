@@ -39,7 +39,6 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private RecyclerView pastScreeningsRecyclerView;
     private ScreeningAdapter adapter;
-//    private List<Screening> screeningList = new ArrayList<>();
     private List<Map<String, Object>> screeningList = new ArrayList<>();
     private DatabaseReference linkedDoctorIdRef;
     private ValueEventListener linkedDoctorIdListener;
@@ -53,7 +52,6 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        // Adjust window insets for edge-to-edge UI
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.profile), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -63,10 +61,9 @@ public class ProfileActivity extends AppCompatActivity {
         // Get the patientId from the intent if available
         patientId = getIntent().getStringExtra("patientId");
 
-        // Initialize UI components
         linkCodeEditText = findViewById(R.id.linkCodeEditText);
         linkToDoctorButton = findViewById(R.id.linkToDoctorButton);
-        ImageView logoutIcon = findViewById(R.id.logoutIcon); // Logout icon
+        ImageView logoutIcon = findViewById(R.id.logoutIcon);
         TextView greetingText = findViewById(R.id.greetingText);
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -82,7 +79,6 @@ public class ProfileActivity extends AppCompatActivity {
             }
             isCurrentUserProfile = patientId.equals(currentUserId);
         } else {
-            // Handle not logged in
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -114,35 +110,6 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
 
-//        if (currentUser != null) {
-//            currentUserId = currentUser.getUid();
-//            // If patientId is null, we are viewing the current user's profile
-//            if (patientId == null) {
-//                patientId = currentUserId;
-//            }
-//            isCurrentUserProfile = patientId.equals(currentUserId);
-//            DatabaseReference userRef = databaseReference.child("profiles").child(patientId);
-//
-//            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    UserProfile userProfile = snapshot.getValue(UserProfile.class);
-//                    if (userProfile != null) {
-//                        String firstName = userProfile.getFirstName();
-//                        greetingText.setText("Hello " + firstName);
-//                    } else {
-//                        greetingText.setText("Hello");
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//                    Toast.makeText(ProfileActivity.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//        } else {
-//            greetingText.setText("Hello");
-//        }
 
         linkToDoctorButton.setOnClickListener(v -> linkToHealthcareProvider());
 
@@ -152,39 +119,14 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Logout icon functionality
         logoutIcon.setOnClickListener(v -> {
-            mAuth.signOut(); // Firebase sign out
+            mAuth.signOut();
             Toast.makeText(ProfileActivity.this, "Logged out successfully!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear activity stack
             startActivity(intent);
-            finish(); // Finish current activity
+            finish();
         });
-
-//        // Get the screening object from SharedPreferences
-//        SharedPreferences sharedPreferences = getSharedPreferences(ScreeningActivity.SHARED_PREFS, MODE_PRIVATE);
-//        String screeningJson = sharedPreferences.getString("lastScreening", null);
-//
-//        if (screeningJson != null) {
-//            Gson gson = new Gson();
-//            Screening screening = gson.fromJson(screeningJson, Screening.class);
-//
-//            screeningList.add(screening);
-//
-////            // Set the data to the views
-////            screeningDate.setText(screening.getTimestamp());
-////            temperature.setText("Temperature: " + screening.getTemperature());
-////            distances.setText("Distance 1: " + screening.getDistance1() + " Distance 2: " + screening.getDistance2());
-//
-//            // Load image from Firebase Storage or use a placeholder if needed
-////            String timestamp = screening.getTimestamp();
-////            storageReference = FirebaseStorage.getInstance().getReference().child("screening_images").child(timestamp + ".jpg");
-////            loadScreeningImage();
-//        } else {
-//            Toast.makeText(this, "No screening data available.", Toast.LENGTH_SHORT).show();
-//            finish();
-//        }
 
         // Initialize RecyclerView
         pastScreeningsRecyclerView = findViewById(R.id.pastScreeningsRecyclerView);
@@ -193,7 +135,6 @@ public class ProfileActivity extends AppCompatActivity {
         adapter = new ScreeningAdapter(screeningList, this, patientId);
         pastScreeningsRecyclerView.setAdapter(adapter);
 
-        // Load screenings from Firebase
         loadScreeningsFromFirebase();
 
         if (isCurrentUserProfile) {
@@ -339,20 +280,13 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 }
 
-                /////
-
                 // Sort the list by timestamp in descending order
                 screeningList.sort((screening1, screening2) -> {
                     String timestamp1 = (String) screening1.get("timestamp");
                     String timestamp2 = (String) screening2.get("timestamp");
 
-                    // Compare timestamps
-                    return timestamp2.compareTo(timestamp1); // Descending order
+                    return timestamp2.compareTo(timestamp1);
                 });
-
-                ////
-
-
 
                 adapter.notifyDataSetChanged();
             }
@@ -363,38 +297,4 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
-
-
-//    private void loadScreeningsFromFirebase() {
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if (currentUser != null) {
-//            String userId = currentUser.getUid();
-//            DatabaseReference screeningsRef = FirebaseDatabase.getInstance().getReference()
-//                    .child("profiles").child(userId).child("screenings");
-//
-//            screeningsRef.addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    screeningList.clear();
-//                    for (DataSnapshot screeningSnapshot : snapshot.getChildren()) {
-//                        Map<String, Object> screeningData = (Map<String, Object>) screeningSnapshot.getValue();
-////                        Screening screening = screeningSnapshot.getValue(Screening.class);
-//                        if (screeningData != null) {
-//                            // Add the timestamp (key) to the data map
-//                            screeningData.put("timestamp", screeningSnapshot.getKey());
-//                            screeningList.add(screeningData);
-//                        }
-//                    }
-//                    adapter.notifyDataSetChanged();
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//                    Toast.makeText(ProfileActivity.this, "Failed to load screenings.", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//        }
-//    }
-
-
 }

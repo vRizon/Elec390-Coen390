@@ -52,7 +52,6 @@ public class ScreeningActivity extends AppCompatActivity {
     private static final String DISTANCE_SURFACE_KEY = "distanceSurface";
     private static final String DISTANCE_ARM_KEY = "distanceArm";
 
-//    private List<Screening> screeningList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +69,7 @@ public class ScreeningActivity extends AppCompatActivity {
         takeTempCheckBox = findViewById(R.id.takeTempCheckBox);
         takeDistCheckBox = findViewById(R.id.takeDistCheckBox);
 
-//        screeningList = new ArrayList<>();
 
-
-        // Set up button listeners
         userDataButton.setOnClickListener(v -> openUserDataActivity());
         takePhotoButton.setOnClickListener(v -> openTakePhotoActivity());
         takeTempButton.setOnClickListener(v -> openTakeTemperatureActivity());
@@ -82,15 +78,12 @@ public class ScreeningActivity extends AppCompatActivity {
         ImageView backIcon = findViewById(R.id.backIcon);
         backIcon.setOnClickListener(v -> finish());
 
-        // Analyze button listener
         analyzeButton.setOnClickListener(v -> analyzeAndSaveResults());
 
-        // Set initial state of the Analyze button
         updateAnalyzeButtonState();
     }
 
     private void updateAnalyzeButtonState() {
-        // Enable Analyze button only when all tasks are completed
         boolean allStepsCompleted = userDataCheckBox.isChecked() &&
                 takePhotoCheckBox.isChecked() &&
                 takeTempCheckBox.isChecked() &&
@@ -131,16 +124,14 @@ public class ScreeningActivity extends AppCompatActivity {
                 .getReference("profiles")
                 .child(uid)
                 .child("screenings");
-        DatabaseReference timestampRef = databaseRef.child(formattedDate); // Reference for this timestamp
+        DatabaseReference timestampRef = databaseRef.child(formattedDate);
 
-        // Retrieve the distance values from SharedPreferences
         SharedPreferences sharedPreferencesL = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         float distanceSurface = sharedPreferencesL.getFloat(DISTANCE_SURFACE_KEY, -1.0f);
         float distanceArm = sharedPreferencesL.getFloat(DISTANCE_ARM_KEY, -1.0f);
 
         String roundedDistanceSurfaceStr, roundedDistanceArmStr;
         if (distanceSurface != -1.0f) {
-            // Use BigDecimal for precise rounding
             BigDecimal bd = new BigDecimal(Float.toString(distanceSurface));
             bd = bd.setScale(2, RoundingMode.HALF_UP); // Rounds to two decimal places
             roundedDistanceSurfaceStr = bd.toPlainString();
@@ -189,17 +180,6 @@ public class ScreeningActivity extends AppCompatActivity {
         // Get the image upload task
         Task<Void> uploadTask = renameLocalImageAndUpload(uid, formattedDate);
 
-//        Screening screening = new Screening(formattedDate, roundedTempDifferenceStr, roundedDistanceSurfaceStr, roundedDistanceArmStr);
-////        screeningList.add(screening);
-//
-//        // Store the screening object in SharedPreferences
-//        SharedPreferences sharedPreferencesScreening = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPreferencesScreening.edit();
-//        Gson gson = new Gson();
-//        String screeningJson = gson.toJson(screening);
-//        editor.putString("lastScreening", screeningJson);
-//        editor.apply();
-
         // Combine all tasks
         List<Task<?>> allTasks = new ArrayList<>();
         allTasks.addAll(databaseTasks);
@@ -208,7 +188,6 @@ public class ScreeningActivity extends AppCompatActivity {
         // Wait for all tasks to complete
         Tasks.whenAll(allTasks)
                 .addOnSuccessListener(aVoid -> {
-                    // All tasks completed successfully
                     Toast.makeText(this, "Data saved and images uploaded successfully!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, resultsActivity.class);
                     intent.putExtra("FORMATTED_DATE", formattedDate);
@@ -216,7 +195,7 @@ public class ScreeningActivity extends AppCompatActivity {
                     startActivity(intent);
                 })
                 .addOnFailureListener(e -> {
-                    // At least one of the tasks failed
+                    // if at least one of the tasks failed
                     Toast.makeText(this, "Failed to complete all tasks.", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 });
@@ -250,43 +229,19 @@ public class ScreeningActivity extends AppCompatActivity {
             // Wait for both uploads to complete
             Tasks.whenAll(uploadTask1, uploadTask2)
                     .addOnSuccessListener(aVoid -> {
-                        // Both uploads succeeded
                         taskCompletionSource.setResult(null);
                     })
                     .addOnFailureListener(e -> {
-                        // At least one of the uploads failed
                         e.printStackTrace();
                         taskCompletionSource.setException(e);
                     });
 
-//            // Wait for both uploads to complete
-//            Tasks.whenAll(uploadTask1, uploadTask2)
-//                    .addOnSuccessListener(aVoid -> {
-//                        // Both uploads succeeded
-//                        taskCompletionSource.setResult(null);
-//                    })
-//                    .addOnFailureListener(e -> {
-//                        // Failed to upload image
-//                        e.printStackTrace();
-//                        taskCompletionSource.setException(e);
-//                    });
-//
-//            newImageRefGraph.putBytes(imageBytesGraph)
-//                    .addOnSuccessListener(taskSnapshot -> {
-//                        // Image uploaded successfully
-//                        taskCompletionSource.setResult(null);
-//                    })
-//                    .addOnFailureListener(e -> {
-//                        // Failed to upload image
-//                        e.printStackTrace();
-//                        taskCompletionSource.setException(e);
-//                    });
 
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to access the local image.", Toast.LENGTH_SHORT).show();
             taskCompletionSource.setException(e);
-            return taskCompletionSource.getTask(); // Return early to prevent further execution
+            return taskCompletionSource.getTask();
         }
 
         return taskCompletionSource.getTask();
@@ -312,7 +267,6 @@ public class ScreeningActivity extends AppCompatActivity {
             takeDistCheckBox.setChecked(true);
         }
 
-        // Update Analyze button state after each step
         updateAnalyzeButtonState();
     }
 }

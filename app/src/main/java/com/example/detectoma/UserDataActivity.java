@@ -19,7 +19,6 @@ public class UserDataActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
 
-        // Initialize UI elements
         asymmetryCheckBox = findViewById(R.id.asymmetryCheckBox);
         borderCheckBox = findViewById(R.id.borderCheckBox);
         colorCheckBox = findViewById(R.id.colorCheckBox);
@@ -28,20 +27,16 @@ public class UserDataActivity extends AppCompatActivity {
         Button submitButton = findViewById(R.id.submitButton);
         ImageView backIcon = findViewById(R.id.backIcon);
 
-        // Initialize Info Icons
         ImageView asymmetryInfo = findViewById(R.id.asymmetryInfo);
         ImageView borderInfo = findViewById(R.id.borderInfo);
         ImageView colorInfo = findViewById(R.id.colorInfo);
         ImageView diameterInfo = findViewById(R.id.diameterInfo);
         ImageView evolvingInfo = findViewById(R.id.evolvingInfo);
 
-        // Set up the back button click listener
-        backIcon.setOnClickListener(v -> finish()); // Close the current activity and navigate back
+        backIcon.setOnClickListener(v -> finish());
 
-        // Set up the submit button click listener
         submitButton.setOnClickListener(v -> submitData());
 
-        // Set up info icon click listeners for DialogFragment
         asymmetryInfo.setOnClickListener(v -> showExplanationDialog(
                 "Asymmetry",
                 "One half of the mole does not match the other half. This is a key indicator of abnormal growth."
@@ -69,7 +64,6 @@ public class UserDataActivity extends AppCompatActivity {
     }
 
     private void submitData() {
-        // Collect the states of all checkboxes
         boolean asymmetry = asymmetryCheckBox.isChecked();
         boolean border = borderCheckBox.isChecked();
         boolean color = colorCheckBox.isChecked();
@@ -83,27 +77,8 @@ public class UserDataActivity extends AppCompatActivity {
         resultIntent.putExtra("diameter", diameter);
         resultIntent.putExtra("evolving", evolving);
 
-        setResult(RESULT_OK, resultIntent); // Return the result
+        setResult(RESULT_OK, resultIntent);
         finish();
-
-        // Check if any data was selected
-//        if (asymmetry || border || color || diameter || evolving) {
-//            // Pass data back to ScreeningActivity using Intent
-//            Intent resultIntent = new Intent();
-//            resultIntent.putExtra("asymmetry", asymmetry);
-//            resultIntent.putExtra("border", border);
-//            resultIntent.putExtra("color", color);
-//            resultIntent.putExtra("diameter", diameter);
-//            resultIntent.putExtra("evolving", evolving);
-//
-//            setResult(RESULT_OK, resultIntent); // Return the result
-//            finish(); // Close UserDataActivity and go back to ScreeningActivity
-//        } else {
-//            // Notify the user if no options are selected
-//            Toast.makeText(this, "Please select at least one checkbox to proceed.", Toast.LENGTH_SHORT).show();
-//        }
-
-
 
     }
 
